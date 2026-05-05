@@ -1,106 +1,175 @@
+/* Palette Colori Drakonia */
 :root {
     --parchment: #f4e4bc;
+    --parchment-dark: #e8d5a7;
     --leather: #4e2a1e;
+    --leather-light: #6d3d2e;
     --gold: #d4af37;
+    --gold-bright: #ffd700;
     --founder: #8b0000;
+    --master: #d4af37;
+    --player: #2f4f4f;
+    --text-dark: #2c2c2c;
 }
+
+/* Base e Layout */
+* { box-sizing: border-box; }
 
 body {
     background-color: var(--leather);
-    color: #2e2e2e;
+    color: var(--text-dark);
     font-family: 'Almendra', serif;
     margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     height: 100vh;
+    overflow: hidden;
 }
 
+/* Header & Account */
 header {
     background-color: var(--leather);
     color: var(--parchment);
-    padding: 10px;
-    text-align: center;
+    padding: 10px 15px;
     border-bottom: 2px solid var(--gold);
+    text-align: center;
 }
 
 .account-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.9em;
+    font-size: 0.85em;
 }
 
-.badge {
-    background: var(--gold);
-    color: var(--leather);
-    padding: 2px 10px;
-    border-radius: 5px;
+#account-level {
+    padding: 3px 12px;
+    border-radius: 4px;
     font-weight: bold;
     text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.level-player { background-color: var(--player); color: white; }
+.level-master { background-color: var(--master); color: var(--leather); }
+.level-founder { background-color: var(--founder); color: white; }
+
+#auth-btn {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 h1 {
     font-family: 'Grenze Gotisch', cursive;
-    margin: 10px 0;
-    letter-spacing: 3px;
+    margin: 5px 0;
+    font-size: 2em;
+    letter-spacing: 2px;
+    color: var(--gold);
 }
 
+/* Area Principale (Pergamena) */
 main {
     flex: 1;
-    background-image: url('pergamena.jpg'); /* Opzionale */
     background-color: var(--parchment);
+    background-image: radial-gradient(var(--parchment-dark) 1px, transparent 0); /* Effetto grana pergamena */
+    background-size: 20px 20px;
     padding: 15px;
     overflow-y: auto;
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
 }
 
+/* Grid Dashboard */
 .card-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 20px;
 }
 
 .card {
     background: white;
     border: 2px solid var(--leather);
-    padding: 20px;
+    padding: 15px;
     text-align: center;
     border-radius: 8px;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
 }
 
+.card:active { transform: scale(0.95); }
+
+.card span {
+    display: block;
+    font-size: 2em;
+    color: var(--leather);
+    margin-bottom: 5px;
+}
+
+/* Navigazione */
 .main-nav {
     display: flex;
-    justify-content: space-around;
-    background: var(--leather);
-    padding: 10px;
-    border-radius: 5px;
+    gap: 5px;
+    background: var(--leather-light);
+    padding: 5px;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
 .main-nav button {
+    flex: 1;
     background: none;
     border: none;
     color: var(--parchment);
+    padding: 10px 5px;
     font-family: 'Almendra', serif;
-    font-size: 1.1em;
+    font-size: 0.95em;
+    border-radius: 5px;
 }
 
+.main-nav button.active {
+    background: var(--gold);
+    color: var(--leather);
+}
+
+/* Footer e Dadi */
 footer {
     background: var(--leather);
-    padding: 15px;
+    padding: 12px;
     border-top: 2px solid var(--gold);
 }
 
+.quick-dice {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.quick-dice button {
+    background: linear-gradient(to bottom, var(--gold-bright), var(--gold));
+    border: 1px solid var(--leather);
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-family: 'Almendra', serif;
+}
+
+/* Tooltip PWA */
 .tooltip {
     position: fixed;
-    bottom: 80px;
-    left: 5%;
-    right: 5%;
-    background: #fff;
-    border: 3px solid var(--gold);
+    bottom: 85px;
+    left: 10px;
+    right: 10px;
+    background: white;
+    border: 2px solid var(--gold);
     padding: 15px;
     border-radius: 10px;
-    z-index: 100;
+    z-index: 1000;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
 }
 
 .hidden { display: none; }
