@@ -191,5 +191,5 @@ async function runInstallation() {
     }
 }
 
-// Espongo la funzione globalmente per lanciarla dalla console del browser
-window.installDrakonia = runInstallation;
+// Esporta la funzione invece di appenderla a window per miglior supporto moduli
+export const installDrakonia = runInstallation;
