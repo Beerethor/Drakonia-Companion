@@ -6,12 +6,14 @@
     <title>Drakonia - Installatore GameData</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a1a1a; color: #e0e0e0; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #2d2d2d; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; border: 1px solid #444; max-width: 500px; }
+        .card { background: #2d2d2d; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; border: 1px solid #444; max-width: 500px; width: 90%; }
         h1 { color: #d4af37; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 2px; }
-        p { line-height: 1.6; color: #bbb; }
-        button { background-color: #d4af37; color: #1a1a1a; border: none; padding: 12px 24px; font-size: 1rem; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.3s; margin-top: 1.5rem; }
-        button:hover { background-color: #f1c40f; transform: scale(1.05); }
-        #status { margin-top: 1.5rem; padding: 10px; border-radius: 4px; display: none; font-family: monospace; font-size: 0.9rem; }
+        p { line-height: 1.6; color: #bbb; margin-bottom: 10px; }
+        .info-box { background: #1e1e1e; padding: 10px; border-radius: 6px; font-size: 0.85rem; margin: 15px 0; text-align: left; border-left: 4px solid #d4af37; }
+        button { background-color: #d4af37; color: #1a1a1a; border: none; padding: 14px 28px; font-size: 1rem; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.3s; margin-top: 1rem; width: 100%; }
+        button:hover:not(:disabled) { background-color: #f1c40f; transform: scale(1.02); }
+        button:disabled { background-color: #555; cursor: not-allowed; }
+        #status { margin-top: 1.5rem; padding: 12px; border-radius: 4px; display: none; font-family: monospace; font-size: 0.9rem; white-space: pre-wrap; word-wrap: break-word; }
         .success { background: #1e3a1e; color: #4ade80; border: 1px solid #4ade80; display: block !important; }
         .error { background: #3a1e1e; color: #f87171; border: 1px solid #f87171; display: block !important; }
     </style>
@@ -20,37 +22,61 @@
 
 <div class="card">
     <h1>Drakonia Setup</h1>
-    <p>Questo strumento configurerà le classi <strong>Guerriero, Truffatore, Saggio, Stregone</strong> e <strong>Druido</strong> nel tuo database Firestore.</p>
-    <p><small>Assicurati che il file <code>init-gamedata.js</code> sia nella stessa cartella.</small></p>
+    <p>Inizializzazione database <strong>GameData</strong>.</p>
     
+    <div class="info-box">
+        Verranno caricate le statistiche di roll e le abilità per:
+        <ul style="margin: 5px 0; padding-left: 20px;">
+            <li>Guerriero (Prodezza 1D6+2)</li>
+            <li>Truffatore (Rapidità 1D6+1)</li>
+            <li>Saggio (PR 1D6-1)</li>
+            <li>Stregone (Intelligenza 1D6+2)</li>
+            <li>Druido (PR 1D6+1)</li>
+        </ul>
+    </div>
+
     <button id="installBtn">LANCIA INSTALLAZIONE</button>
     
     <div id="status"></div>
 </div>
 
 <script type="module">
+    // Importiamo la funzione dal file init-gamedata.js
     import { installDrakonia } from './init-gamedata.js';
 
     const btn = document.getElementById('installBtn');
     const status = document.getElementById('status');
 
     btn.addEventListener('click', async () => {
+        // Reset interfaccia
         btn.disabled = true;
-        btn.innerText = "Installazione in corso...";
+        btn.innerText = "Esecuzione in corso...";
+        status.style.display = 'none';
         status.className = '';
-        status.innerText = "Connessione a Firestore...";
-        status.style.display = 'block';
+        
+        console.log("Inizio processo di installazione...");
 
         try {
-            await installDrakonia();
-            status.className = 'success';
-            status.innerText = "✅ CONFIGURAZIONE COMPLETATA!\nLe classi sono state caricate su Firestore.";
-            btn.innerText = "INSTALLATO";
+            // Chiamata alla funzione di salvataggio su Firestore
+            const result = await installDrakonia();
+            
+            if (result) {
+                status.className = 'success';
+                status.innerText = "✅ OPERAZIONE RIUSCITA!\nLe classi sono state caricate su Firestore con i rispettivi parametri di roll e abilità.";
+                btn.innerText = "COMPLETATO";
+                console.log("Installazione completata con successo.");
+            }
         } catch (err) {
             status.className = 'error';
-            status.innerText = "❌ ERRORE: " + err.message;
+            status.innerText = "❌ ERRORE DURANTE L'INSTALLAZIONE:\n" + err.message;
             btn.disabled = false;
             btn.innerText = "RIPROVA";
+            console.error("Errore rilevato:", err);
+            
+            // Suggerimento specifico per errori comuni
+            if (err.message.includes("permission-denied")) {
+                status.innerText += "\n\nSuggerimento: Controlla le 'Rules' di Firestore su Firebase Console. Devono permettere la scrittura.";
+            }
         }
     });
 </script>
