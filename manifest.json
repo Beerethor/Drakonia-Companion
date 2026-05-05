@@ -1,0 +1,23 @@
+{
+  "short_name": "Drakonia",
+  "name": "Drakonia RPG Companion",
+  "description": "Digital Sheet e Dice Roller per il sistema BOSS v1.2",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#f4e4bc",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#8b4513",
+  "orientation": "portrait-primary"
+}
