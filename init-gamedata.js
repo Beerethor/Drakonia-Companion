@@ -42,7 +42,7 @@ const gameData = {
             7: { rango: "Straordinario", abilita: ["Addestramento Marziale"] } //
         }
     },
-    ""Truffatore": {
+    "Truffatore": {
         descrizione: "Inaffidabili e dediti ai sotterfugi, esperti nel trovare vie d'uscita.",
         lanciIniziali: {
             prodezza: { dadi: 1, facce: 6, bonus: 1 },    // 1D6+1
