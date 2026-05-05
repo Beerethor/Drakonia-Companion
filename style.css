@@ -1,10 +1,4 @@
-/* =========================================
-   DRAKONIA RPG - SISTEMA BOSS v1.2
-   Foglio di Stile Unificato (PWA)
-   ========================================= */
-
 :root {
-    /* Tavolozza Colori */
     --parchment: #f4e4bc;
     --parchment-dark: #e8d5a7;
     --leather: #4e2a1e;
@@ -15,258 +9,74 @@
     --master: #b8860b;
     --player: #2f4f4f;
     --text-dark: #2c2c2c;
-    --error: #a02020;
 }
 
-/* 1. RESET E BASE */
-* { 
-    box-sizing: border-box; 
-    -webkit-tap-highlight-color: transparent; 
-}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
     background-color: var(--leather);
     color: var(--text-dark);
     font-family: 'Almendra', serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden; /* Evita lo scroll dell'intero body su mobile */
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column; height: 100vh; overflow: hidden;
 }
 
-/* 2. HEADER & STATUS BAR */
+/* Header & Account */
 header {
     background-color: var(--leather);
     color: var(--parchment);
-    padding: 10px 15px;
-    border-bottom: 2px solid var(--gold);
-    text-align: center;
-    z-index: 10;
+    padding: 10px 15px; border-bottom: 2px solid var(--gold); text-align: center;
 }
 
-.account-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.85em;
-    margin-bottom: 5px;
-}
+.account-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.85em; }
+.badge { padding: 3px 12px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+.level-player { background: var(--player); color: white; }
+.level-master { background: var(--master); color: white; }
 
-#account-level {
-    padding: 3px 12px;
-    border-radius: 4px;
-    font-weight: bold;
-    text-transform: uppercase;
-    border: 1px solid rgba(255,255,255,0.2);
-}
+h1 { font-family: 'Grenze Gotisch', cursive; margin: 5px 0; font-size: 1.8rem; color: var(--gold); }
 
-.level-player { background-color: var(--player); color: white; }
-.level-master { background-color: var(--master); color: white; }
-.level-founder { background-color: var(--founder); color: white; }
-
-#auth-btn {
-    background: transparent;
-    border: 1px solid var(--gold);
-    color: var(--gold);
-    padding: 4px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: 'Almendra', serif;
-}
-
-h1 {
-    font-family: 'Grenze Gotisch', cursive;
-    margin: 5px 0;
-    font-size: 1.8rem;
-    letter-spacing: 2px;
-    color: var(--gold);
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-}
-
-/* 3. PAGINA DI LOGIN (LAYOUT SPECIFICO) */
+/* Login Page Specific */
 .login-page {
-    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
-                url('https://images.unsplash.com/photo-1519074063912-ad2d6d51ee57?q=80&w=1974&auto=format&fit=crop');
-    background-size: cover;
-    background-position: center;
-    justify-content: center;
-    align-items: center;
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1519074063912-ad2d6d51ee57?q=80&w=1974&auto=format&fit=crop');
+    background-size: cover; display: flex; justify-content: center; align-items: center;
 }
 
 .login-container {
-    background: var(--parchment);
-    border: 6px double var(--leather);
-    padding: 30px;
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    border-radius: 2px;
+    background: var(--parchment); border: 6px double var(--leather); padding: 30px;
+    width: 90%; max-width: 400px; text-align: center; position: relative; z-index: 10;
 }
 
-.input-group {
-    text-align: left;
-    margin-bottom: 20px;
-}
-
-.input-group label {
-    display: block;
-    font-family: 'Grenze Gotisch', cursive;
-    color: var(--leather);
-    font-size: 1.2em;
-}
-
-.input-group input {
-    width: 100%;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid var(--leather-light);
-    padding: 10px 5px;
-    font-family: 'Almendra', serif;
-    font-size: 1.1em;
-    outline: none;
-}
-
-.input-group input:focus { border-bottom-color: var(--gold); }
-
-/* 4. MAIN CONTENT (PERGAMENA) */
+/* Main Content */
 main {
-    flex: 1;
-    background-color: var(--parchment);
-    background-image: radial-gradient(var(--parchment-dark) 1px, transparent 0);
-    background-size: 25px 25px;
-    padding: 20px;
-    overflow-y: auto;
-    box-shadow: inset 0 0 40px rgba(0,0,0,0.15);
+    flex: 1; background-color: var(--parchment); padding: 20px; overflow-y: auto;
+    background-image: radial-gradient(var(--parchment-dark) 1px, transparent 0); background-size: 25px 25px;
 }
 
-.card-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 25px;
-}
+.card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+.card { background: white; border: 2px solid var(--leather); padding: 15px; border-radius: 8px; text-align: center; }
 
-.card {
-    background: white;
-    border: 2px solid var(--leather);
-    padding: 20px;
-    text-align: center;
-    border-radius: 8px;
-    box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
-    transition: transform 0.1s;
-}
-
-.card:active { transform: scale(0.96); }
-
-.card span {
-    display: block;
-    font-size: 2.2em;
-    color: var(--leather);
-}
-
-/* 5. NAVIGAZIONE E BOTTONI FANTASY */
-.main-nav {
-    display: flex;
-    gap: 8px;
-    background: var(--leather-light);
-    padding: 6px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.main-nav button {
-    flex: 1;
-    background: none;
-    border: none;
-    color: var(--parchment);
-    padding: 12px 5px;
-    font-family: 'Almendra', serif;
-    font-size: 1em;
-    border-radius: 6px;
-    transition: 0.3s;
-}
-
-.main-nav button.active {
-    background: var(--gold);
-    color: var(--leather);
-    font-weight: bold;
-}
-
+/* Buttons */
 .btn-fantasy {
-    width: 100%;
-    padding: 15px;
-    margin-top: 10px;
-    font-family: 'Grenze Gotisch', cursive;
-    font-size: 1.2em;
-    cursor: pointer;
-    border: none;
+    width: 100%; padding: 12px; margin-top: 10px; font-family: 'Grenze Gotisch', cursive;
+    font-size: 1.2em; border: none; cursor: pointer;
     clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
 }
-
 .main-btn { background: var(--leather); color: var(--gold); }
 .secondary-btn { background: transparent; color: var(--leather); border: 1px solid var(--leather); }
 
-/* 6. FOOTER & DICE ENGINE */
-footer {
-    background: var(--leather);
-    padding: 15px;
-    border-top: 2px solid var(--gold);
-    z-index: 10;
+.btn-google {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: white; border: 1px solid #ddd; padding: 10px; border-radius: 4px; cursor: pointer;
 }
 
-.quick-dice {
-    display: flex;
-    justify-content: space-around;
-    gap: 10px;
-}
+/* Nav & Footer */
+.main-nav { display: flex; gap: 5px; background: var(--leather-light); padding: 5px; border-radius: 8px; margin-bottom: 20px; }
+.main-nav button { flex: 1; background: none; border: none; color: var(--parchment); padding: 10px; font-family: 'Almendra'; }
+.main-nav button.active { background: var(--gold); color: var(--leather); border-radius: 5px; }
 
-.quick-dice button {
-    flex: 1;
-    background: linear-gradient(to bottom, #f0d080, var(--gold));
-    border: 1px solid var(--leather);
-    padding: 12px;
-    border-radius: 6px;
-    font-weight: bold;
-    font-family: 'Almendra', serif;
-    box-shadow: 0 3px 0 #8b4513;
-}
-
-.quick-dice button:active {
-    transform: translateY(2px);
-    box-shadow: none;
-}
-
-/* 7. UTILITIES & PWA */
-.error-msg { color: var(--error); font-weight: bold; margin-top: 10px; }
-
-.tooltip {
-    position: fixed;
-    bottom: 90px;
-    left: 20px;
-    right: 20px;
-    background: white;
-    border: 3px solid var(--gold);
-    padding: 20px;
-    border-radius: 12px;
-    z-index: 1000;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-    animation: slideUp 0.5s ease-out;
-}
-
-@keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-}
+footer { background: var(--leather); padding: 15px; border-top: 2px solid var(--gold); }
+.quick-dice { display: flex; gap: 10px; }
+.quick-dice button { flex: 1; background: var(--gold); border: 1px solid var(--leather); padding: 10px; font-weight: bold; border-radius: 5px; }
 
 .hidden { display: none; }
-
-.back-link {
-    display: block;
-    margin-top: 20px;
-    color: var(--leather);
-    text-decoration: underline;
-    font-size: 0.9em;
-}
+.tooltip { position: fixed; bottom: 85px; left: 15px; right: 15px; background: white; border: 2px solid var(--gold); padding: 15px; z-index: 100; }
