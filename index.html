@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drakonia RPG</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Fantasy -->
+    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- HEADER / ACCOUNT SECTION -->
+    <header>
+        <div class="account-bar">
+            <div id="account-level" class="badge">Player</div>
+            <button id="auth-btn" onclick="toggleAuth()">Accedi</button>
+        </div>
+        <h1>DRAKONIA</h1>
+    </header>
+
+    <main>
+        <!-- SEZIONE CREAZIONE E ARCHIVIO -->
+        <section id="chars-section">
+            <div class="card-grid">
+                <div class="card action-card" onclick="openCreator()">
+                    <span>+</span>
+                    <p>Nuovo Eroe</p>
+                </div>
+                <div class="card action-card" onclick="openArchive()">
+                    <p>Archivio PG</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- NAVIGAZIONE PRINCIPALE -->
+        <nav class="main-nav">
+            <button onclick="showSection('campagne')">Campagne</button>
+            <button onclick="showSection('sessione')">Sessione</button>
+            <button onclick="showSection('regolamento')">Regolamento</button>
+        </nav>
+
+        <!-- CONTENUTI DINAMICI -->
+        <section id="content-display" class="content-area">
+            <div id="placeholder-text">Seleziona una sezione per iniziare l'avventura.</div>
+        </section>
+
+        <!-- TOOLTIP PWA -->
+        <div id="pwa-tooltip" class="tooltip hidden">
+            <p>💡 <strong>Installa Drakonia:</strong> Clicca su <img src="share-icon.png" width="15"> e seleziona "Aggiungi alla Home" per giocare offline!</p>
+            <button onclick="closeTooltip()">OK</button>
+        </div>
+    </main>
+
+    <!-- FOOTER / QUICK DICE -->
+    <footer>
+        <div class="quick-dice">
+            <button onclick="tiraD6()">🎲 D6</button>
+            <button onclick="tiraDadiBOSS('Normale')">Prova Normale</button>
+        </div>
+    </footer>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
