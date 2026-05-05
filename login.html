@@ -8,83 +8,44 @@
     <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body class="login-page">
-
+    <div class="overlay"></div> <!-- Effetto oscuramento per far risaltare il form -->
+    
     <div class="login-container">
-        <h1>DRAKONIA</h1>
-        <h2>Accesso al Portale</h2>
+        <div class="ornament top"></div> <!-- Decorazione grafica -->
+        
+        <header-login>
+            <h1>DRAKONIA</h1>
+            <div class="divider"></div>
+            <p class="subtitle">Varca la soglia del destino</p>
+        </header-login>
         
         <form id="login-form">
             <div class="input-group">
                 <label for="email">Email dell'Eroe</label>
-                <input type="email" id="email" required placeholder="esempio@drakonia.it">
+                <input type="email" id="email" required placeholder="pergamena@regno.it">
+                <div class="input-border"></div>
             </div>
             
             <div class="input-group">
                 <label for="password">Parola d'Ordine</label>
                 <input type="password" id="password" required placeholder="********">
+                <div class="input-border"></div>
             </div>
 
             <div class="login-actions">
-                <button type="submit" class="btn-primary">Entra nel Regno</button>
-                <button type="button" onclick="registerUser()" class="btn-secondary">Nuovo Giocatore</button>
+                <button type="submit" class="btn-fantasy main-btn">
+                    <span>ENTRA</span>
+                </button>
+                <button type="button" onclick="registerUser()" class="btn-fantasy secondary-btn">
+                    <span>NUOVO EROE</span>
+                </button>
             </div>
         </form>
         
         <p id="auth-error" class="error-msg"></p>
-        <a href="index.html" class="back-link">← Torna alla Taverna (Home)</a>
+        <a href="index.html" class="back-link">Ritorna alla Taverna</a>
+        
+        <div class="ornament bottom"></div>
     </div>
-
-    <!-- Firebase SDK Modules -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-        // Usa la configurazione copiata dalla console Firebase
-        const firebaseConfig = {
-            apiKey: "IL_TUO_API_KEY",
-            authDomain: "drakonia-app.firebaseapp.com",
-            projectId: "drakonia-app",
-            appId: "APP_ID"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        // Funzione di Login
-        const loginForm = document.getElementById('login-form');
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorMsg = document.getElementById('auth-error');
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                window.location.href = "index.html"; // Reindirizza all'index dopo il successo
-            } catch (error) {
-                errorMsg.innerText = "Credenziali errate o utente non trovato.";
-            }
-        });
-
-        // Funzione Registrazione rapida (Esempio)
-        window.registerUser = async () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorMsg = document.getElementById('auth-error');
-            
-            if(!email || !password) {
-                errorMsg.innerText = "Inserisci email e password per registrarti.";
-                return;
-            }
-
-            try {
-                await createUserWithEmailAndPassword(auth, email, password);
-                alert("Account creato con successo! Benvenuto in Drakonia.");
-                window.location.href = "index.html";
-            } catch (error) {
-                errorMsg.innerText = "Errore durante la creazione: " + error.message;
-            }
-        };
-    </script>
 </body>
 </html>
