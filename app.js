@@ -2,95 +2,57 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Configurazione Firebase (Sostituisci con i tuoi dati)
 const firebaseConfig = {
-    apiKey: "IL_TUO_API_KEY",
-    authDomain: "drakonia-app.firebaseapp.com",
-    projectId: "drakonia-app",
-    appId: "APP_ID"
+  apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
+  authDomain: "drakonia-companion.firebaseapp.com",
+  projectId: "drakonia-companion",
+  storageBucket: "drakonia-companion.firebasestorage.app",
+  messagingSenderId: "803844500713",
+  appId: "1:803844500713:web:c902b67f4e395bd20c9478"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// --- GESTIONE UTENTE E RUOLI ---
 onAuthStateChanged(auth, async (user) => {
     const authBtn = document.getElementById('auth-btn');
-    const levelBadge = document.getElementById('account-level');
-
+    const badge = document.getElementById('account-level');
     if (user) {
         authBtn.innerText = "Logout";
         authBtn.onclick = () => signOut(auth);
-        
-        // Recupera ruolo da Firestore
         const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-            const role = userDoc.data().role; // 'founder', 'master', or 'player'
-            updateUIByRole(role);
-        }
+        const role = userDoc.exists() ? userDoc.data().role : "player";
+        badge.innerText = role;
+        badge.className = 'badge level-' + role.toLowerCase();
     } else {
         authBtn.innerText = "Accedi";
         authBtn.onclick = () => window.location.href = 'login.html';
-        updateUIByRole('player');
+        badge.innerText = "Ospite";
     }
 });
 
-function updateUIByRole(role) {
-    const badge = document.getElementById('account-level');
-    badge.innerText = role;
-    badge.className = 'badge level-' + role.toLowerCase();
-}
-
-// --- NAVIGAZIONE SEZIONI ---
-window.showSection = function(sectionId) {
+window.showSection = (id) => {
     const display = document.getElementById('content-display');
     const buttons = document.querySelectorAll('.main-nav button');
-    
-    // Update active button style
-    buttons.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+    buttons.forEach(b => b.classList.remove('active'));
+    if(event) event.target.classList.add('active');
 
-    const content = {
-        'campagne': '<h3>Le Tue Avventure</h3><p>Nessuna campagna attiva. Unisciti a un Master!</p>',
-        'sessione': '<h3>Tavolo da Gioco</h3><div id="dice-log">Benvenuto. Tira i dadi per iniziare.</div>',
-        'regolamento': '<h3>Codice di Drakonia</h3><p><strong>BOSS v1.2:</strong> Successo con 2D6 <= Caratteristica.</p>'
+    const contents = {
+        'campagne': '<h3>Le Tue Avventure</h3><p>Nessuna campagna attiva nel dominio di Drakonia.</p>',
+        'sessione': '<h3>Tavolo da Gioco</h3><div id="dice-log">Il fato attende un tuo lancio...</div>',
+        'regolamento': '<h3>Sistema BOSS v1.2</h3><p>Lancia 2D6: se il totale è inferiore o uguale alla Caratteristica, hai successo!</p>'
     };
-    
-    display.innerHTML = content[sectionId] || 'In costruzione...';
-}
-
-// --- MOTORE DADI BOSS v1.2 ---
-window.tiraD6 = () => {
-    const res = Math.floor(Math.random() * 6) + 1;
-    alert("Risultato D6: " + res);
+    display.innerHTML = contents[id];
 };
 
-window.tiraDadiBOSS = (difficolta) => {
-    let dadi = [1, 2, 3].map(() => Math.floor(Math.random() * 6) + 1);
-    dadi.sort((a, b) => a - b);
-    
-    let risultato;
-    if (difficolta === 'Facile') risultato = dadi[0] + dadi[1];
-    else if (difficolta === 'Difficile') risultato = dadi[1] + dadi[2];
-    else risultato = Math.floor(Math.random() * 6) + 1 + Math.floor(Math.random() * 6) + 1; // Normale 2D6
+window.tiraD6 = () => alert("Sguardo del Fato: " + (Math.floor(Math.random() * 6) + 1));
 
+window.tiraDadiBOSS = (diff) => {
+    const d1 = Math.floor(Math.random() * 6) + 1;
+    const d2 = Math.floor(Math.random() * 6) + 1;
     const log = document.getElementById('dice-log');
-    if(log) log.innerHTML = `<strong>Lancio ${difficolta}:</strong> ${risultato} <br>` + log.innerHTML;
+    if(log) log.innerHTML = `<div style="border-bottom:1px solid #ccc; padding:5px"><strong>Lancio:</strong> ${d1+d2} <small>(${d1}, ${d2})</small></div>` + log.innerHTML;
 };
 
-// --- FUNZIONI UI ---
-window.openCreator = () => alert("Apertura creazione eroe...");
-window.openArchive = () => alert("Accesso all'archivio PG...");
 window.closeTooltip = () => document.getElementById('pwa-tooltip').classList.add('hidden');
-
-// Gestione Tooltip PWA per iOS
-const isIos = () => {
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    return /iphone|ipad|ipod/.test(userAgent);
-}
-const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
-
-if (isIos() && !isInStandaloneMode()) {
-    document.getElementById('pwa-tooltip').classList.remove('hidden');
-}
