@@ -7,12 +7,18 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Stili specifici per la pagina profilo */
-        .profile-header { text-align: center; margin-bottom: 30px; }
-        .profile-avatar-large { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--gold); margin-bottom: 10px; object-fit: cover; }
-        .friend-code { background: var(--leather-light); color: var(--gold); padding: 10px; border-radius: 5px; font-weight: bold; letter-spacing: 1px; margin: 15px 0; display: inline-block; }
-        .section-box { background: white; border: 2px solid var(--leather); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .friend-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .profile-header { text-align: center; margin-bottom: 20px; }
+        .profile-avatar-large { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; }
+        .friend-code { background: var(--leather-light); color: var(--gold); padding: 8px 15px; border-radius: 5px; font-weight: bold; margin: 10px 0; display: inline-block; }
+        
+        /* Stile per il Menu a Tendina (Dropdown Settings) */
+        .settings-dropdown { cursor: pointer; background: var(--parchment-dark); padding: 10px; border: 1px solid var(--leather); border-radius: 5px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .settings-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: white; border: 0px solid var(--leather); border-top: none; border-radius: 0 0 8px 8px; }
+        .settings-content.open { max-height: 500px; padding: 20px; border-width: 2px; }
+        
+        .upload-options { display: grid; gap: 10px; margin-top: 10px; }
+        .file-input-label { background: var(--gold); color: var(--leather); padding: 8px; border-radius: 4px; text-align: center; cursor: pointer; font-weight: bold; display: block; }
+        input[type="file"] { display: none; }
     </style>
 </head>
 <body class="bg-parchment">
@@ -23,46 +29,67 @@
     </header>
 
     <main>
-        <!-- Informazioni Account -->
-        <section class="section-box profile-header">
+        <!-- Header Profilo Principale -->
+        <section class="profile-header">
             <img id="display-avatar" src="https://img.icons8.com/color/96/fantasy.png" class="profile-avatar-large">
-            <h2 id="display-name">Nome Eroe</h2>
-            <p id="display-email">email@regno.it</p>
+            <h2 id="display-name">Caricamento...</h2>
             <div class="friend-code">CODICE: <span id="my-friend-code">---</span></div>
         </section>
 
-        <!-- Modifica Profilo -->
-        <section class="section-box">
-            <h3>Modifica Identità</h3>
+        <!-- Menu a Tendina Impostazioni -->
+        <div class="settings-dropdown" onclick="toggleSettings()">
+            <span>⚙️ MODIFICA IDENTITÀ</span>
+            <span id="arrow">▼</span>
+        </div>
+        <div id="settings-menu" class="settings-content">
             <div class="input-group">
-                <label>Nuovo Nome</label>
-                <input type="text" id="edit-name" placeholder="Inserisci nome...">
+                <label>Nuovo Nome Profilo</label>
+                <input type="text" id="edit-name" placeholder="Es: Arthas">
             </div>
-            <div class="input-group">
-                <label>URL Nuova Foto</label>
-                <input type="text" id="edit-photo" placeholder="http://immagine.jpg...">
-            </div>
-            <button onclick="updateProfile()" class="btn-fantasy main-btn">Salva Modifiche</button>
-        </section>
-
-        <!-- Social / Amici -->
-        <section class="section-box">
-            <h3>Cerca Alleati</h3>
-            <div class="input-group">
-                <input type="text" id="search-friend-code" placeholder="Inserisci Codice Amico">
-            </div>
-            <button onclick="addFriend()" class="btn-fantasy secondary-btn">Invia Messaggero (Aggiungi)</button>
             
-            <h4 style="margin-top: 20px;">I Tuoi Alleati</h4>
-            <div id="friends-list">
-                <!-- Lista amici popolata via JS -->
-                <p>Nessun alleato al tuo fianco.</p>
+            <div class="upload-options">
+                <label style="font-family: 'Grenze Gotisch';">Immagine Profilo</label>
+                <!-- Opzione 1: URL -->
+                <input type="text" id="edit-photo-url" placeholder="Incolla URL immagine...">
+                <p style="text-align: center; margin: 5px 0; font-size: 0.8em;">— oppure —</p>
+                <!-- Opzione 2: Caricamento File -->
+                <label for="file-upload" class="file-input-label">📁 CARICA DALL'ARCHIVIO</label>
+                <input type="file" id="file-upload" accept="image/*">
+                <small id="file-name" style="display:block; text-align:center; color: var(--leather)"></small>
             </div>
+
+            <button onclick="updateProfile()" class="btn-fantasy main-btn" style="margin-top:20px">SALVA CAMBIAMENTI</button>
+        </div>
+
+        <!-- Sezione Amici (Sempre Visibile) -->
+        <section class="section-box" style="margin-top: 30px; border-top: 2px solid var(--gold); padding-top: 20px;">
+            <h3>CERCA ALLEATI</h3>
+            <div class="input-group">
+                <input type="text" id="search-friend-code" placeholder="Codice DRK-XXXX">
+            </div>
+            <button onclick="addFriend()" class="btn-fantasy secondary-btn">AGGIUNGI</button>
+            
+            <h4 style="margin-top: 20px;">I TUOI AMICI</h4>
+            <div id="friends-list"><p>Nessun alleato.</p></div>
         </section>
 
-        <button onclick="logout()" class="btn-fantasy" style="background: var(--founder); color: white;">Abbandona Drakonia (Logout)</button>
+        <button onclick="logout()" class="btn-fantasy" style="background: var(--founder); color: white; margin-top: 40px;">LOGOUT</button>
     </main>
 
     <script type="module" src="profile.js"></script>
+    <script>
+        // Funzione semplice per l'animazione della tendina
+        function toggleSettings() {
+            const menu = document.getElementById('settings-menu');
+            const arrow = document.getElementById('arrow');
+            menu.classList.toggle('open');
+            arrow.innerText = menu.classList.contains('open') ? "▲" : "▼";
+        }
+
+        // Mostra il nome del file selezionato
+        document.getElementById('file-upload').onchange = function() {
+            document.getElementById('file-name').innerText = "File pronto: " + this.files[0].name;
+        };
+    </script>
 </body>
 </html>
