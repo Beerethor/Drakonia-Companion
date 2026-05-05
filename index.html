@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Drakonia RPG</title>
-    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -21,11 +20,11 @@
     <main>
         <section id="chars-section">
             <div class="card-grid">
-                <div class="card" onclick="openCreator()">
+                <div class="card" onclick="alert('Apertura creazione eroe...')">
                     <span>+</span>
                     <p>Nuovo Eroe</p>
                 </div>
-                <div class="card" onclick="openArchive()">
+                <div class="card" onclick="alert('Accesso archivio...')">
                     <span>📜</span>
                     <p>Archivio PG</p>
                 </div>
@@ -43,7 +42,7 @@
         </section>
 
         <div id="pwa-tooltip" class="tooltip hidden">
-            <p>💡 <strong>Installa Drakonia:</strong> Clicca su condividi e seleziona "Aggiungi alla Home" per giocare offline!</p>
+            <p>💡 <strong>Installa Drakonia:</strong> Clicca su condividi e seleziona "Aggiungi alla Home"!</p>
             <button onclick="closeTooltip()">OK</button>
         </div>
     </main>
