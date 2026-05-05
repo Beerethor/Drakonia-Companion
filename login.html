@@ -8,44 +8,69 @@
     <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body class="login-page">
-    <div class="overlay"></div> <!-- Effetto oscuramento per far risaltare il form -->
+    <div class="overlay"></div>
     
     <div class="login-container">
-        <div class="ornament top"></div> <!-- Decorazione grafica -->
-        
-        <header-login>
-            <h1>DRAKONIA</h1>
-            <div class="divider"></div>
-            <p class="subtitle">Varca la soglia del destino</p>
-        </header-login>
+        <h1>DRAKONIA</h1>
+        <div class="divider"></div>
+        <p class="subtitle">Varca la soglia del destino</p>
         
         <form id="login-form">
             <div class="input-group">
-                <label for="email">Email dell'Eroe</label>
-                <input type="email" id="email" required placeholder="pergamena@regno.it">
-                <div class="input-border"></div>
+                <label>Email dell'Eroe</label>
+                <input type="email" id="email" required>
             </div>
-            
             <div class="input-group">
-                <label for="password">Parola d'Ordine</label>
-                <input type="password" id="password" required placeholder="********">
-                <div class="input-border"></div>
+                <label>Parola d'Ordine</label>
+                <input type="password" id="password" required>
             </div>
 
-            <div class="login-actions">
-                <button type="submit" class="btn-fantasy main-btn">
-                    <span>ENTRA</span>
-                </button>
-                <button type="button" onclick="registerUser()" class="btn-fantasy secondary-btn">
-                    <span>NUOVO EROE</span>
-                </button>
-            </div>
+            <button type="submit" class="btn-fantasy main-btn">ENTRA</button>
+            <button type="button" onclick="registerUser()" class="btn-fantasy secondary-btn">NUOVO EROE</button>
         </form>
+
+        <div class="divider-text">oppure</div>
+
+        <button type="button" id="google-login-btn" class="btn-google">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            <span>Entra con Google</span>
+        </button>
         
         <p id="auth-error" class="error-msg"></p>
         <a href="index.html" class="back-link">Ritorna alla Taverna</a>
-        
-        <div class="ornament bottom"></div>
     </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "IL_TUO_API_KEY",
+            authDomain: "drakonia-app.firebaseapp.com",
+            projectId: "drakonia-app",
+            appId: "APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // Login Email
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+                window.location.href = "index.html";
+            } catch (err) { document.getElementById('auth-error').innerText = "Errore nell'accesso."; }
+        });
+
+        // Login Google
+        document.getElementById('google-login-btn').addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, provider);
+                window.location.href = "index.html";
+            } catch (err) { document.getElementById('auth-error').innerText = "Login Google fallito."; }
+        });
+    </script>
 </body>
 </html>
