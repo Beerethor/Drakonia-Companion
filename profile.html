@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profilo Eroe - Drakonia</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Stili specifici per la pagina profilo */
+        .profile-header { text-align: center; margin-bottom: 30px; }
+        .profile-avatar-large { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--gold); margin-bottom: 10px; object-fit: cover; }
+        .friend-code { background: var(--leather-light); color: var(--gold); padding: 10px; border-radius: 5px; font-weight: bold; letter-spacing: 1px; margin: 15px 0; display: inline-block; }
+        .section-box { background: white; border: 2px solid var(--leather); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .friend-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+    </style>
+</head>
+<body class="bg-parchment">
+
+    <header>
+        <h1>PROFILO EROE</h1>
+        <a href="index.html" class="back-link" style="color: var(--parchment)">← Torna alla Taverna</a>
+    </header>
+
+    <main>
+        <!-- Informazioni Account -->
+        <section class="section-box profile-header">
+            <img id="display-avatar" src="https://img.icons8.com/color/96/fantasy.png" class="profile-avatar-large">
+            <h2 id="display-name">Nome Eroe</h2>
+            <p id="display-email">email@regno.it</p>
+            <div class="friend-code">CODICE: <span id="my-friend-code">---</span></div>
+        </section>
+
+        <!-- Modifica Profilo -->
+        <section class="section-box">
+            <h3>Modifica Identità</h3>
+            <div class="input-group">
+                <label>Nuovo Nome</label>
+                <input type="text" id="edit-name" placeholder="Inserisci nome...">
+            </div>
+            <div class="input-group">
+                <label>URL Nuova Foto</label>
+                <input type="text" id="edit-photo" placeholder="http://immagine.jpg...">
+            </div>
+            <button onclick="updateProfile()" class="btn-fantasy main-btn">Salva Modifiche</button>
+        </section>
+
+        <!-- Social / Amici -->
+        <section class="section-box">
+            <h3>Cerca Alleati</h3>
+            <div class="input-group">
+                <input type="text" id="search-friend-code" placeholder="Inserisci Codice Amico">
+            </div>
+            <button onclick="addFriend()" class="btn-fantasy secondary-btn">Invia Messaggero (Aggiungi)</button>
+            
+            <h4 style="margin-top: 20px;">I Tuoi Alleati</h4>
+            <div id="friends-list">
+                <!-- Lista amici popolata via JS -->
+                <p>Nessun alleato al tuo fianco.</p>
+            </div>
+        </section>
+
+        <button onclick="logout()" class="btn-fantasy" style="background: var(--founder); color: white;">Abbandona Drakonia (Logout)</button>
+    </main>
+
+    <script type="module" src="profile.js"></script>
+</body>
+</html>
