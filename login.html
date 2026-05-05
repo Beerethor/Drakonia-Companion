@@ -26,7 +26,6 @@
             </div>
 
             <button type="submit" class="btn-fantasy main-btn">ENTRA</button>
-            <button type="button" onclick="registerUser()" class="btn-fantasy secondary-btn">NUOVO EROE</button>
         </form>
 
         <div class="divider-text">oppure</div>
@@ -42,35 +41,33 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
-            apiKey: "IL_TUO_API_KEY",
-            authDomain: "drakonia-app.firebaseapp.com",
-            projectId: "drakonia-app",
-            appId: "APP_ID"
+          apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
+          authDomain: "drakonia-companion.firebaseapp.com",
+          projectId: "drakonia-companion",
+          appId: "1:803844500713:web:c902b67f4e395bd20c9478"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // Login Email
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
+        document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
             try {
                 await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
                 window.location.href = "index.html";
-            } catch (err) { document.getElementById('auth-error').innerText = "Errore nell'accesso."; }
-        });
+            } catch (err) { document.getElementById('auth-error').innerText = "Credenziali errate."; }
+        };
 
-        // Login Google
-        document.getElementById('google-login-btn').addEventListener('click', async () => {
+        document.getElementById('google-login-btn').onclick = async () => {
             try {
                 await signInWithPopup(auth, provider);
                 window.location.href = "index.html";
             } catch (err) { document.getElementById('auth-error').innerText = "Login Google fallito."; }
-        });
+        };
     </script>
 </body>
 </html>
