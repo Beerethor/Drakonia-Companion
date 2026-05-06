@@ -1,0 +1,70 @@
+{
+  "regole_generali": {
+    "inventario": "Ogni Avventuriero ha un solo sacco (max 10 oggetti).",
+    "oggetti_indossati": "Oltre al sacco si possono avere: 1 arma impugnata, 1 armatura indossata, 1 anello, 5 PO nascosti, 1 borsello alla cintura.",
+    "vendita": "Gli oggetti comuni possono essere venduti ai mercanti per metà del loro valore (arrotondato per difetto).",
+    "borsello": "Contiene fino a 100 PO."
+  },
+  "armature_base": {
+    "Corazza di Piastre": { "prezzo": 40, "ingombro": "Pesante 2", "protezione": 4, "pi_assorbiti": "4D6", "movimento": "Prodezza/2" },
+    "Corpetto di Cuoio Rinforzato": { "prezzo": 3, "ingombro": "Leggera", "protezione": 1, "pi_assorbiti": "1D6", "movimento": "Prodezza" },
+    "Cotta di Maglia": { "prezzo": 16, "ingombro": "Media", "protezione": 2, "pi_assorbiti": "2D6", "movimento": "Prodezza" },
+    "Giaco di Maglia": { "prezzo": 30, "ingombro": "Pesante 1", "protezione": 3, "pi_assorbiti": "3D6", "movimento": "Prodezza/2" },
+    "Pettorale": { "prezzo": 3, "ingombro": "Leggera", "protezione": 1, "pi_assorbiti": "1D6", "movimento": "Prodezza" },
+    "Scudo": { 
+      "prezzo": 4, 
+      "protezione": "Speciale", 
+      "pi_assorbiti": "Tutti", 
+      "regola": "Lancia 1D6 per parare: 1=para tutto; 2-5=subisce PI normali; 6=scudo rotto e inutilizzabile." 
+    },
+    "Elmo": { 
+      "prezzo": 10, 
+      "protezione": "Speciale", 
+      "pi_assorbiti": "1D6/2", 
+      "regola": "Usabile una volta per scontro dopo aver verificato la protezione dell'armatura." 
+    }
+  },
+  "armature_speciali": {
+    "Materiale Divino": { "moltiplicatore_costo": 30, "regola": "Non impedisce il lancio di incantesimi; chiunque può indossarla; scudo para con 1-3." },
+    "Materiale Eccellente": { "moltiplicatore_costo": 10, "regola": "Ingombro ridotto di un grado (es. Pesante diventa Media); scudo permette re-roll con risultato 6." },
+    "Materiale Incantato": { "moltiplicatore_costo": 20, "regola": "Non impedisce il lancio di incantesimi; scudo ha +1 alla probabilità di parata." },
+    "Materiale Leggendario": { "moltiplicatore_costo": 30, "regola": "Possiede le stesse virtù del materiale incantato o eccellente." },
+    "Pettorale d’Argento": { "moltiplicatore_costo": 10, "regola": "Non impedisce il lancio di incantesimi." }
+  },
+  "armi": {
+    "Arco Corto": { "prezzo": 4, "ingombro": "Leggera", "impugnatura": "A due mani", "distanza": "Distanza", "gittata": "Prodezza/2", "danno": "1D6" },
+    "Arco Lungo": { "prezzo": 20, "ingombro": "Media", "impugnatura": "A due mani", "distanza": "Distanza", "gittata": "Prodezza", "danno": "2D6" },
+    "Ascia": { "prezzo": 5, "ingombro": "Media", "impugnatura": "A una mano", "distanza": "Mischia", "danno": "2D6" },
+    "Ascia da Battaglia": { "prezzo": 22, "ingombro": "Pesante", "impugnatura": "A due mani", "distanza": "Mischia", "danno": "3D6" },
+    "Balestra": { "prezzo": 40, "ingombro": "Media", "impugnatura": "A due mani", "distanza": "Distanza", "gittata": "Prodezza", "danno": "2D6" },
+    "Bastone da Combattimento": { "prezzo": 1, "ingombro": "Leggera", "impugnatura": "A due mani", "distanza": "Mischia", "danno": "1D6" },
+    "Fionda": { "prezzo": 4, "ingombro": "Leggera", "impugnatura": "A due mani", "distanza": "Distanza", "gittata": "Prodezza", "danno": "1D6" },
+    "Giavellotto": { "prezzo": 4, "ingombro": "Media", "impugnatura": "A una mano", "distanza": "Mischia/Distanza", "gittata": "Prodezza/2", "danno": "2D6 (M) / 1D6 (D)" },
+    "Lancia": { "prezzo": 8, "ingombro": "Media", "impugnatura": "A una mano", "distanza": "Mischia/Distanza", "gittata": "Prodezza/2", "danno": "2D6 (M) / 2D6 (D)" },
+    "Martello da Guerra": { "prezzo": 20, "ingombro": "Pesante", "impugnatura": "A due mani", "distanza": "Mischia", "danno": "3D6" },
+    "Pugnale": { "prezzo": 3, "ingombro": "Leggera", "impugnatura": "A una mano", "distanza": "Mischia/Distanza", "gittata": "Prodezza/2", "danno": "1D6" },
+    "Spada": { "prezzo": 8, "ingombro": "Media", "impugnatura": "A una mano", "distanza": "Mischia", "danno": "2D6" },
+    "Spada Lunga": { "prezzo": 20, "ingombro": "Pesante", "impugnatura": "A due mani", "distanza": "Mischia", "danno": "3D6" },
+    "Stella da Lancio": { "prezzo": 1, "ingombro": "Leggera", "impugnatura": "A una mano", "distanza": "Distanza", "gittata": "Prodezza/2", "danno": "1D6" }
+  },
+  "munizioni": {
+    "Astuccio (Quadrelli)": { "contenuto": 10, "prezzo": 11, "rottura": "Si" },
+    "Cintura (Stelle da Lancio)": { "contenuto": 5, "prezzo": 3, "rottura": "No" },
+    "Faretra (Frecce)": { "contenuto": 6, "prezzo": 3, "rottura": "Si" },
+    "Sacchetto (Sassolini)": { "contenuto": 15, "prezzo": 1, "rottura": "No" }
+  },
+  "attrezzatura": {
+    "Balsamo di Guarigione": { "prezzo": 20, "regola": "Cura 4D6 PR; si rompe dopo il primo utilizzo." },
+    "Boccetta/Fiaschetta": { "prezzo": 5, "regola": "Contiene dosi di pozione/olio. Se cade, prova difficile di Rapidità o si rompe." },
+    "Grimaldello": { "prezzo": 2, "regola": "Serve a scassinare porte e forzieri." },
+    "Lanterna": { "prezzo": 4, "regola": "Rischiara per Intelligenza caselle; richiede olio." },
+    "Olio per Lanterna": { "prezzo": 6, "regola": "Dura 1 ora per dose." },
+    "Pozione Guaritrice": { "prezzo": 10, "regola": "Cura 1D6 PR." },
+    "Rampino": { "prezzo": 3, "regola": "Usato con la corda per scalate." },
+    "Scatola di Razioni": { "prezzo": 2, "regola": "10 razioni; recuperano 1 PR ciascuna (max 2 volte al giorno)." },
+    "Torcia": { "prezzo": 1, "regola": "Rischiara per Intelligenza caselle; dura 20 minuti." },
+    "Unguento alle Erbe": { "prezzo": 5, "regola": "Cura 1D6 PR." },
+    "Corda (15m)": { "prezzo": 1, "regola": "Fune resistente." },
+    "Martello e Chiodi di Ferro": { "prezzo": 1, "regola": "Lavori di carpenteria o mazzuolo per chiodi." }
+  }
+}
