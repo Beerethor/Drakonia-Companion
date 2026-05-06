@@ -1,0 +1,43 @@
+{
+  "sistema_magia": {
+    "definizione": "Disciplina di dominio esclusivo degli Stregoni e di tutti gli Incantatori.",
+    "tipologie_incantesimi": {
+      "incantesimi_distruttivi": {
+        "utilizzo": "Utilizzati principalmente in combattimento per infliggere Punti Impatto (PI).",
+        "difesa": "Il bersaglio non può evitare l'incantesimo, ma può usare la propria Protezione (P#) per assorbire parte dei danni."
+      },
+      "incantesimi_psichici": {
+        "effetto": "Consentono di alterare o evitare gli effetti, ma non permettono l'uso della Protezione (P#).",
+        "resistenza": "Il bersaglio deve effettuare una prova normale di Intelligenza; se fallisce, subisce i PI e gli effetti magici che non possono essere fermati da armature."
+      },
+      "incantesimi_rituali": {
+        "meccanica": "Non richiedono prove o richiami mentali, ma necessitano di molto tempo per la preparazione.",
+        "limitazione": "Il periodo di preparazione è troppo lungo per l'uso in combattimento o situazioni critiche."
+      },
+      "incantesimi_speciali": {
+        "rarita": "Molto rari.",
+        "regole": "Le specifiche di utilizzo variano a seconda del singolo incantesimo."
+      }
+    },
+    "gestione_incantesimi": {
+      "richiamo": {
+        "meccanica": "L'incantesimo deve essere richiamato alla mente prima del lancio.",
+        "costo_in_combattimento": "Impegna l'Incantatore per 1 round (nessun'altra azione possibile).",
+        "malus_mentale": "Ogni incantesimo tenuto a mente infligge un malus di -1 all'Intelligenza fino al lancio o rilascio."
+      },
+      "lancio": {
+        "requisiti": "Richiede una prova normale di Intelligenza.",
+        "calcolo_difficolta": "Al Risultato della prova va sottratto il grado di complessità dell'incantesimo (se presente).",
+        "fallimento": "L'incantesimo rimane in mente; è possibile riprovare al turno successivo con un bonus di +1 (cumulabile a ogni fallimento ulteriore).",
+        "interruzione": "Se l'Incantatore effettua un'azione diversa dal lancio, i bonus accumulati si perdono e le condizioni tornano iniziali."
+      }
+    },
+    "parametri_tattici": {
+      "bersagli": "Un incantesimo può essere lanciato sia a distanza che contro bersagli in caselle adiacenti.",
+      "raggio_d_azione": {
+        "in_combattimento": "Copre l'intera Mappa tattica.",
+        "campo_aperto": "Numero di caselle pari al punteggio di Intelligenza dell'Incantatore."
+      }
+    }
+  }
+}
