@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drakonia - Database Regole</title>
+    <style>
+        :root {
+            --parchment: #f4e4bc;
+            --ink: #2c1e11;
+            --gold: #b8860b;
+            --border: #8b4513;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: var(--ink);
+            font-family: 'Georgia', serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Navigazione Superiore */
+        .top-nav {
+            width: 100%;
+            background: #2c1e11;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .btn-home {
+            background: var(--gold);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 5px;
+            text-transform: uppercase;
+        }
+
+        /* Search Bar */
+        .search-container {
+            flex-grow: 1;
+            max-width: 500px;
+            margin-left: 20px;
+        }
+
+        #ruleSearch {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--gold);
+            background: #3d2b1d;
+            color: var(--parchment);
+            font-size: 16px;
+        }
+
+        #ruleSearch::placeholder {
+            color: #a38b75;
+        }
+
+        /* Indice Regole */
+        .database-container {
+            max-width: 1000px;
+            width: 90%;
+            margin: 40px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .category-card {
+            background: var(--parchment);
+            border: 3px double var(--border);
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            background: #fff5d7;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+        }
+
+        .category-card.hidden {
+            display: none;
+        }
+
+        /* Modali */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--parchment);
+            width: 85%;
+            max-width: 800px;
+            max-height: 85vh;
+            padding: 40px;
+            border: 8px double var(--border);
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 30px;
+            cursor: pointer;
+            color: var(--border);
+        }
+
+        .selection-item {
+            background: rgba(139, 69, 19, 0.1);
+            margin: 12px 0;
+            padding: 18px;
+            border-left: 6px solid var(--border);
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .selection-item:hover {
+            background: rgba(139, 69, 19, 0.25);
+        }
+
+        h1 { color: var(--parchment); margin-top: 30px; text-shadow: 2px 2px #000; }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <button class="btn-home" onclick="window.location.href='home.html'">🏰 Home</button>
+        <div class="search-container">
+            <input type="text" id="ruleSearch" onkeyup="filterRules()" placeholder="Cerca una regola (es. Combattimento, PE, Grimorio)...">
+        </div>
+    </div>
+
+    <h1>📖 Archivio delle Regole di Drakonia</h1>
+
+    <div class="database-container" id="main-index">
+        <div class="category-card" onclick="openSelection('generali')">📜 Regole Generali</div>
+        <div class="category-card" onclick="openSelection('combattimento')">⚔️ Combattimento</div>
+        <div class="category-card" onclick="openSelection('magia')">🧙 Magia e Incanti</div>
+        <div class="category-card" onclick="openSelection('grimori')">📖 Grimori</div>
+        <div class="category-card" onclick="openSelection('equipaggiamento')">🛡️ Equipaggiamento</div>
+        <div class="category-card" onclick="openSelection('classi')">🎭 Classi degli Eroi</div>
+    </div>
+
+    <!-- Modale Livello 2 -->
+    <div id="modal-selection" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('modal-selection')">&times;</span>
+            <h2 id="selection-title">Seleziona Argomento</h2>
+            <div id="selection-options"></div>
+        </div>
+    </div>
+
+    <!-- Modale Livello 3 -->
+    <div id="modal-view" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('modal-view')">&times;</span>
+            <h2 id="view-title">Dettaglio</h2>
+            <hr>
+            <div id="view-body" style="line-height: 1.6; font-size: 1.1rem;">
+                <!-- Qui verrà iniettato il contenuto dei JSON -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const databaseMap = {
+            'generali': ['general-rules.json', 'rules-data.json'],
+            'combattimento': ['combat-rules.json'],
+            'magia': ['magic-rules.json'],
+            'grimori': ['sorcerer-grimoire.json', 'druid-grimoire.json'],
+            'equipaggiamento': ['equipment-data.json'],
+            'classi': ['Guerriero', 'Truffatore', 'Saggio', 'Stregone']
+        };
+
+        // Funzione di ricerca/filtro
+        function filterRules() {
+            let input = document.getElementById('ruleSearch').value.toLowerCase();
+            let cards = document.getElementsByClassName('category-card');
+            
+            for (let i = 0; i < cards.length; i++) {
+                if (cards[i].innerText.toLowerCase().includes(input)) {
+                    cards[i].classList.remove('hidden');
+                } else {
+                    cards[i].classList.add('hidden');
+                }
+            }
+        }
+
+        function openSelection(cat) {
+            const options = databaseMap[cat];
+            const container = document.getElementById('selection-options');
+            document.getElementById('selection-title').innerText = "Categoria: " + cat.toUpperCase();
+            
+            container.innerHTML = '';
+            options.forEach(opt => {
+                const item = document.createElement('div');
+                item.className = 'selection-item';
+                item.innerText = opt.replace('.json', '').replace('-', ' ');
+                item.onclick = () => showFinalRule(opt);
+                container.appendChild(item);
+            });
+
+            document.getElementById('modal-selection').style.display = 'flex';
+        }
+
+        function showFinalRule(name) {
+            document.getElementById('view-title').innerText = name.toUpperCase();
+            // In un ambiente reale, qui faresti la fetch del file JSON corrispondente
+            document.getElementById('view-body').innerHTML = `
+                <p><strong>Dati caricati per:</strong> ${name}</p>
+                <p>Contenuto estratto dal database di Drakonia...</p>
+                <p><em>(In questa finestra verranno mostrate le tabelle PE, i danni del combattimento o la lista incantesimi filtrata).</em></p>
+            `;
+            document.getElementById('modal-view').style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
