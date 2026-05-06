@@ -1,0 +1,64 @@
+{
+  "regole_generali": {
+    "filosofia_di_gioco": {
+      "stile": "Old-School (OSR)",
+      "descrizione": "Il regolamento non copre ogni situazione; il Gran Maestro (GM) risolve gli imprevisti con buon senso e imparzialità.",
+      "risoluzione_casualita": "Uso di dadi per stabilire esiti di azioni, stati di creature o oggetti (es. porte aperte/chiuse)."
+    },
+    "meccanica_dadi": {
+      "tipo": "Si utilizza esclusivamente il dado a sei facce (D6).",
+      "calcolo": {
+        "singolo": "Il risultato è pari al valore del dado.",
+        "multiplo": "Si sommano i singoli risultati dei dadi lanciati (#D6)."
+      }
+    },
+    "terminologia_essenziale": {
+      "gran_maestro": "Gestisce le regole, le creature e l'amministrazione della sessione.",
+      "giocatore": "Partecipante che interpreta un Avventuriero.",
+      "creatura": "Ogni Avventuriero (PG), Personaggio Non Giocante (PNG) o Mostro.",
+      "gruppo": "Insieme di Avventurieri che partecipano alle Missioni.",
+      "campagna": "Serie di Missioni coinvolgenti il Gruppo nello stesso mondo."
+    },
+    "avventurieri": {
+      "caratteristiche_base": {
+        "prodezza": "Bravura in combattimento, agilità, doti atletiche e tempra fisica.",
+        "intelligenza": "Forza di volontà, carisma, resistenza magica e attitudine alla Magia.",
+        "rapidita": "Accortezza e capacità di risoluzione rapida dei problemi."
+      },
+      "punti_resistenza_pr": {
+        "definizione": "Misurano lo stato di salute; i PR totali dipendono dalla Classe e dal Livello.",
+        "meccanica": "Diminuiscono subendo Punti Impatto (PI) e possono essere incrementati da abilità o riposo."
+      },
+      "punti_impatto_pi_e_protezione": {
+        "pi": "Rappresentano i danni subiti (fuoco, acido, forza, ecc.).",
+        "protezione_p": "Determinata dall'armatura; i PI assorbiti dalla protezione non vengono sottratti ai PR."
+      }
+    },
+    "avanzamento_e_pe": {
+      "punti_esperienza_pe": {
+        "acquisizione": [
+          "Sconfiggere Mostri o PNG (secondo il Bestiario).",
+          "Trovare Pezzi d'Oro (1 PO = 1 PE).",
+          "Vendere Bottini (PE pari al valore di vendita ricevuto).",
+          "Terminare Missioni (PE divisi equamente nel Gruppo)."
+        ],
+        "limiti": "È possibile effettuare un solo avanzamento di Livello per Missione."
+      },
+      "tabella_livelli": {
+        "1": {"pe": 0, "rango": "Alle Prime Armi"},
+        "2": {"pe": 250, "rango": "Principiante"},
+        "3": {"pe": 500, "rango": "Esperto"},
+        "4": {"pe": 750, "rango": "Navigato"},
+        "5": {"pe": 1250, "rango": "Provetto"},
+        "6": {"pe": 1750, "rango": "Veterano"},
+        "7": {"pe": 2750, "rango": "Straordinario"},
+        "8": {"pe": 3750, "rango": "Leggendario"},
+        "9": {"pe": 5000, "rango": "Epico"}
+      }
+    },
+    "morte": {
+      "condizione": "Una creatura viene uccisa quando i PR o una caratteristica scendono a 0.",
+      "conseguenza_giocatore": "Il giocatore deve creare un nuovo Avventuriero; nel frattempo gestisce Mostri e PNG col GM."
+    }
+  }
+}
