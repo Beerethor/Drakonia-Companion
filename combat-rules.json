@@ -1,0 +1,60 @@
+{
+  "tipi_di_combattimento": {
+    "standard": {
+      "descrizione": "Scontro terrestre su mappa tattica tra Avventurieri e Mostri/PNG.",
+      "preparazione": "Il Gran Maestro fornisce una Mappa tattica; i giocatori possono cambiare l'ordine di marcia se il GM lo consente."
+    },
+    "navale": {
+      "descrizione": "Scontri a bordo di imbarcazioni in fiumi o mari.",
+      "meccaniche_uniche": {
+        "ruoli_equipaggio": "Capitano (decisioni), Capocannoniere (armi), Nostromo (manutenzione), Mastro d’Assalto (abbordaggi).",
+        "condizioni_atmosferiche": "Vento favorevole/contrario, onde gigantesche, nebbia fitta o sole accecante influenzano movimento e precisione.",
+        "riparazione": "Il Nostromo può tentare una riparazione volante per ripristinare 2D6 PR all'imbarcazione durante il combattimento."
+      }
+    },
+    "sorpresa": {
+      "descrizione": "Agguati o imboscate che garantiscono un vantaggio tattico.",
+      "risoluzione": "Sfida tra Rapidità dello sfidante e Intelligenza dello sfidato.",
+      "esito_successo": "Lo sfidante agisce nel primo round (movimento + combattimento) mentre lo sfidato resta inerte."
+    }
+  },
+  "fasi_del_combattimento": {
+    "iniziativa": {
+      "calcolo_standard": "Rapidità - 1D6.",
+      "calcolo_navale": "Rapidità del Capitano + 2D6.",
+      "ordine": "Decrescente (dal valore più alto al più basso). In caso di parità, vince chi ha il punteggio di Rapidità base più alto."
+    },
+    "round": {
+      "durata": "Ogni round equivale a 10 secondi nel mondo di gioco.",
+      "azioni_per_turno": "1 Azione di Movimento E 1 Azione di Combattimento; oppure solo 1 Azione di Combattimento se già in posizione."
+    }
+  },
+  "azioni_di_combattimento": {
+    "attacco_ravvicinato": {
+      "requisito": "Bersaglio in casella adiacente.",
+      "prova": "Prova di Prodezza con arma; Prodezza con malus di -2 se senz'armi.",
+      "critico": "Un risultato di 12 produce un Effetto Aggiuntivo (es. nuova azione o disarmo avversario)."
+    },
+    "attacco_a_distanza": {
+      "requisito": "Bersaglio entro la gittata dell'arma.",
+      "prova": "Prova difficile di Prodezza.",
+      "critico": "Un risultato di 12 produce un Effetto Aggiuntivo su tabella dedicata."
+    },
+    "altre_azioni": {
+      "difesa": "Aumenta la difficoltà degli attacchi avversari (Difficile per mischia, Difficilissima per distanza).",
+      "manovra": "Cambiare arma, alzarsi da prono, bere pozione, scassinare serrature o attivare meccanismi.",
+      "ritirata": "Uscire dal combattimento raggiungendo una casella di Fuga; se ingaggiati, gli avversari effettuano un attacco di opportunità."
+    }
+  },
+  "calcolo_danni_e_protezione": {
+    "punti_impatto_pi": {
+      "attacco_con_armi": "PI dell'arma + PI extra (in base al Livello) - PI assorbiti dall'armatura.",
+      "attacco_senz_armi": "PI variabili in base al Livello (1D6/3 fino a 2D6); non possono essere assorbiti dall'armatura.",
+      "incantesimi": "PI variano in base all'incantesimo; i danni psichici ignorano la protezione dell'armatura."
+    },
+    "protezione_p_sharp": {
+      "meccanica": "L'armatura assorbe danni lanciando un numero di dadi (1D6 per Leggera, fino a 4D6 per Pesante 2).",
+      "limiti": "Non è possibile cambiare armatura durante il combattimento."
+    }
+  }
+}
