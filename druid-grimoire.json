@@ -1,0 +1,87 @@
+{
+  "grimorio_del_druido": {
+    "descrizione": "Contiene gli incantesimi distruttivi, psichici, speciali e rituali della Magia Primordiale.",
+    "incantesimi_distruttivi": [
+      {
+        "nome": "Artigli del Ciclone",
+        "complessita": 2,
+        "tipo_pi": "Forza",
+        "effetto": "L'Incantatore sceglie 1 avversario visibile che viene colpito da un ciclone di lame per 2D6 PI da forza.",
+        "scalabilita": "Al 4°, 6° e 9° Livello si aggiunge 1D6 PI extra da forza."
+      },
+      {
+        "nome": "Lingue di Fuoco",
+        "complessita": 3,
+        "tipo_pi": "Fuoco",
+        "effetto": "Infligge 1D6 PI a tutte le creature visibili che falliscono una prova difficile di Intelligenza.",
+        "scalabilita": "Al 4°, 6° e 9° Livello si aggiunge 1D6 PI extra in entrambi i casi."
+      },
+      {
+        "nome": "Morte Volante",
+        "complessita": 4,
+        "tipo_pi": "Forza",
+        "effetto": "Se l'incantesimo riesce, infligge 2D6 PI a ciascun bersaglio visibile.",
+        "scalabilita": "Al 4°, 6° e 9° Livello si aggiunge 1D6 PI extra da folgorazione."
+      }
+    ],
+    "incantesimi_psichici": [
+      {
+        "nome": "Sussurri Primordiali",
+        "complessita": 1,
+        "effetto": "Se il bersaglio fallisce una prova difficile di Intelligenza, l'Incantatore invia un messaggio mentale alla creatura.",
+        "scalabilita": "Al 4°, 6° e 9° Livello si aggiunge 1 bersaglio extra."
+      },
+      {
+        "nome": "Foresta degli Incubi",
+        "complessita": 2,
+        "effetto": "Se il bersaglio fallisce una prova difficile di Intelligenza, resta terrorizzato per 1D6 round moltiplicato il Livello dell'Incantatore."
+      },
+      {
+        "nome": "Parlare con la Natura",
+        "complessita": 3,
+        "effetto": "Legame mentale con un animale o pianta per un numero di turni pari al Livello; permette fino a 3 domande per turno."
+      }
+    ],
+    "incantesimi_rituali": [
+      {
+        "nome": "Forma Famelica",
+        "preparazione": "10 minuti di concentrazione.",
+        "durata": "Numero di ore pari al Livello dell'Incantatore.",
+        "meccanica": "Sostituisce Prodezza, Rapidità e Protezione con quelle dell'animale; i PR dell'incantatore sono incrementati da PR temporanei.",
+        "limitazioni": "Non è possibile lanciare incantesimi; terminata la forma, servono 6 ore di riposo prima di una nuova trasformazione.",
+        "tabella_forme": {
+          "livello_1": ["Gatto", "Pipistrello", "Topo Gigante"],
+          "livello_3": ["Lupo Selvaggio", "Aquila"],
+          "livello_5": ["Cinghiale", "Ragno Gigante"],
+          "livello_6": ["Gorilla Carnivoro"],
+          "livello_7": ["Orso"],
+          "livello_8": ["Scorpione Gigante"]
+        }
+      },
+      {
+        "nome": "Controllare Tempo Atmosferico",
+        "preparazione": "10 minuti all'area aperta.",
+        "raggio": "30 caselle per un numero di turni pari al Livello.",
+        "effetti": {
+          "Pioggia": "Attacchi a distanza con grado di difficoltà più alto.",
+          "Neve": "Visibilità ridotta a 2 caselle e velocità dimezzata.",
+          "Nebbia": "Visibilità ridotta a 1 casella.",
+          "Vento Intenso": "Attacchi a distanza impossibilitati."
+        }
+      }
+    ],
+    "incantesimi_speciali": [
+      {
+        "nome": "Creare Fuoco",
+        "complessita": 1,
+        "effetto": "Fiammella sulla mano per turni pari al Livello; illumina 1 casella intorno o accende torce."
+      },
+      {
+        "nome": "Controllare Animali",
+        "complessita": 3,
+        "effetto": "Asservisce una creatura animale (PR max 10 a liv.1, fino a 25 a liv.9) per turni pari al Livello.",
+        "lealta": "Ogni round il GM lancia 1D6: con 1-5 l'animale obbedisce, con 6 l'effetto termina."
+      }
+    ]
+  }
+}
