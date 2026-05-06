@@ -20,12 +20,13 @@ const gameData = {
             prodezza: { dadi: 1, facce: 6, bonus: 2 },     // 1D6+2
             intelligenza: { dadi: 1, facce: 6, bonus: 0 },  // 1D6
             rapidita: { dadi: 1, facce: 6, bonus: 0 },      // 1D6
-            pr: { dadi: 1, facce: 6, bonus: 0 }            // 1D6
+            pr: { dadi: 1, facce: 6, bonus: 0 },            // 1D6
+            po: 5
         },
         equipaggiamentoBase: {
-            armi: ["Spada", "Scudo"], //
-            armatura: "Cotta di Maglia", //
-            oggetti: ["Sacco"] //
+            armi: ["Spada", "Scudo"],
+            armatura: "Cotta di Maglia",
+            oggetti: ["Sacco", "Razioni da viaggio (3 giorni)"]
         },
         abilitaDettagli: {
             "Casta dei Guerrieri": "Conosce l'araldica, le strategie militari e gli annali di re. Effettua prove di Intelligenza sulle conoscenze delle caste.",
@@ -48,12 +49,13 @@ const gameData = {
             prodezza: { dadi: 1, facce: 6, bonus: 1 },    // 1D6+1
             intelligenza: { dadi: 1, facce: 6, bonus: 0 }, // 1D6
             rapidita: { dadi: 1, facce: 6, bonus: 1 },    // 1D6+1
-            pr: { dadi: 1, facce: 6, bonus: 0 }           // 1D6
+            pr: { dadi: 1, facce: 6, bonus: 0 },           // 1D6
+            po: 5
         },
         equipaggiamentoBase: {
-            armi: ["Spada", "Arco corto", "Faretra con 6 frecce"], //
-            armatura: "Corpetto di cuoio rinforzato", //
-            oggetti: ["Sacco"] //
+            armi: ["Spada", "Arco corto", "Faretra con 6 frecce"],
+            armatura: "Corpetto di cuoio rinforzato",
+            oggetti: ["Sacco", "Attrezzi da scasso"]
         },
         abilitaDettagli: {
             "Furbizia": "Abile nell'imbroglio, può effettuare prove facili di Rapidità per truffare o borseggiare.",
@@ -75,12 +77,13 @@ const gameData = {
             prodezza: { dadi: 1, facce: 6, bonus: 1 },     // 1D6+1
             intelligenza: { dadi: 1, facce: 6, bonus: 1 },  // 1D6+1
             rapidita: { dadi: 1, facce: 6, bonus: 0 },      // 1D6
-            pr: { dadi: 1, facce: 6, bonus: -1 }           // 1D6-1
+            pr: { dadi: 1, facce: 6, bonus: -1 },           // 1D6-1
+            po: 5
         },
         equipaggiamentoBase: {
-            armi: ["Bastone da combattimento"], //
-            armatura: "Cotta di Maglia", //
-            oggetti: ["Sacco"] //
+            armi: ["Bastone da combattimento"],
+            armatura: "Tunica rinforzata",
+            oggetti: ["Sacco", "Erbe curative", "Pergamena vuota"]
         },
         abilitaDettagli: {
             "Guarigione": "Può infondere Energia Curativa sacrificando PR correnti e moltiplicandoli in base a un lancio di 1D6 (fino a un massimo pari ai PR totali dei bersagli).",
@@ -113,12 +116,13 @@ const gameData = {
             prodezza: { dadi: 1, facce: 6, bonus: 0 },     // 1D6
             intelligenza: { dadi: 1, facce: 6, bonus: 2 },  // 1D6+2
             rapidita: { dadi: 1, facce: 6, bonus: 0 },      // 1D6
-            pr: { dadi: 1, facce: 6, bonus: -1 }           // 1D6-1
+            pr: { dadi: 1, facce: 6, bonus: -1 },           // 1D6-1
+            po: 5
         },
         equipaggiamentoBase: {
-            armi: ["Spada"], //
-            armatura: "Pettorale d’argento", //
-            oggetti: ["Sacco"] //
+            armi: ["Spada", "Daga"],
+            armatura: "Pettorale d’argento",
+            oggetti: ["Sacco", "Grimorio", "Componenti magiche base"]
         },
         abilitaDettagli: {
             "Stregoneria": "Permette di lanciare incantesimi del Grimerio dello Stregone. Non può indossare armature o manette in ferro/acciaio durante il lancio. La difficoltà del lancio diminuisce col livello (Liv 1: Normale, Liv 4: Facile, Liv 7: Facilissima, Liv 9: Minima).",
@@ -146,12 +150,13 @@ const gameData = {
             prodezza: { dadi: 1, facce: 6, bonus: 0 },     // 1D6
             intelligenza: { dadi: 1, facce: 6, bonus: 1 },  // 1D6+1
             rapidita: { dadi: 1, facce: 6, bonus: 0 },      // 1D6
-            pr: { dadi: 1, facce: 6, bonus: 1 }            // 1D6+1
+            pr: { dadi: 1, facce: 6, bonus: 1 },            // 1D6+1
+            po: 5
         },
         equipaggiamentoBase: {
-            armi: ["Bastone da combattimento"], //
-            armatura: "Corpetto di cuoio rinforzato", //
-            oggetti: ["Sacco"] //
+            armi: ["Bastone da combattimento"],
+            armatura: "Corpetto di cuoio rinforzato",
+            oggetti: ["Sacco", "Simbolo della natura", "Borsa delle erbe"]
         },
         abilitaDettagli: {
             "Magia Primordiale": "Permette di lanciare incantesimi dal Grimorio del Druido. Non può indossare armature in ferro o acciaio né trasportare oggetti in metallo. La difficoltà del lancio diminuisce col livello (Liv 1: Normale, Liv 4: Facile, Liv 6: Facilissima, Liv 9: Minima).", //
