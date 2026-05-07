@@ -4,197 +4,257 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Codex Drakonia - Database Regole</title>
-    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
     <style>
         :root {
             --parchment: #f4e4bc;
             --ink: #2c1e11;
             --gold: #b8860b;
-            --border: #8b4513;
-            --dark-bg: #1a1a1a;
+            --dark-gold: #8a6508;
+            --border: #4a321f;
+            --blood: #8b0000;
         }
 
         body {
-            background-color: var(--dark-bg);
+            background: #120d08 url('https://www.transparenttextures.com/patterns/dark-leather.png');
             color: var(--ink);
             font-family: 'Almendra', serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
 
-        /* Navigazione Superiore */
+        /* Navigazione Superiore - Stile Tabella */
         .top-nav {
             width: 100%;
-            background: #2c1e11;
-            padding: 15px 20px;
+            background: #2c1e11 url('https://www.transparenttextures.com/patterns/black-linen.png');
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-sizing: border-box;
-            border-bottom: 2px solid var(--gold);
+            border-bottom: 3px solid var(--gold);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
         }
 
         .btn-home {
             background: var(--gold);
             color: white;
-            border: none;
-            padding: 10px 20px;
+            border: 2px solid var(--dark-gold);
+            padding: 10px 25px;
             cursor: pointer;
             font-weight: bold;
-            border-radius: 5px;
             text-transform: uppercase;
             font-family: 'MedievalSharp', cursive;
+            transition: 0.3s;
+            box-shadow: 2px 2px 0 #000;
         }
 
-        .search-container {
-            flex-grow: 1;
-            max-width: 500px;
-            margin-left: 20px;
+        .btn-home:hover {
+            background: var(--blood);
+            transform: scale(1.05);
         }
 
         #ruleSearch {
             width: 100%;
-            padding: 10px;
-            border-radius: 5px;
+            max-width: 400px;
+            padding: 12px;
+            border-radius: 4px;
             border: 1px solid var(--gold);
             background: #3d2b1d;
             color: var(--parchment);
-            font-size: 16px;
             font-family: 'Almendra', serif;
+            font-size: 1rem;
         }
 
         /* Titolo Principale */
-        h1 { 
-            color: var(--gold); 
-            margin-top: 30px; 
-            font-family: 'MedievalSharp', cursive;
-            font-size: 2.5rem;
-            text-shadow: 2px 2px #000;
+        header h1 {
+            font-family: 'Grenze Gotisch', cursive;
+            color: var(--gold);
+            font-size: 4rem;
+            margin: 40px 0 10px;
+            text-shadow: 3px 3px 6px #000;
+            letter-spacing: 4px;
         }
 
-        /* Grid Categorie */
+        /* Contenitore Card */
         .database-container {
-            max-width: 1000px;
+            max-width: 1100px;
             width: 90%;
-            margin: 40px 0;
+            margin: 30px auto 60px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
         }
 
         .category-card {
-            background: var(--parchment);
-            border: 3px double var(--border);
-            padding: 25px;
+            background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            border: 2px solid var(--border);
+            outline: 4px double var(--border);
+            outline-offset: -10px;
+            padding: 40px 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1.3rem;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.6);
+            position: relative;
         }
 
         .category-card:hover {
-            transform: translateY(-5px);
-            background: #fff5d7;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
-            border-color: var(--gold);
+            transform: translateY(-8px) rotate(-1deg);
+            background-color: #fff;
+            outline-color: var(--gold);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.8);
         }
 
-        .hidden { display: none; }
+        .category-card span {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 15px;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+        }
 
-        /* Modali */
+        .category-card h3 {
+            margin: 0;
+            font-family: 'MedievalSharp', cursive;
+            font-size: 1.5rem;
+            color: var(--ink);
+            text-transform: uppercase;
+        }
+
+        /* Modali - Effetto Pergamena Antica */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.92);
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
-            background: var(--parchment);
+            background: #e9d5a3 url('https://www.transparenttextures.com/patterns/aged-paper.png');
             width: 90%;
-            max-width: 800px;
+            max-width: 850px;
             max-height: 85vh;
-            padding: 30px;
-            border: 8px double var(--border);
+            padding: 50px;
+            border: 20px solid transparent;
+            border-image: url('https://i.imgur.com/7S7X7vj.png') 30 stretch; /* Bordo decorativo se disponibile o solido */
+            border: 10px double var(--border);
             overflow-y: auto;
             position: relative;
+            box-shadow: 0 0 50px #000;
         }
 
         .close-btn {
             position: absolute;
-            right: 15px; top: 10px;
-            font-size: 30px;
+            right: 25px; top: 15px;
+            font-size: 40px;
             cursor: pointer;
-            color: var(--border);
+            color: var(--blood);
+            font-family: serif;
         }
 
-        /* Stile Contenuto Regole */
+        /* Dettagli Interni */
         .selection-item {
-            background: rgba(139, 69, 19, 0.1);
-            margin: 10px 0;
-            padding: 15px;
-            border-left: 5px solid var(--border);
+            background: rgba(0, 0, 0, 0.05);
+            margin: 15px 0;
+            padding: 20px;
+            border: 1px dashed var(--border);
             cursor: pointer;
-            font-weight: bold;
-            font-size: 1.1rem;
+            font-family: 'MedievalSharp', cursive;
+            font-size: 1.3rem;
+            transition: 0.2s;
         }
 
-        .selection-item:hover { background: rgba(139, 69, 19, 0.2); }
+        .selection-item:hover {
+            background: var(--gold);
+            color: white;
+            padding-left: 30px;
+        }
 
-        .rule-block {
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            padding: 10px 0;
+        details {
+            background: rgba(0,0,0,0.03);
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
         }
 
         summary {
-            font-size: 1.2rem;
             font-weight: bold;
-            color: var(--border);
-            margin: 10px 0;
-            outline: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--blood);
+            list-style: none;
         }
 
-        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-        th, td { border: 1px solid var(--border); padding: 8px; text-align: left; }
-        th { background: rgba(139, 69, 19, 0.1); }
+        summary::before {
+            content: "📜 ";
+        }
+
+        .rule-block {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .hidden { display: none; }
+
+        /* Scrollbar Personalizzata */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--ink); }
+        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; }
 
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <button class="btn-home" onclick="window.location.href='index.html'">🏰 Home</button>
-        <div class="search-container">
-            <input type="text" id="ruleSearch" onkeyup="filterRules()" placeholder="Cerca nel Codex (es. Danni, Fuoco, PE)...">
-        </div>
+        <button class="btn-home" onclick="window.location.href='index.html'">🏰 Torna alla Home</button>
+        <input type="text" id="ruleSearch" onkeyup="filterRules()" placeholder="Cerca nel Codex (es. Forza, Fuoco, PE)...">
     </div>
 
-    <h1>CODEX DRAKONIA</h1>
+    <header>
+        <h1>Codex Drakonia</h1>
+    </header>
 
     <div class="database-container" id="main-index">
-        <div class="category-card" onclick="openSelection('generali')">📜 Regole Generali</div>
-        <div class="category-card" onclick="openSelection('combattimento')">⚔️ Combattimento</div>
-        <div class="category-card" onclick="openSelection('magia')">🧙 Magia e Incanti</div>
-        <div class="category-card" onclick="openSelection('grimori')">📖 Grimori</div>
-        <div class="category-card" onclick="openSelection('equipaggiamento')">🛡️ Equipaggiamento</div>
-        <div class="category-card" onclick="openSelection('classi')">🎭 Classi degli Eroi</div>
+        <div class="category-card" onclick="openSelection('generali')">
+            <span>📜</span>
+            <h3>Leggi Generali</h3>
+        </div>
+        <div class="category-card" onclick="openSelection('combattimento')">
+            <span>⚔️</span>
+            <h3>Arte della Guerra</h3>
+        </div>
+        <div class="category-card" onclick="openSelection('magia')">
+            <span>🧙</span>
+            <h3>Dottrina Arcana</h3>
+        </div>
+        <div class="category-card" onclick="openSelection('grimori')">
+            <span>📖</span>
+            <h3>Antichi Grimori</h3>
+        </div>
+        <div class="category-card" onclick="openSelection('equipaggiamento')">
+            <span>🛡️</span>
+            <h3>Armeria e Merci</h3>
+        </div>
+        <div class="category-card" onclick="openSelection('classi')">
+            <span>🎭</span>
+            <h3>Sentieri degli Eroi</h3>
+        </div>
     </div>
 
     <div id="modal-selection" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('modal-selection')">&times;</span>
-            <h2 id="selection-title" style="border-bottom: 2px solid var(--border);">Seleziona</h2>
+            <h2 id="selection-title" style="font-family: 'Grenze Gotisch'; font-size: 2.5rem; text-align: center;">Seleziona Documento</h2>
             <div id="selection-options"></div>
         </div>
     </div>
@@ -202,7 +262,7 @@
     <div id="modal-view" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('modal-view')">&times;</span>
-            <h2 id="view-title" style="color: var(--gold); font-family: 'MedievalSharp';">Dettaglio</h2>
+            <h2 id="view-title" style="color: var(--blood); font-family: 'MedievalSharp'; text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px;">Dettaglio</h2>
             <div id="view-body"></div>
         </div>
     </div>
@@ -214,7 +274,7 @@
             'magia': ['magic-rules.json'],
             'grimori': ['sorcerer-grimoire.json', 'druid-grimoire.json'],
             'equipaggiamento': ['equipment-data.json'],
-            'classi': ['Guerriero', 'Truffatore', 'Saggio', 'Stregone'] // Da Firebase
+            'classi': ['Guerriero', 'Truffatore', 'Saggio', 'Stregone']
         };
 
         function filterRules() {
@@ -228,13 +288,13 @@
         function openSelection(cat) {
             const options = databaseMap[cat];
             const container = document.getElementById('selection-options');
-            document.getElementById('selection-title').innerText = cat.toUpperCase();
+            document.getElementById('selection-title').innerText = "Archivi di: " + cat.toUpperCase();
             container.innerHTML = '';
             
             options.forEach(opt => {
                 const item = document.createElement('div');
                 item.className = 'selection-item';
-                item.innerText = opt.replace('.json', '').replace(/-/g, ' ').toUpperCase();
+                item.innerText = "➤ " + opt.replace('.json', '').replace(/-/g, ' ').toUpperCase();
                 item.onclick = () => showFinalRule(opt, cat === 'classi');
                 container.appendChild(item);
             });
@@ -244,21 +304,20 @@
         async function showFinalRule(name, isFirebase) {
             const body = document.getElementById('view-body');
             document.getElementById('view-title').innerText = name.replace('.json', '').replace(/-/g, ' ').toUpperCase();
-            body.innerHTML = "<p>Consultando gli archivi...</p>";
+            body.innerHTML = "<p style='text-align:center;'>Consultando gli antichi tomi...</p>";
             document.getElementById('modal-view').style.display = 'flex';
 
             try {
                 if (isFirebase) {
-                    // Esempio segnaposto per Firebase
-                    body.innerHTML = `<h3>${name}</h3><p>Dati in fase di recupero dal Grande Database di Firebase...</p>`;
+                    body.innerHTML = `<h3>Eroe: ${name}</h3><p><em>Dati in fase di recupero dal database centrale di Drakonia...</em></p>`;
                 } else {
                     const response = await fetch(name);
-                    if (!response.ok) throw new Error("Pergamena non trovata.");
+                    if (!response.ok) throw new Error("Documento non trovato o corrotto.");
                     const data = await response.json();
                     body.innerHTML = formatJsonToHtml(data);
                 }
             } catch (err) {
-                body.innerHTML = `<p style="color:red;">Errore: ${err.message}</p>`;
+                body.innerHTML = `<p style="color:var(--blood); text-align:center;">Errore Arcano: ${err.message}</p>`;
             }
         }
 
@@ -269,13 +328,13 @@
                 let cleanKey = key.replace(/_/g, ' ').toUpperCase();
 
                 if (Array.isArray(value)) {
-                    html += `<details open><summary>${cleanKey}</summary><ul>`;
+                    html += `<details open><summary>${cleanKey}</summary><ul style="padding-left:20px;">`;
                     value.forEach(item => {
                         html += `<li>${typeof item === 'object' ? formatJsonToHtml(item) : item}</li>`;
                     });
                     html += `</ul></details>`;
                 } else if (typeof value === 'object' && value !== null) {
-                    html += `<details open><summary>${cleanKey}</summary><div style="padding-left:15px; border-left:1px solid var(--gold);">${formatJsonToHtml(value)}</div></details>`;
+                    html += `<details open><summary>${cleanKey}</summary><div style="padding-left:15px; border-left:2px solid var(--gold); margin:10px 0;">${formatJsonToHtml(value)}</div></details>`;
                 } else {
                     html += `<div class="rule-block"><strong>${cleanKey}:</strong> ${value}</div>`;
                 }
@@ -283,7 +342,9 @@
             return html;
         }
 
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function closeModal(id) { 
+            document.getElementById(id).style.display = 'none'; 
+        }
 
         window.onclick = (event) => {
             if (event.target.className === 'modal') event.target.style.display = "none";
