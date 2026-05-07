@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drakonia - Database Regole</title>
+    <title>Codex Drakonia - Database Regole</title>
+    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
     <style>
         :root {
             --parchment: #f4e4bc;
             --ink: #2c1e11;
             --gold: #b8860b;
             --border: #8b4513;
+            --dark-bg: #1a1a1a;
         }
 
         body {
-            background-color: #1a1a1a;
+            background-color: var(--dark-bg);
             color: var(--ink);
-            font-family: 'Georgia', serif;
+            font-family: 'Almendra', serif;
             margin: 0;
             display: flex;
             flex-direction: column;
@@ -34,6 +36,7 @@
             top: 0;
             z-index: 100;
             box-sizing: border-box;
+            border-bottom: 2px solid var(--gold);
         }
 
         .btn-home {
@@ -45,9 +48,9 @@
             font-weight: bold;
             border-radius: 5px;
             text-transform: uppercase;
+            font-family: 'MedievalSharp', cursive;
         }
 
-        /* Search Bar */
         .search-container {
             flex-grow: 1;
             max-width: 500px;
@@ -62,13 +65,19 @@
             background: #3d2b1d;
             color: var(--parchment);
             font-size: 16px;
+            font-family: 'Almendra', serif;
         }
 
-        #ruleSearch::placeholder {
-            color: #a38b75;
+        /* Titolo Principale */
+        h1 { 
+            color: var(--gold); 
+            margin-top: 30px; 
+            font-family: 'MedievalSharp', cursive;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px #000;
         }
 
-        /* Indice Regole */
+        /* Grid Categorie */
         .database-container {
             max-width: 1000px;
             width: 90%;
@@ -85,30 +94,27 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
         .category-card:hover {
             transform: translateY(-5px);
             background: #fff5d7;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+            border-color: var(--gold);
         }
 
-        .category-card.hidden {
-            display: none;
-        }
+        .hidden { display: none; }
 
         /* Modali */
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -116,52 +122,65 @@
 
         .modal-content {
             background: var(--parchment);
-            width: 85%;
+            width: 90%;
             max-width: 800px;
             max-height: 85vh;
-            padding: 40px;
+            padding: 30px;
             border: 8px double var(--border);
             overflow-y: auto;
             position: relative;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
 
         .close-btn {
             position: absolute;
-            right: 20px;
-            top: 15px;
+            right: 15px; top: 10px;
             font-size: 30px;
             cursor: pointer;
             color: var(--border);
         }
 
+        /* Stile Contenuto Regole */
         .selection-item {
             background: rgba(139, 69, 19, 0.1);
-            margin: 12px 0;
-            padding: 18px;
-            border-left: 6px solid var(--border);
+            margin: 10px 0;
+            padding: 15px;
+            border-left: 5px solid var(--border);
             cursor: pointer;
             font-weight: bold;
-            transition: background 0.2s;
+            font-size: 1.1rem;
         }
 
-        .selection-item:hover {
-            background: rgba(139, 69, 19, 0.25);
+        .selection-item:hover { background: rgba(139, 69, 19, 0.2); }
+
+        .rule-block {
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 10px 0;
         }
 
-        h1 { color: var(--parchment); margin-top: 30px; text-shadow: 2px 2px #000; }
+        summary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--border);
+            margin: 10px 0;
+            outline: none;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid var(--border); padding: 8px; text-align: left; }
+        th { background: rgba(139, 69, 19, 0.1); }
+
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <button class="btn-home" onclick="window.location.href='home.html'">🏰 Home</button>
+        <button class="btn-home" onclick="window.location.href='index.html'">🏰 Home</button>
         <div class="search-container">
-            <input type="text" id="ruleSearch" onkeyup="filterRules()" placeholder="Cerca una regola (es. Combattimento, PE, Grimorio)...">
+            <input type="text" id="ruleSearch" onkeyup="filterRules()" placeholder="Cerca nel Codex (es. Danni, Fuoco, PE)...">
         </div>
     </div>
 
-    <h1>📖 Archivio delle Regole di Drakonia</h1>
+    <h1>CODEX DRAKONIA</h1>
 
     <div class="database-container" id="main-index">
         <div class="category-card" onclick="openSelection('generali')">📜 Regole Generali</div>
@@ -172,24 +191,19 @@
         <div class="category-card" onclick="openSelection('classi')">🎭 Classi degli Eroi</div>
     </div>
 
-    <!-- Modale Livello 2 -->
     <div id="modal-selection" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('modal-selection')">&times;</span>
-            <h2 id="selection-title">Seleziona Argomento</h2>
+            <h2 id="selection-title" style="border-bottom: 2px solid var(--border);">Seleziona</h2>
             <div id="selection-options"></div>
         </div>
     </div>
 
-    <!-- Modale Livello 3 -->
     <div id="modal-view" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('modal-view')">&times;</span>
-            <h2 id="view-title">Dettaglio</h2>
-            <hr>
-            <div id="view-body" style="line-height: 1.6; font-size: 1.1rem;">
-                <!-- Qui verrà iniettato il contenuto dei JSON -->
-            </div>
+            <h2 id="view-title" style="color: var(--gold); font-family: 'MedievalSharp';">Dettaglio</h2>
+            <div id="view-body"></div>
         </div>
     </div>
 
@@ -200,59 +214,79 @@
             'magia': ['magic-rules.json'],
             'grimori': ['sorcerer-grimoire.json', 'druid-grimoire.json'],
             'equipaggiamento': ['equipment-data.json'],
-            'classi': ['Guerriero', 'Truffatore', 'Saggio', 'Stregone']
+            'classi': ['Guerriero', 'Truffatore', 'Saggio', 'Stregone'] // Da Firebase
         };
 
-        // Funzione di ricerca/filtro
         function filterRules() {
             let input = document.getElementById('ruleSearch').value.toLowerCase();
             let cards = document.getElementsByClassName('category-card');
-            
-            for (let i = 0; i < cards.length; i++) {
-                if (cards[i].innerText.toLowerCase().includes(input)) {
-                    cards[i].classList.remove('hidden');
-                } else {
-                    cards[i].classList.add('hidden');
-                }
+            for (let card of cards) {
+                card.classList.toggle('hidden', !card.innerText.toLowerCase().includes(input));
             }
         }
 
         function openSelection(cat) {
             const options = databaseMap[cat];
             const container = document.getElementById('selection-options');
-            document.getElementById('selection-title').innerText = "Categoria: " + cat.toUpperCase();
-            
+            document.getElementById('selection-title').innerText = cat.toUpperCase();
             container.innerHTML = '';
+            
             options.forEach(opt => {
                 const item = document.createElement('div');
                 item.className = 'selection-item';
-                item.innerText = opt.replace('.json', '').replace('-', ' ');
-                item.onclick = () => showFinalRule(opt);
+                item.innerText = opt.replace('.json', '').replace(/-/g, ' ').toUpperCase();
+                item.onclick = () => showFinalRule(opt, cat === 'classi');
                 container.appendChild(item);
             });
-
             document.getElementById('modal-selection').style.display = 'flex';
         }
 
-        function showFinalRule(name) {
-            document.getElementById('view-title').innerText = name.toUpperCase();
-            // In un ambiente reale, qui faresti la fetch del file JSON corrispondente
-            document.getElementById('view-body').innerHTML = `
-                <p><strong>Dati caricati per:</strong> ${name}</p>
-                <p>Contenuto estratto dal database di Drakonia...</p>
-                <p><em>(In questa finestra verranno mostrate le tabelle PE, i danni del combattimento o la lista incantesimi filtrata).</em></p>
-            `;
+        async function showFinalRule(name, isFirebase) {
+            const body = document.getElementById('view-body');
+            document.getElementById('view-title').innerText = name.replace('.json', '').replace(/-/g, ' ').toUpperCase();
+            body.innerHTML = "<p>Consultando gli archivi...</p>";
             document.getElementById('modal-view').style.display = 'flex';
-        }
 
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-
-        window.onclick = function(event) {
-            if (event.target.className === 'modal') {
-                event.target.style.display = "none";
+            try {
+                if (isFirebase) {
+                    // Esempio segnaposto per Firebase
+                    body.innerHTML = `<h3>${name}</h3><p>Dati in fase di recupero dal Grande Database di Firebase...</p>`;
+                } else {
+                    const response = await fetch(name);
+                    if (!response.ok) throw new Error("Pergamena non trovata.");
+                    const data = await response.json();
+                    body.innerHTML = formatJsonToHtml(data);
+                }
+            } catch (err) {
+                body.innerHTML = `<p style="color:red;">Errore: ${err.message}</p>`;
             }
+        }
+
+        function formatJsonToHtml(obj) {
+            let html = '';
+            for (let key in obj) {
+                let value = obj[key];
+                let cleanKey = key.replace(/_/g, ' ').toUpperCase();
+
+                if (Array.isArray(value)) {
+                    html += `<details open><summary>${cleanKey}</summary><ul>`;
+                    value.forEach(item => {
+                        html += `<li>${typeof item === 'object' ? formatJsonToHtml(item) : item}</li>`;
+                    });
+                    html += `</ul></details>`;
+                } else if (typeof value === 'object' && value !== null) {
+                    html += `<details open><summary>${cleanKey}</summary><div style="padding-left:15px; border-left:1px solid var(--gold);">${formatJsonToHtml(value)}</div></details>`;
+                } else {
+                    html += `<div class="rule-block"><strong>${cleanKey}:</strong> ${value}</div>`;
+                }
+            }
+            return html;
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        window.onclick = (event) => {
+            if (event.target.className === 'modal') event.target.style.display = "none";
         }
     </script>
 </body>
