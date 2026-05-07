@@ -1,0 +1,154 @@
+{
+  "Guerriero": {
+    "descrizione": "Combattenti che condividono spirito bellicoso e attitudine all'uso di armi e armature.",
+    "lanciIniziali": {
+      "prodezza": "1D6+2",
+      "intelligenza": "1D6",
+      "rapidita": "1D6",
+      "pr": "1D6",
+      "po": 5
+    },
+    "equipaggiamentoBase": {
+      "armi": ["Spada", "Scudo"],
+      "armatura": "Cotta di Maglia",
+      "oggetti": ["Sacco", "Razioni da viaggio (3 giorni)"]
+    },
+    "abilitaDettagli": {
+      "Casta dei Guerrieri": "Conosce l'araldica, le strategie militari e gli annali di re. Effettua prove di Intelligenza sulle conoscenze delle caste.",
+      "Armature Pesanti": "Può indossare armature pesanti con punteggio di Protezione 3 o 4.",
+      "Minaccioso": "Può sfondare porte o intimidire avversari con una prova facile di Prodezza.",
+      "Tecnica dello Scudo": "Lancia 1D6 quando subisce colpi: 1-2 para, 6 lo scudo si spezza.",
+      "Addestramento Marziale": "Può effettuare due azioni di Attacco a ogni turno di Combattimento."
+    },
+    "progressione": {
+      "1": { "rango": "Alle Prime Armi", "abilita": ["Casta dei Guerrieri"] },
+      "2": { "rango": "Principiante", "abilita": ["Armature Pesanti"] },
+      "3": { "rango": "Esperto", "abilita": ["Minaccioso"] },
+      "4": { "rango": "Navigato", "abilita": ["Aumento Caratteristica", "Tecnica dello scudo"] },
+      "7": { "rango": "Straordinario", "abilita": ["Addestramento Marziale"] }
+    }
+  },
+  "Truffatore": {
+    "descrizione": "Inaffidabili e dediti ai sotterfugi, esperti nel trovare vie d'uscita.",
+    "lanciIniziali": {
+      "prodezza": "1D6+1",
+      "intelligenza": "1D6",
+      "rapidita": "1D6+1",
+      "pr": "1D6",
+      "po": 5
+    },
+    "equipaggiamentoBase": {
+      "armi": ["Spada", "Arco corto", "Faretra con 6 frecce"],
+      "armatura": "Corpetto di cuoio rinforzato",
+      "oggetti": ["Sacco", "Attrezzi da scasso"]
+    },
+    "abilitaDettagli": {
+      "Furbizia": "Abile nell'imbroglio, può effettuare prove facili di Rapidità per truffare o borseggiare.",
+      "Lesto": "Gli avversari hanno un malus all'attacco pari al bonus del Truffatore (Livello/2).",
+      "Tecnica dell'Arco": "Usa l'arco con prove normali di Prodezza invece che difficili.",
+      "Velocità di Pensiero": "Azione di combattimento extra dopo che tutti hanno agito.",
+      "Intrallazzo": "Guadagna automaticamente 2 PO ogni ora passata in città."
+    },
+    "progressione": {
+      "1": { "rango": "Alle Prime Armi", "abilita": ["Furbizia", "Lesto"] },
+      "2": { "rango": "Principiante", "abilita": ["Tecnica dell'Arco"] },
+      "5": { "rango": "Provetto", "abilita": ["Velocità di Pensiero 1"] },
+      "6": { "rango": "Veterano", "abilita": ["Intrallazzo"] }
+    }
+  },
+  "Saggio": {
+    "descrizione": "Individui che impongono al corpo e alla mente una dura disciplina, sviluppando un'energia spirituale potente.",
+    "lanciIniziali": {
+      "prodezza": "1D6+1",
+      "intelligenza": "1D6+1",
+      "rapidita": "1D6",
+      "pr": "1D6-1",
+      "po": 5
+    },
+    "equipaggiamentoBase": {
+      "armi": ["Bastone da combattimento"],
+      "armatura": "Tunica rinforzata",
+      "oggetti": ["Sacco", "Erbe curative", "Pergamena vuota"]
+    },
+    "abilitaDettagli": {
+      "Guarigione": "Può infondere Energia Curativa sacrificando PR correnti e moltiplicandoli in base a un lancio di 1D6.",
+      "Esorcismo": "Potere mentale per dissolvere Non-morti con prova di Intelligenza.",
+      "Tecnica del Bastone": "Uso del bastone a una mano e bonus ai danni sbilanciando l'avversario.",
+      "Leggere la Mente": "Permette di conoscere pensieri ed emozioni; i bersagli possono resistere.",
+      "Conoscenza Superiore": "Conoscenze su pozioni, demoni, araldica e linguaggi perduti.",
+      "Vista Paranormale": "Vedere al buio e attraverso materiali sottili.",
+      "Dono delle Lingue": "Comprendere qualsiasi linguaggio umano.",
+      "Levitazione": "Muoversi in volo finché concentrati.",
+      "Immunità": "Immune a malattie, paralisi e tocco dei Non-morti."
+    },
+    "progressione": {
+      "1": { "rango": "Alle Prime Armi", "abilita": ["Guarigione", "Esorcismo 1"] },
+      "2": { "rango": "Principiante", "abilita": ["Tecnica del Bastone"] },
+      "3": { "rango": "Esperto", "abilita": ["Leggere la Mente"] },
+      "4": { "rango": "Navigato", "abilita": ["Conoscenza Superiore", "Vista Paranormale"] },
+      "5": { "rango": "Provetto", "abilita": ["Esorcismo 2", "Dono delle Lingue", "Aumento Caratteristica"] },
+      "6": { "rango": "Veterano", "abilita": ["Aumento Caratteristica", "Levitazione", "Tecnica dell'Arco"] },
+      "7": { "rango": "Straordinario", "abilita": ["Aumento Caratteristica", "Immunità"] },
+      "9": { "rango": "Epico", "abilita": ["Esorcismo 3", "Aumento Caratteristica"] }
+    }
+  },
+  "Stregone": {
+    "descrizione": "Capaci di lanciare incantesimi grazie alla conoscenza istintiva della Stregoneria.",
+    "lanciIniziali": {
+      "prodezza": "1D6",
+      "intelligenza": "1D6+2",
+      "rapidita": "1D6",
+      "pr": "1D6-1",
+      "po": 5
+    },
+    "equipaggiamentoBase": {
+      "armi": ["Spada", "Daga"],
+      "armatura": "Pettorale d’argento",
+      "oggetti": ["Sacco", "Grimorio", "Componenti magiche"]
+    },
+    "abilitaDettagli": {
+      "Stregoneria": "Lancio incantesimi del Grimerio dello Stregone. Difficoltà cala col livello.",
+      "Incantesimo Rituale": "Apprende Evoca Faltyn, Rivela Magie, Predizione, Teletrasporto.",
+      "Memoria Magica": "Selezione giornaliera di incantesimi istantanei.",
+      "Apprendimento": "Apprende incantesimi osservando altri o leggendo pergamene.",
+      "Trascrizione": "Capacità di creare pergamene magiche."
+    },
+    "progressione": {
+      "1": { "rango": "Alle Prime Armi", "abilita": ["Stregoneria 1"] },
+      "2": { "rango": "Principiante", "abilita": ["Incantesimo Rituale 1"] },
+      "3": { "rango": "Esperto", "abilita": ["Incantesimo Rituale 2", "Memoria Magica 1"] },
+      "4": { "rango": "Navigato", "abilita": ["Stregoneria 2", "Incantesimo Rituale 3"] },
+      "6": { "rango": "Veterano", "abilita": ["Apprendimento", "Trascrizione"] },
+      "9": { "rango": "Epico", "abilita": ["Stregoneria 4", "Aumento Caratteristica"] }
+    }
+  },
+  "Druido": {
+    "descrizione": "Custode della natura che trae forza dagli spiriti del mondo naturale.",
+    "lanciIniziali": {
+      "prodezza": "1D6",
+      "intelligenza": "1D6+1",
+      "rapidita": "1D6",
+      "pr": "1D6+1",
+      "po": 5
+    },
+    "equipaggiamentoBase": {
+      "armi": ["Bastone da combattimento"],
+      "armatura": "Corpetto di cuoio rinforzato",
+      "oggetti": ["Sacco", "Simbolo della natura", "Borsa delle erbe"]
+    },
+    "abilitaDettagli": {
+      "Magia Primordiale": "Incantesimi dal Grimorio del Druido. No metallo addosso.",
+      "Tecnica della Natura": "Sbalza l'avversario indietro dopo attacco ravvicinato.",
+      "Sintonia con la Natura": "Rileva nemici e trappole naturali.",
+      "Incantesimo Rituale": "Forma Famelica, Controllare Tempo Atmosferico.",
+      "Furia della Natura": "Doppio attacco ravvicinato, il secondo ignora armatura."
+    },
+    "progressione": {
+      "1": { "rango": "Alle Prime Armi", "abilita": ["Magia Primordiale 1"] },
+      "2": { "rango": "Principiante", "abilita": ["Incantesimo Rituale 1", "Tecnica della Natura"] },
+      "4": { "rango": "Navigato", "abilita": ["Magia Primordiale 2", "Sintonia con la Natura 1"] },
+      "6": { "rango": "Veterano", "abilita": ["Magia Primordiale 3", "Sintonia con la Natura 2"] },
+      "9": { "rango": "Epico", "abilita": ["Magia Primordiale 4", "Aumento Caratteristica"] }
+    }
+  }
+}
