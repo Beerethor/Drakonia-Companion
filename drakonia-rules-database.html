@@ -26,7 +26,6 @@
             min-height: 100vh;
         }
 
-        /* Navigazione Superiore - Stile Tabella */
         .top-nav {
             width: 100%;
             background: #2c1e11 url('https://www.transparenttextures.com/patterns/black-linen.png');
@@ -39,6 +38,7 @@
             z-index: 100;
             border-bottom: 3px solid var(--gold);
             box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            box-sizing: border-box;
         }
 
         .btn-home {
@@ -71,7 +71,6 @@
             font-size: 1rem;
         }
 
-        /* Titolo Principale */
         header h1 {
             font-family: 'Grenze Gotisch', cursive;
             color: var(--gold);
@@ -81,7 +80,6 @@
             letter-spacing: 4px;
         }
 
-        /* Contenitore Card */
         .database-container {
             max-width: 1100px;
             width: 90%;
@@ -126,7 +124,6 @@
             text-transform: uppercase;
         }
 
-        /* Modali - Effetto Pergamena Antica */
         .modal {
             display: none;
             position: fixed;
@@ -145,8 +142,6 @@
             max-width: 850px;
             max-height: 85vh;
             padding: 50px;
-            border: 20px solid transparent;
-            border-image: url('https://i.imgur.com/7S7X7vj.png') 30 stretch; /* Bordo decorativo se disponibile o solido */
             border: 10px double var(--border);
             overflow-y: auto;
             position: relative;
@@ -162,7 +157,6 @@
             font-family: serif;
         }
 
-        /* Dettagli Interni */
         .selection-item {
             background: rgba(0, 0, 0, 0.05);
             margin: 15px 0;
@@ -206,11 +200,9 @@
 
         .hidden { display: none; }
 
-        /* Scrollbar Personalizzata */
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: var(--ink); }
         ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; }
-
     </style>
 </head>
 <body>
@@ -268,13 +260,14 @@
     </div>
 
     <script>
+        // Mappa dei file. Per le classi usiamo il file 'classi.json'
         const databaseMap = {
             'generali': ['general-rules.json', 'rules-data.json'],
             'combattimento': ['combat-rules.json'],
             'magia': ['magic-rules.json'],
             'grimori': ['sorcerer-grimoire.json', 'druid-grimoire.json'],
             'equipaggiamento': ['equipment-data.json'],
-            'classi': ['Guerriero', 'Truffatore', 'Saggio', 'Stregone']
+            'classi': ['Guerriero', 'Truffatore', 'Saggio', 'Stregone', 'Druido']
         };
 
         function filterRules() {
@@ -295,22 +288,34 @@
                 const item = document.createElement('div');
                 item.className = 'selection-item';
                 item.innerText = "➤ " + opt.replace('.json', '').replace(/-/g, ' ').toUpperCase();
+                
+                // Se la categoria è 'classi', passiamo true come secondo parametro
                 item.onclick = () => showFinalRule(opt, cat === 'classi');
                 container.appendChild(item);
             });
             document.getElementById('modal-selection').style.display = 'flex';
         }
 
-        async function showFinalRule(name, isFirebase) {
+        async function showFinalRule(name, isClassRequest) {
             const body = document.getElementById('view-body');
             document.getElementById('view-title').innerText = name.replace('.json', '').replace(/-/g, ' ').toUpperCase();
             body.innerHTML = "<p style='text-align:center;'>Consultando gli antichi tomi...</p>";
             document.getElementById('modal-view').style.display = 'flex';
 
             try {
-                if (isFirebase) {
-                    body.innerHTML = `<h3>Eroe: ${name}</h3><p><em>Dati in fase di recupero dal database centrale di Drakonia...</em></p>`;
+                if (isClassRequest) {
+                    // Carica il file classi.json e cerca l'eroe specifico
+                    const response = await fetch('classi.json');
+                    if (!response.ok) throw new Error("Archivio classi non trovato.");
+                    const allHeroData = await response.json();
+                    
+                    if (allHeroData[name]) {
+                        body.innerHTML = formatJsonToHtml(allHeroData[name]);
+                    } else {
+                        throw new Error("Dati eroe non trovati nell'archivio.");
+                    }
                 } else {
+                    // Caricamento standard per gli altri file JSON
                     const response = await fetch(name);
                     if (!response.ok) throw new Error("Documento non trovato o corrotto.");
                     const data = await response.json();
