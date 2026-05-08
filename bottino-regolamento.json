@@ -1,0 +1,340 @@
+{
+    "regole_generali": {
+        "descrizione": "Il Gran Maestro può determinare il contenuto del Bottino in possesso dei Mostri o dei PNG oppure trovato dal Gruppo in un'Area, una Stanza o un Forziere.",
+        "modalita_selezione": [
+            {
+                "tipo": "Scelta del Gran Maestro",
+                "descrizione": "Il Gran Maestro stabilisce il Bottino assicurandosi che esista il giusto equilibrio tra rischio e valore."
+            },
+            {
+                "tipo": "Modalità Casuale (suggerita)",
+                "procedura": [
+                    "Lanciare 2d6.",
+                    "Se il risultato è diverso da 11 o 12, controllare il risultato sulla tabella 'Bottino' in base al Livello Difficoltà della Missione e alla situazione.",
+                    "Se si sono trovati oggetti, determinarne il tipo lanciando 2d6 sulla tabella 'Bottino Tipo'.",
+                    "Per ogni oggetto trovato, lanciare 2d6 e controllare il risultato sulla tabella corrispondente al tipo di oggetto."
+                ]
+            }
+        ],
+        "regole_vendita": "Tutti gli oggetti di un Bottino possono essere venduti al mercato per la metà del loro valore in Pezzi d'Oro (PO), arrotondato per difetto.",
+        "regole_pe": "I Pezzi d'Oro ricavati dalla vendita vengono divisi equamente tra i membri del Gruppo, che guadagnano PE pari al numero di PO ricevuti."
+    },
+    "tabelle_generazione": {
+        "bottino_per_situazione": {
+            "descrizione": "Determinazione numero oggetti e PO in base a luogo/nemico e Livello Difficoltà (LD)",
+            "area": {
+                "2-4": "1 oggetto",
+                "5-10": "PO variabili (LD1:10, LD2:20, LD3:30, LD4:40, LD5:50, LD6:60)"
+            },
+            "stanza": {
+                "2-7": "1 oggetto (LD1-LD2), 2 oggetti (LD3-LD4), 3 oggetti (LD5), 4 oggetti (LD6)",
+                "8-10": "PO variabili (LD1:30, LD2:30, LD3:60, LD4:60, LD5:90, LD6:120)"
+            },
+            "forziere": {
+                "2-4": "1 oggetto (LD1-LD2), 2 oggetti (LD3-LD4), 3 oggetti (LD5)",
+                "2-4_LD6": "4 oggetti",
+                "5-10": "PO variabili o oggetti extra (vedi tabella immagine 102)"
+            },
+            "mostro_1-99_pe": {
+                "2": "1 oggetto",
+                "3-10": "10 PO"
+            },
+            "mostro_100-249_pe": {
+                "2-4": "1 oggetto",
+                "5-10": "50 PO"
+            }
+        },
+        "tipo_bottino": {
+            "descrizione": "Lancio 2d6 per determinare la categoria dell'oggetto",
+            "categorie": [
+                {
+                    "tipo": "Anello",
+                    "range_ld": {
+                        "LD1": "2-3",
+                        "LD2": "2-3",
+                        "LD3": "2-3",
+                        "LD4": "2-3",
+                        "LD5": "2-3",
+                        "LD6": "2-3"
+                    }
+                },
+                {
+                    "tipo": "Arma",
+                    "range_ld": {
+                        "LD1": "4",
+                        "LD2": "4-5",
+                        "LD3": "4-5",
+                        "LD4": "4-5",
+                        "LD5": "4-6",
+                        "LD6": "4-6"
+                    }
+                },
+                {
+                    "tipo": "Armatura",
+                    "range_ld": {
+                        "LD1": "5",
+                        "LD2": "6",
+                        "LD3": "6-7",
+                        "LD4": "6-7",
+                        "LD5": "7-8",
+                        "LD6": "7-9"
+                    }
+                },
+                {
+                    "tipo": "Oggetto",
+                    "range_ld": {
+                        "LD4": "8",
+                        "LD5": "9",
+                        "LD6": "10"
+                    }
+                },
+                {
+                    "tipo": "Pergamena",
+                    "range_ld": {
+                        "LD1": "6-8",
+                        "LD2": "7-9",
+                        "LD3": "8-10",
+                        "LD4": "9-10",
+                        "LD5": "10-11",
+                        "LD6": "11"
+                    }
+                },
+                {
+                    "tipo": "Pozione",
+                    "range_ld": {
+                        "LD1": "9-12",
+                        "LD2": "10-12",
+                        "LD3": "11-12",
+                        "LD4": "11-12",
+                        "LD5": "12",
+                        "LD6": "12"
+                    }
+                }
+            ]
+        }
+    },
+    "catalogo_oggetti": {
+        "anelli": [
+            {
+                "nome": "Anello della Forza",
+                "valore_po": 300,
+                "effetto": "+1 in Prodezza"
+            },
+            {
+                "nome": "Anello del Fuoco Fatuo",
+                "valore_po": 800,
+                "effetto": "Lancia incantesimo fuoco bianco 1 volta/giorno (Int 10)"
+            },
+            {
+                "nome": "Anello della Furbizia",
+                "valore_po": 300,
+                "effetto": "+1 in Rapidità"
+            },
+            {
+                "nome": "Anello del Mago",
+                "valore_po": 300,
+                "effetto": "+1 in Intelligenza"
+            },
+            {
+                "nome": "Anello della Protezione",
+                "valore_po": 150,
+                "effetto": "+5 in PR correnti"
+            }
+        ],
+        "armi": [
+            {
+                "nome": "Ascia di Heraklos",
+                "valore_po": 100,
+                "effetto": "+1 Prodezza, -5 PR correnti"
+            },
+            {
+                "nome": "Bastone del Potere",
+                "valore_po": 500,
+                "effetto": "+1 Prodezza, +1 PI, lancia getto vulcanico 1 volta/giorno"
+            },
+            {
+                "nome": "Coltello Sacrificale di Vectris",
+                "valore_po": 150,
+                "effetto": "Maledetto, distrugge inventario, +1 Prodezza in attacco"
+            },
+            {
+                "nome": "Mazza del Potere",
+                "valore_po": 1500,
+                "effetto": "1D6 cariche, successo automatico attacco ravvicinato, 5D6 PI"
+            },
+            {
+                "nome": "Scimitarra della Luna",
+                "valore_po": 1000,
+                "effetto": "Argento, successo automatico contro Non-morti"
+            },
+            {
+                "nome": "Spada Vorace",
+                "valore_po": 250,
+                "effetto": "+1 Prodezza, +1D6 PI contro Non-morti"
+            }
+        ],
+        "armature": [
+            {
+                "nome": "Bracciale di Protezione d'Argento",
+                "valore_po": 800,
+                "effetto": "Protegge da folgorazione e forza (danni dimezzati)"
+            },
+            {
+                "nome": "Corazza di Electrum",
+                "valore_po": 800,
+                "effetto": "Protezione P2, non impedisce lancio incantesimi"
+            },
+            {
+                "nome": "Corazza di Mithril",
+                "valore_po": 1200,
+                "effetto": "Protezione P4, non impedisce lancio incantesimi"
+            },
+            {
+                "nome": "Cotta di Electrum",
+                "valore_po": 400,
+                "effetto": "Armatura leggera, P2, non impedisce lancio incantesimi"
+            },
+            {
+                "nome": "Cotta di Mithril",
+                "valore_po": 2200,
+                "effetto": "Leggera, P2, non impedisce lancio incantesimi, conta come 1 oggetto"
+            },
+            {
+                "nome": "Scudo Rinforzato",
+                "valore_po": 200,
+                "effetto": "Se para con 6 (1D6), non si distrugge e concede nuovo lancio"
+            }
+        ],
+        "oggetti_magici": [
+            {
+                "nome": "Acqua della Invulnerabilità",
+                "valore_po": 100,
+                "effetto": "Lancio 1D6: 1-3 morte, 4-6 invulnerabile per 1 ora"
+            },
+            {
+                "nome": "Acqua della Rimembranza",
+                "valore_po": 500,
+                "effetto": "2D6 dosi, lancia 1D6: 1-3 perde 1D6 PR, 4-6 guadagna 1D6 PR"
+            },
+            {
+                "nome": "Amuleto di Osiride",
+                "valore_po": 2500,
+                "effetto": "Torna in vita se indossato al momento della morte"
+            },
+            {
+                "nome": "Amuleto del Viaggio Sicuro",
+                "valore_po": 50,
+                "effetto": "Percepisce mostri o PNG ostili in stanze contigue"
+            },
+            {
+                "nome": "Gemma di Astarandel",
+                "valore_po": 50,
+                "effetto": "Comunicazione telepatica entro raggio movimento"
+            },
+            {
+                "nome": "Gioiello di Ghiaccio Blu",
+                "valore_po": 250,
+                "effetto": "Rilascia energia fredda (1D6 PI) in raggio 6m"
+            },
+            {
+                "nome": "Maschera Maledetta",
+                "valore_po": 1000,
+                "effetto": "2 azioni combattimento, ma non può essere tolta e raddoppia danni ricevuti"
+            },
+            {
+                "nome": "Pendente della Resurrezione",
+                "valore_po": 1800,
+                "effetto": "Rianima creatura con <20 PR come Non-morto dissennato"
+            },
+            {
+                "nome": "Scarabeo di Smeraldo",
+                "valore_po": 1500,
+                "effetto": "Rianima creatura morta, non potrà più usare armature/scudi"
+            },
+            {
+                "nome": "Sfera della Concessione",
+                "valore_po": 5000,
+                "effetto": "Effetto casuale potente (lancio 1D6)"
+            },
+            {
+                "nome": "Sfera del Fuoco",
+                "valore_po": 150,
+                "effetto": "Danneggia chi la tocca, scioglie metallo, incendia legno"
+            },
+            {
+                "nome": "Talismano della Fortezza",
+                "valore_po": 500,
+                "effetto": "+1 alla P#, non impedisce lancio incantesimi"
+            }
+        ],
+        "pergamene": [
+            {
+                "nome": "Pergamena della Distruzione",
+                "valore_po": 50,
+                "effetto": "Fulmine 3D6 PI a bersaglio in linea di vista"
+            },
+            {
+                "nome": "Pergamena Guaritrice",
+                "valore_po": 50,
+                "effetto": "Cura 3D6 PR correnti"
+            },
+            {
+                "nome": "Pergamena dell'Invisibilità",
+                "valore_po": 500,
+                "effetto": "Invisibile per 3 round"
+            },
+            {
+                "nome": "Pergamena della Resurrezione",
+                "valore_po": 1000,
+                "effetto": "Rianima come Non-morto dissennato"
+            },
+            {
+                "nome": "Pergamena di Trasferimento",
+                "valore_po": 250,
+                "effetto": "Trasferisce 1 punto caratteristica a scelta"
+            },
+            {
+                "nome": "Pergamena del Volo",
+                "valore_po": 100,
+                "effetto": "Vola per 5 round"
+            }
+        ],
+        "pozioni": [
+            {
+                "nome": "Antidoto",
+                "valore_po": 50,
+                "effetto": "Blocca veleni, 1D6 per tipo (malva, caos, liquido nero, veleno verde)"
+            },
+            {
+                "nome": "Pozione del Caos",
+                "valore_po": 100,
+                "effetto": "Effetti casuali su statistiche (1D6)"
+            },
+            {
+                "nome": "Pozione Guaritrice",
+                "valore_po": 10,
+                "effetto": "Cura 1D6 PR correnti"
+            },
+            {
+                "nome": "Liquido Nero",
+                "valore_po": 75,
+                "effetto": "Uccide in pochi istanti"
+            },
+            {
+                "nome": "Pozione di Malva",
+                "valore_po": 50,
+                "effetto": "Droga potente: 1-2 morte, 3-6 bonus statistiche temporanei"
+            },
+            {
+                "nome": "Veleno Verde",
+                "valore_po": 25,
+                "effetto": "Uccide in pochi minuti tra atroci sofferenze"
+            },
+            {
+                "nome": "Pozione Verde",
+                "valore_po": 40,
+                "effetto": "+1 Prodezza per 20 minuti, poi malus"
+            }
+        ]
+    }
+}
