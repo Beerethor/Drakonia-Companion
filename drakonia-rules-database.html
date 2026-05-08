@@ -25,7 +25,6 @@
             align-items: center;
         }
 
-        /* Navigazione */
         .top-nav {
             width: 100%;
             background: #1a120b;
@@ -59,7 +58,6 @@
             text-shadow: 4px 4px 8px #000;
         }
 
-        /* Contenitore Unico Indice */
         .codex-container {
             width: 90%;
             max-width: 1000px;
@@ -82,7 +80,6 @@
             gap: 15px;
         }
 
-        /* Lista Regolamenti */
         .rule-list {
             list-style: none;
             padding: 0;
@@ -111,7 +108,6 @@
 
         .rule-item span { font-size: 0.9rem; opacity: 0.7; font-style: italic; }
 
-        /* Modal Visualizzazione */
         .modal {
             display: none;
             position: fixed;
@@ -133,7 +129,6 @@
             font-size: 30px; cursor: pointer; color: var(--blood);
         }
 
-        /* Formattazione Testo Interno */
         summary { font-weight: bold; color: var(--blood); cursor: pointer; margin-top: 10px; font-family: 'MedievalSharp'; border-bottom: 1px solid rgba(0,0,0,0.1); }
         .rule-block { padding: 8px 0; border-bottom: 1px dashed rgba(0,0,0,0.1); font-size: 1.1rem; }
         .rule-block strong { color: #5a3e2b; }
@@ -157,7 +152,7 @@
         <div class="section-area" data-section="Generali">
             <h2 class="section-title">📜 Leggi Fondamentali</h2>
             <ul class="rule-list">
-                <li class="rule-item" onclick="loadRule('rules-data.json')">Meccaniche di Gioco, Prove e Riposo, Filosofia OSR e Terminologia <span>(Generali)</span></li>
+                <li class="rule-item" onclick="loadRule('rules-data.json')">Meccaniche di Gioco, Prove e Riposo, Filosofia OSR <span>(Generali)</span></li>
             </ul>
         </div>
 
@@ -165,7 +160,8 @@
             <h2 class="section-title">⚔️ Movimento e Sfide</h2>
             <ul class="rule-list">
                 <li class="rule-item" onclick="loadRule('combat-rules.json')">Gestione Griglia, Salti e Arrampicate <span>(Lotta)</span></li>
-                <li class="rule-item" onclick="loadRule('traps-interaction.json')">Trappole, Scassinare e Sfondare <span>(interazione)</span></li>
+                <li class="rule-item" onclick="loadRule('traps-interaction.json')">Trappole, Scassinare e Sfondare <span>(Interazione)</span></li>
+                <li class="rule-item" onclick="loadRule('bottino-regolamento.json')">Generazione Bottino e Tesori <span>(Ricompense)</span></li>
             </ul>
         </div>
 
@@ -207,7 +203,6 @@
     </div>
 
     <script>
-        // Funzione di ricerca globale
         function filterRules() {
             let input = document.getElementById('ruleSearch').value.toLowerCase();
             let items = document.getElementsByClassName('rule-item');
@@ -218,26 +213,23 @@
                 item.style.display = text.includes(input) ? "flex" : "none";
             }
 
-            // Nascondi sezioni vuote durante la ricerca
             for (let section of sections) {
                 let hasVisible = Array.from(section.querySelectorAll('.rule-item')).some(li => li.style.display !== "none");
                 section.style.display = hasVisible ? "block" : "none";
             }
         }
 
-        // Carica Regolamento standard
         async function loadRule(file) {
             showModal("Consultando gli Antichi Tomi...");
             try {
                 const response = await fetch(file);
                 const data = await response.json();
-                renderData(file.replace('.json', '').toUpperCase(), data);
+                renderData(file.replace('.json', '').replace(/-/g, ' ').toUpperCase(), data);
             } catch (e) {
                 renderData("ERRORE", { messaggio: "Documento non trovato negli archivi." });
             }
         }
 
-        // Carica Classe specifica
         async function loadClass(className) {
             showModal("Invocando l'Eroe...");
             try {
