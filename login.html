@@ -2,72 +2,74 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Drakonia</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
+    <title>Drakonia - Accesso</title>
+    <link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;700&family=Almendra&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; }
+        body { 
+            background: #1a1a1a; display: flex; justify-content: center; align-items: center; 
+            height: 100vh; margin: 0; font-family: 'Almendra', serif;
+        }
+        .login-card {
+            background: var(--parchment); padding: 40px; border: 8px double var(--leather);
+            width: 350px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+        h1 { font-family: 'Grenze Gotisch'; color: var(--gold); font-size: 3rem; margin: 0; text-shadow: 2px 2px var(--leather); }
+        p { color: var(--leather); font-style: italic; margin-bottom: 30px; }
+        input { 
+            width: 100%; padding: 12px; margin: 10px 0; border: none; 
+            border-bottom: 2px solid var(--leather); background: transparent; 
+            font-family: 'Almendra'; box-sizing: border-box;
+        }
+        .btn-enter {
+            background: #4a321f; color: var(--gold); border: none; width: 100%;
+            padding: 15px; font-family: 'Grenze Gotisch'; font-size: 1.5rem; 
+            cursor: pointer; clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
+            transition: 0.3s; margin-top: 20px;
+        }
+        .btn-enter:hover { background: var(--leather); transform: scale(1.05); }
+        .google-btn {
+            margin-top: 25px; border: 1px solid #ccc; background: white; padding: 10px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            border-radius: 5px; color: #757575; font-weight: bold;
+        }
+        .google-btn img { width: 20px; margin-right: 10px; }
+    </style>
 </head>
-<body class="login-page">
-    <div class="overlay"></div>
-    
-    <div class="login-container">
+<body>
+    <div class="login-card">
         <h1>DRAKONIA</h1>
-        <div class="divider"></div>
-        <p class="subtitle">Varca la soglia del destino</p>
+        <p>Varca la soglia del destino</p>
         
-        <form id="login-form">
-            <div class="input-group">
-                <label>Email dell'Eroe</label>
-                <input type="email" id="email" required>
-            </div>
-            <div class="input-group">
-                <label>Parola d'Ordine</label>
-                <input type="password" id="password" required>
-            </div>
-
-            <button type="submit" class="btn-fantasy main-btn">ENTRA</button>
-        </form>
-
-        <div class="divider-text">oppure</div>
-
-        <button type="button" id="google-login-btn" class="btn-google">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-            <span>Entra con Google</span>
-        </button>
+        <input type="email" id="email" placeholder="Email dell'Eroe">
+        <input type="password" id="password" placeholder="Parola d'Ordine">
         
-        <p id="auth-error" class="error-msg"></p>
-        <a href="index.html" class="back-link">Ritorna alla Taverna</a>
+        <button class="btn-enter" onclick="manualLogin()">ENTRA</button>
+        
+        <div class="google-btn" onclick="googleLogin()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg">
+            Entra con Google
+        </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    <script>
+        function manualLogin() {
+            const email = document.getElementById('email').value;
+            if(email) {
+                // Simulazione database: salva l'utente e reindirizza
+                const user = { username: email.split('@')[0], avatar: "", friendCode: "DRK-7721", email: email };
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                window.location.href = 'profile.html';
+            }
+        }
 
-        const firebaseConfig = {
-          apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
-          authDomain: "drakonia-companion.firebaseapp.com",
-          projectId: "drakonia-companion",
-          appId: "1:803844500713:web:c902b67f4e395bd20c9478"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        document.getElementById('login-form').onsubmit = async (e) => {
-            e.preventDefault();
-            try {
-                await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-                window.location.href = "index.html";
-            } catch (err) { document.getElementById('auth-error').innerText = "Credenziali errate."; }
-        };
-
-        document.getElementById('google-login-btn').onclick = async () => {
-            try {
-                await signInWithPopup(auth, provider);
-                window.location.href = "index.html";
-            } catch (err) { document.getElementById('auth-error').innerText = "Login Google fallito."; }
-        };
+        function googleLogin() {
+            // Nota: In un ambiente reale qui va Firebase/Auth
+            alert("Il portale di Google si sta aprendo...");
+            const user = { username: "Eroe Google", avatar: "https://img.icons8.com/color/96/warrior.png", friendCode: "DRK-9999" };
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            window.location.href = 'profile.html';
+        }
     </script>
 </body>
 </html>
