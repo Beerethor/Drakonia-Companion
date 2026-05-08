@@ -169,14 +169,23 @@
     });
 
     function applicaClasse() {
-        const classe = document.getElementById('classe-select').value;
-        const data = classiData[classe];
-        if (!data) return;
-        document.getElementById('arma').value = data.equip.split(', ')[0];
-        document.getElementById('armatura').value = data.equip.split(', ')[1] || "";
-        document.getElementById('oro').value = data.oro;
-        for(let i=1; i<=9; i++) document.getElementById('inv'+i).value = data.zaino[i-1] || "";
+    const classe = document.getElementById('classe-select').value;
+    const data = classiData[classe];
+    
+    if (!data) return;
+
+    // Inserisce l'equipaggiamento base
+    document.getElementById('arma').value = data.equip.split(', ')[0] || "";
+    document.getElementById('armatura').value = data.equip.split(', ')[1] || "";
+    
+    // Imposta i PO iniziali della classe
+    document.getElementById('oro').value = data.oro;
+
+    // Popola lo zaino
+    for(let i=1; i<=9; i++) {
+        document.getElementById('inv'+i).value = data.zaino[i-1] || "";
     }
+}
 
     function rollStats() {
         const classe = document.getElementById('classe-select').value;
