@@ -14,6 +14,22 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
+        /* Tasto Torna Indietro */
+        .btn-back {
+            align-self: flex-start;
+            background: none;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 5px 15px;
+            font-family: 'Grenze Gotisch';
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: 0.3s;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .btn-back:hover { background: var(--gold); color: var(--leather); }
+
         .hero-card {
             background: var(--glass); border: 2px solid var(--gold); padding: 25px;
             text-align: center; border-radius: 10px; box-shadow: 0 0 30px black;
@@ -29,7 +45,6 @@
         .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
         .hero-name { font-family: 'Grenze Gotisch'; font-size: 2.5rem; color: var(--gold); margin: 10px 0; }
         
-        /* Sezione Amici */
         .friends-section {
             width: 100%; max-width: 400px; margin-top: 30px;
             background: rgba(0,0,0,0.4); padding: 20px; border-radius: 10px;
@@ -45,14 +60,11 @@
 
         .remove-btn { color: #ff4444; cursor: pointer; font-weight: bold; border: none; background: none; }
 
-        /* Input e Bottoni */
         .btn-fantasy {
             background: var(--leather); color: var(--gold); border: 1px solid var(--gold);
             padding: 12px; width: 100%; font-family: 'Grenze Gotisch'; cursor: pointer; 
             margin-top: 10px; font-size: 1.2rem; transition: 0.3s;
         }
-
-        .btn-fantasy:hover { background: var(--gold); color: var(--leather); }
 
         #settings-panel {
             display: none; background: var(--parchment); color: var(--leather);
@@ -68,6 +80,8 @@
     </style>
 </head>
 <body>
+
+    <a href="login.html" class="btn-back">« Ritorna alla Taverna</a>
 
     <div class="hero-card">
         <div class="avatar-frame"><img id="display-avatar" src=""></div>
@@ -92,29 +106,23 @@
             <input type="text" id="new-friend-code" class="edit-field" placeholder="Codice Eroe (es: DRK-1234)" style="background:rgba(255,255,255,0.1); color:white; border-color:var(--gold);">
             <button class="btn-fantasy" onclick="addFriend()">AGGIUNGI COMPAGNO</button>
         </div>
-        <ul id="friends-list" class="friends-list">
-            </ul>
+        <ul id="friends-list" class="friends-list"></ul>
     </div>
 
     <button onclick="logout()" style="background:transparent; color:rgba(255,0,0,0.6); border:none; width:100%; margin-top:40px; cursor:pointer; font-family:'Grenze Gotisch'; font-size:1.2rem;">RITIRATI DALL'AVVENTURA</button>
 
     <script>
-        // Caricamento Dati
         let user = JSON.parse(localStorage.getItem('currentUser'));
         if (!user) window.location.href = 'login.html';
-
-        // Inizializza lista amici se vuota
         if (!user.friends) user.friends = [];
 
         function render() {
-            // Aggiorna Profilo
             document.getElementById('display-name').innerText = user.username;
             document.getElementById('display-code').innerText = user.friendCode;
             document.getElementById('display-avatar').src = user.avatar || "https://img.icons8.com/color/96/fantasy.png";
             document.getElementById('edit-name').value = user.username;
             document.getElementById('edit-url').value = user.avatar || "";
 
-            // Aggiorna Lista Amici
             const listEl = document.getElementById('friends-list');
             listEl.innerHTML = user.friends.length === 0 ? "<p style='font-style:italic; opacity:0.5;'>Nessun compagno trovato...</p>" : "";
             
@@ -128,7 +136,6 @@
             });
         }
 
-        // Funzioni Profilo
         function toggleSettings() {
             const p = document.getElementById('settings-panel');
             p.style.display = p.style.display === 'block' ? 'none' : 'block';
@@ -137,43 +144,27 @@
         function saveProfile() {
             user.username = document.getElementById('edit-name').value;
             user.avatar = document.getElementById('edit-url').value;
-            
-            updateStorage();
-            alert("Annali aggiornati con successo!");
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            alert("Annali aggiornati!");
             toggleSettings();
             render();
         }
 
-        // Funzioni Amici
         function addFriend() {
             const codeInput = document.getElementById('new-friend-code');
             const code = codeInput.value.trim().toUpperCase();
-
-            if (code === user.friendCode) {
-                alert("Non puoi essere amico di te stesso, viandante!");
-                return;
-            }
-
-            if (code && !user.friends.includes(code)) {
+            if (code && !user.friends.includes(code) && code !== user.friendCode) {
                 user.friends.push(code);
-                updateStorage();
+                localStorage.setItem('currentUser', JSON.stringify(user));
                 codeInput.value = "";
                 render();
-            } else {
-                alert("Codice non valido o già presente!");
             }
         }
 
         function removeFriend(index) {
-            if(confirm("Vuoi davvero sciogliere il patto con questo compagno?")) {
-                user.friends.splice(index, 1);
-                updateStorage();
-                render();
-            }
-        }
-
-        function updateStorage() {
+            user.friends.splice(index, 1);
             localStorage.setItem('currentUser', JSON.stringify(user));
+            render();
         }
 
         function logout() {
@@ -181,7 +172,6 @@
             window.location.href = 'login.html';
         }
 
-        // Primo avvio
         render();
     </script>
 </body>
