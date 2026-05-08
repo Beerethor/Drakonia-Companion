@@ -4,82 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Drakonia RPG - Portale dell'Avventuriero</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
         :root {
-            --gold: #b8860b;
-            --leather: #2c1e11;
             --parchment: #f4e4bc;
+            --ink: #2c1e11;
+            --gold: #b8860b;
             --blood: #8b0000;
-            --shadow: rgba(0,0,0,0.8);
+            --leather: #1a110a;
         }
 
         body {
-            background: #1a110a url('https://www.transparenttextures.com/patterns/dark-leather.png');
+            background: radial-gradient(circle, #2c1e11 0%, #1a110a 100%);
             color: var(--parchment);
             font-family: 'Almendra', serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* Top Bar & Avatar */
         header {
-            background: linear-gradient(to bottom, #2c1e11, #1a110a);
-            border-bottom: 3px solid var(--gold);
+            background: url('https://www.transparenttextures.com/patterns/dark-leather.png'), #1a110a;
+            border-bottom: 3px double var(--gold);
             padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 5px 20px var(--shadow);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.7);
         }
 
-        .logo-title {
-            font-family: 'Grenze Gotisch';
+        header h1 {
+            font-family: 'Grenze Gotisch', cursive;
             font-size: 2.5rem;
-            color: var(--gold);
             margin: 0;
+            color: var(--gold);
             text-shadow: 2px 2px 4px #000;
             letter-spacing: 3px;
         }
 
+        /* Avatar Rotondo */
         .profile-trigger {
-            width: 55px;
-            height: 55px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             border: 2px solid var(--gold);
             cursor: pointer;
             overflow: hidden;
-            background: var(--leather);
-            transition: 0.3s;
-            box-shadow: 0 0 10px rgba(184, 134, 11, 0.4);
+            background: var(--ink);
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: transform 0.2s;
         }
 
-        .profile-trigger:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 15px var(--gold);
-        }
+        .profile-trigger:hover { transform: scale(1.1); }
+        .profile-trigger img { width: 100%; height: 100%; object-fit: cover; }
 
-        .profile-trigger img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .profile-trigger i {
-            font-size: 1.5rem;
-            color: var(--gold);
-        }
-
-        /* Hub Centrale */
+        /* Card Grid */
         .hub-container {
             flex-grow: 1;
             display: flex;
@@ -87,178 +76,138 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            gap: 30px;
         }
 
         .welcome-msg {
-            text-align: center;
             font-family: 'MedievalSharp';
             font-size: 1.5rem;
-            margin-bottom: 10px;
+            margin-bottom: 30px;
             color: var(--gold);
         }
 
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
             width: 100%;
-            max-width: 900px;
+            max-width: 800px;
         }
 
-        .menu-card {
-            background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-            color: var(--leather);
-            border: 4px double var(--leather);
-            border-radius: 12px;
-            padding: 30px;
+        .card {
+            background: var(--parchment);
+            color: var(--ink);
+            border: 4px double #4a321f;
+            border-radius: 8px;
+            padding: 25px;
             text-align: center;
+            cursor: pointer;
             text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px var(--shadow);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
 
-        .menu-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--gold);
-            background-color: #fff;
-        }
+        .card:hover { transform: translateY(-5px); border-color: var(--gold); background: #fff; }
+        .card span { font-size: 3rem; display: block; margin-bottom: 10px; }
+        .card p { margin: 0; font-weight: bold; font-family: 'MedievalSharp'; font-size: 1.3rem; }
 
-        .menu-card span {
-            font-size: 3.5rem;
-            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
-        }
-
-        .menu-card h2 {
-            margin: 0;
-            font-family: 'Grenze Gotisch';
-            font-size: 2rem;
-            color: var(--blood);
-        }
-
-        .menu-card p {
-            margin: 0;
-            font-size: 1.1rem;
-            font-style: italic;
-            opacity: 0.8;
-        }
-
-        /* Footer decorativo */
         footer {
+            background: #1a110a;
+            padding: 15px;
             text-align: center;
-            padding: 20px;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            border-top: 1px solid var(--gold);
             opacity: 0.6;
-            border-top: 1px solid rgba(184, 134, 11, 0.2);
         }
-
-        .hidden { display: none; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1 class="logo-title">DRAKONIA</h1>
-        
+        <h1>DRAKONIA</h1>
         <div id="profile-btn" class="profile-trigger" onclick="handleProfileClick()">
-            <img id="user-avatar" src="https://img.icons8.com/color/96/fantasy.png" alt="Eroe">
+            <img id="user-avatar" src="https://img.icons8.com/color/96/fantasy.png" alt="Profilo">
         </div>
     </header>
 
     <main class="hub-container">
         <div class="welcome-msg">
-            <span id="welcome-text">Benvenuto, Viandante</span>
+            <span id="welcome-text">In attesa dell'eroe...</span>
         </div>
 
         <div class="card-grid">
-            <a href="creazione-pg.html" class="menu-card">
+            <a href="creazione-pg.html" class="card">
                 <span>✨</span>
-                <h2>NUOVO EROE</h2>
-                <p>Incidi il tuo destino negli annali</p>
+                <p>Nuovo Eroe</p>
             </a>
             
-            <a href="#" class="menu-card" onclick="alert('L\'archivio degli eroi è in fase di restauro magico...')">
+            <a href="#" class="card" onclick="alert('Consultando gli annali...')">
                 <span>👥</span>
-                <h2>ARCHIVIO PG</h2>
-                <p>Consulta le gesta dei tuoi eroi</p>
+                <p>Archivio PG</p>
             </a>
 
-            <a href="drakonia-rules-database.html" class="menu-card" style="grid-column: 1 / -1;">
+            <a href="drakonia-rules-database.html" class="card">
                 <span>📜</span>
-                <h2>CODEX REGOLE</h2>
-                <p>Leggi le leggi delle Terre Selvagge</p>
+                <p>Codex Regole</p>
             </a>
         </div>
     </main>
 
-    <footer>
-        &copy; 2026 Drakonia RPG - Portale Digitale
-    </footer>
+    <footer>&copy; 2026 Drakonia Companion - Portale dell'Avventuriero</footer>
 
     <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
-        authDomain: "drakonia-companion.firebaseapp.com",
-        projectId: "drakonia-companion",
-        storageBucket: "drakonia-companion.firebasestorage.app",
-        messagingSenderId: "803844500713",
-        appId: "1:803844500713:web:c902b67f4e395bd20c9478"
-    };
+        // Configurazione Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
+            authDomain: "drakonia-companion.firebaseapp.com",
+            projectId: "drakonia-companion",
+            storageBucket: "drakonia-companion.firebasestorage.app",
+            messagingSenderId: "803844500713",
+            appId: "1:803844500713:web:c902b67f4e395bd20c9478",
+            measurementId: "G-GE42YKVX9G"
+        };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    auth.onAuthStateChanged(user => {
-        const avatarBtn = document.getElementById('profile-btn');
-        const welcomeText = document.getElementById('welcome-text');
-
-        if (user) {
-            // Mostriamo i dati di Google come "caricamento" temporaneo
-            updateUI(user.photoURL, user.displayName);
-
-            // Recupero dati reali da Firestore
-            db.collection("users").doc(user.uid).onSnapshot((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    // Usiamo i dati del DB se presenti, altrimenti quelli Google
-                    const photo = data.avatar || user.photoURL || "https://img.icons8.com/color/96/fantasy.png";
-                    const name = data.username || user.displayName || "Eroe";
-                    updateUI(photo, name);
-                }
-            }, (error) => {
-                console.error("Errore Firestore:", error);
-            });
-        } else {
-            // Stato non loggato
-            updateUI("https://img.icons8.com/ios-filled/50/b8860b/user-shield.png", "Viandante (Accedi)");
+        // Inizializzazione sicura
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
-    });
-
-    // Funzione centralizzata per aggiornare la grafica senza errori
-    function updateUI(photoUrl, name) {
-        const avatarBtn = document.getElementById('profile-btn');
-        const welcomeText = document.getElementById('welcome-text');
         
-        if (avatarBtn) {
-            avatarBtn.innerHTML = `<img src="${photoUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
-        }
-        if (welcomeText) {
-            welcomeText.innerText = "Bentornato, " + name;
-        }
-    }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-    function handleProfileClick() {
-        if (auth.currentUser) {
-            window.location.href = 'profile.html';
-        } else {
-            window.location.href = 'login.html';
+        // Monitoraggio dello stato dell'eroe
+        auth.onAuthStateChanged(user => {
+            const welcomeText = document.getElementById('welcome-text');
+            const avatarImg = document.getElementById('user-avatar');
+
+            if (user) {
+                // Ascolta i cambiamenti nel Codex (Firestore)
+                db.collection("users").doc(user.uid).onSnapshot((doc) => {
+                    let name = user.displayName || "Eroe";
+                    let photo = user.photoURL || "https://img.icons8.com/color/96/fantasy.png";
+
+                    if (doc.exists) {
+                        const data = doc.data();
+                        name = data.username || name;
+                        photo = data.avatar || photo;
+                    }
+                    
+                    welcomeText.innerText = "Bentornato, " + name;
+                    avatarImg.src = photo;
+                });
+            } else {
+                welcomeText.innerText = "Benvenuto, Viandante. Accedi per continuare.";
+                avatarImg.src = "https://img.icons8.com/ios-filled/50/b8860b/user-shield.png";
+            }
+        });
+
+        // Navigazione intelligente dell'Avatar
+        function handleProfileClick() {
+            if (auth.currentUser) {
+                window.location.href = 'profile.html';
+            } else {
+                window.location.href = 'login.html';
+            }
         }
-    }
-</script>
+    </script>
 </body>
 </html>
