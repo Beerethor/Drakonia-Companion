@@ -5,203 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drakonia - Accesso</title>
     <link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;700&family=Almendra&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <style>
-        :root { 
-            --gold: #b8860b; 
-            --parchment: #f4e4bc; 
-            --leather: #2c1e11; 
-            --blood: #8b0000;
-        }
-
+        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; }
         body { 
             background: #1a1a1a url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0; 
-            font-family: 'Almendra', serif;
-            padding: 20px;
-            box-sizing: border-box;
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; margin: 0; font-family: 'Almendra', serif; padding: 20px;
         }
-
         .login-card {
             background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-            padding: 30px; 
-            border: 6px double var(--leather);
-            width: 100%;
-            max-width: 400px; /* Ottimale per mobile e desktop */
-            text-align: center; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
-            position: relative;
+            padding: 30px; border: 6px double var(--leather);
+            width: 100%; max-width: 400px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.8);
         }
-
-        h1 { 
-            font-family: 'Grenze Gotisch'; 
-            color: var(--leather); 
-            font-size: clamp(2.5rem, 10vw, 3.5rem); 
-            margin: 0; 
-            text-shadow: 1px 1px var(--gold);
-        }
-
-        p { 
-            color: var(--leather); 
-            font-style: italic; 
-            margin: 10px 0 30px 0;
-            font-weight: bold;
-            opacity: 0.8;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
+        h1 { font-family: 'Grenze Gotisch'; color: var(--leather); font-size: 3rem; margin: 0; }
         input { 
-            width: 100%; 
-            padding: 14px; 
-            margin: 5px 0; 
-            border: none; 
-            border-bottom: 2px solid var(--leather); 
-            background: rgba(0,0,0,0.03); 
-            font-family: 'Almendra'; 
-            box-sizing: border-box;
-            font-size: 1.1rem;
-            outline: none;
-            transition: border-color 0.3s;
+            width: 100%; padding: 14px; margin: 10px 0; border: none; 
+            border-bottom: 2px solid var(--leather); background: rgba(0,0,0,0.05); 
+            font-family: 'Almendra'; box-sizing: border-box; font-size: 1.1rem;
         }
-
-        input:focus {
-            border-bottom-color: var(--gold);
-        }
-
         .btn-enter {
-            background: var(--leather); 
-            color: var(--gold); 
-            border: 1px solid var(--gold); 
-            width: 100%;
-            padding: 16px; 
-            font-family: 'Grenze Gotisch'; 
-            font-size: 1.6rem; 
-            cursor: pointer; 
-            clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
-            transition: all 0.3s ease;
-            margin-top: 20px;
-            text-transform: uppercase;
+            background: var(--leather); color: var(--gold); border: 1px solid var(--gold); 
+            width: 100%; padding: 16px; font-family: 'Grenze Gotisch'; font-size: 1.5rem; 
+            cursor: pointer; clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+            margin-top: 20px; transition: 0.3s;
         }
-
-        .btn-enter:active {
-            transform: scale(0.95);
-            background: #4a321f;
-        }
-
         .google-btn {
-            margin-top: 30px; 
-            border: 1px solid #ccc; 
-            background: white; 
-            padding: 12px;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer;
-            border-radius: 8px; 
-            color: #555; 
-            font-weight: bold;
-            font-family: sans-serif; /* Google usa font standard */
-            font-size: 0.9rem;
-            transition: background 0.3s;
+            margin-top: 25px; background: white; padding: 12px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            border-radius: 50px; color: #3c4043; font-weight: bold; font-family: sans-serif;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); width: 100%; transition: 0.2s;
         }
-
-        .google-btn:hover { background: #f8f8f8; }
         .google-btn img { width: 20px; margin-right: 12px; }
-
-        .error-msg {
-            color: var(--blood);
-            font-size: 0.9rem;
-            margin-top: 10px;
-            display: none;
-            font-weight: bold;
-        }
+        .google-btn:active { transform: scale(0.98); background: #eee; }
     </style>
 </head>
 <body>
-
     <div class="login-card">
         <h1>DRAKONIA</h1>
         <p>Varca la soglia del destino</p>
-        
-        <div class="input-group">
-            <input type="email" id="email" placeholder="Email dell'Eroe" required>
-        </div>
-        <div class="input-group">
-            <input type="password" id="password" placeholder="Parola d'Ordine" required>
-        </div>
-        
-        <div id="error-box" class="error-msg">Inserisci le tue credenziali, Eroe!</div>
-
+        <input type="email" id="email" placeholder="Email dell'Eroe">
+        <input type="password" id="password" placeholder="Parola d'Ordine">
         <button class="btn-enter" onclick="manualLogin()">ENTRA</button>
-        
         <div class="google-btn" onclick="googleLogin()">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg">
             Accedi con Google
         </div>
     </div>
 
     <script>
-        function manualLogin() {
-            const email = document.getElementById('email').value.trim();
-            const pass = document.getElementById('password').value;
-            const errorBox = document.getElementById('error-box');
+        // CONFIGURAZIONE FIREBASE (Inserisci i tuoi dati qui)
+        const firebaseConfig = { apiKey: "TUA_API_KEY", authDomain: "TUO_PROGETTO.firebaseapp.com" };
+        if (firebaseConfig.apiKey !== "TUA_API_KEY") firebase.initializeApp(firebaseConfig);
 
-            if (email === "" || pass === "") {
-                errorBox.style.display = "block";
-                return;
+        async function googleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                const result = await firebase.auth().signInWithPopup(provider);
+                const user = {
+                    username: result.user.displayName,
+                    avatar: result.user.photoURL,
+                    friendCode: "DRK-" + result.user.uid.substring(0,4).toUpperCase(),
+                    email: result.user.email
+                };
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                window.location.href = 'profile.html';
+            } catch (e) {
+                alert("Errore Portale: " + e.message);
+                // Fallback per test locale se Firebase non è configurato
+                manualLogin(); 
             }
+        }
 
-            errorBox.style.display = "none";
-            
-            // Creazione oggetto utente per la sessione
-            const user = { 
-                username: email.split('@')[0], 
-                avatar: "https://img.icons8.com/color/96/warrior.png", 
-                friendCode: "DRK-" + Math.floor(1000 + Math.random() * 9000), 
-                email: email,
-                lastLogin: new Date().toLocaleDateString()
-            };
-
-            // Salvataggio nel database locale del browser
+        function manualLogin() {
+            const email = document.getElementById('email').value || "Viandante";
+            const user = { username: email.split('@')[0], avatar: "", friendCode: "DRK-7777" };
             localStorage.setItem('currentUser', JSON.stringify(user));
-            
-            // Reindirizzamento al profilo
             window.location.href = 'profile.html';
         }
-
-        function googleLogin() {
-            // Simulazione autenticazione esterna
-            const user = { 
-                username: "Cavaliere di Google", 
-                avatar: "https://img.icons8.com/color/96/shield.png", 
-                friendCode: "DRK-GOOGLE",
-                email: "google.hero@drakonia.com"
-            };
-
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            
-            // Feedback visivo prima del cambio pagina
-            const btn = document.querySelector('.google-btn');
-            btn.innerHTML = "Apertura Portale...";
-            
-            setTimeout(() => {
-                window.location.href = 'profile.html';
-            }, 800);
-        }
-
-        // Permette l'invio premendo "Invio" sulla tastiera
-        document.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                manualLogin();
-            }
-        });
     </script>
 </body>
 </html>
