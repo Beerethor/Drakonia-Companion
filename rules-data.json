@@ -1,74 +1,119 @@
 {
-  "generali": {
-    "leggi_fondamentali": {
-      "ruoli": {
-        "Gran Maestro": {
-          "descrizione": "Arbitro delle Missioni, imparziale e non competitivo. Decide quale regola applicare e risolve situazioni non regolamentate creando nuove norme coerenti."
-        }
-      },
-      "sistema_di_prove": {
-        "meccanica_base": "Si lanciano uno o più D6 in base alla complessità. Il successo si ottiene se il Risultato è inferiore o uguale al punteggio della caratteristica usata.",
-        "complessita": {
-          "Minima": { "dadi": 1, "modalita": "Risultato singolo" },
-          "Facilissima": { "dadi": 4, "modalita": "Somma i 2 risultati più bassi" },
-          "Facile": { "dadi": 3, "modalita": "Somma i 2 risultati più bassi" },
-          "Normale": { "dadi": 2, "modalita": "Somma dei 2 risultati" },
-          "Difficile": { "dadi": 3, "modalita": "Somma i 2 risultati più alti" },
-          "Difficilissima": { "dadi": 4, "modalita": "Somma i 2 risultati più alti" }
-        },
-        "casi_speciali": {
-          "Successo_Automatico": "Ottenere almeno due '1' nel lancio (esclusa prova Minima).",
-          "Fallimento_Critico": "Ottenere almeno due '6' nel lancio (esclusa prova Minima).",
-          "Prova_di_Gruppo": "Tutti effettuano la prova; è superata se almeno la metà dei partecipanti ha successo.",
-          "Senza_Luce": "In assenza di luce, ogni prova aumenta di un grado la sua complessità."
-        }
+  "regole_generali": {
+    "filosofia_di_gioco": {
+      "stile": "Old-School (OSR)",
+      "descrizione": "Il regolamento non copre ogni situazione; il Gran Maestro (GM) risolve gli imprevisti con buon senso e imparzialità.",
+      "risoluzione_casualita": "Uso di dadi per stabilire esiti di azioni, stati di creature o oggetti (es. porte aperte/chiuse)."
+    },
+    "meccanica_dadi": {
+      "tipo": "Si utilizza esclusivamente il dado a sei facce (D6).",
+      "calcolo": {
+        "singolo": "Il risultato è pari al valore del dado.",
+        "multiplo": "Si sommano i singoli risultati dei dadi lanciati (#D6)."
       }
     },
-    "sostentamento_e_riposo": {
-      "pasti": {
-        "buona_qualita": "+1 PR (max 2 volte/giorno).",
-        "ottima_qualita": "+2 PR (max 2 volte/giorno).",
-        "nessun_pasto": "-1 PR."
+    "terminologia_essenziale": {
+      "gran_maestro": "Arbitro delle Missioni, imparziale e non competitivo. Decide quale regola applicare e risolve situazioni non regolamentate creando nuove norme coerenti.",
+      "giocatore": "Partecipante che interpreta un Avventuriero.",
+      "creatura": "Ogni Avventuriero (PG), Personaggio Non Giocante (PNG) o Mostro.",
+      "gruppo": "Insieme di Avventurieri che partecipano alle Missioni.",
+      "campagna": "Serie di Missioni coinvolgenti il Gruppo nello stesso mondo."
+    },
+    "sistema_di_prove": {
+      "meccanica_base": "Si lanciano uno o più D6 in base alla complessità. Il successo si ottiene se il Risultato è inferiore o uguale al punteggio della caratteristica usata.",
+      "complessita": {
+        "Minima": { "dadi": 1, "modalita": "Risultato singolo" },
+        "Facilissima": { "dadi": 4, "modalita": "Somma i 2 risultati più bassi" },
+        "Facile": { "dadi": 3, "modalita": "Somma i 2 risultati più bassi" },
+        "Normale": { "dadi": 2, "modalita": "Somma dei 2 risultati" },
+        "Difficile": { "dadi": 3, "modalita": "Somma i 2 risultati più alti" },
+        "Difficilissima": { "dadi": 4, "modalita": "Somma i 2 risultati più alti" }
       },
-      "riposo_8_ore": {
-        "all_aperto": "+1 PR x Livello.",
-        "letto_comodo": "+2 PR x Livello.",
-        "mancanza_riposo": "-1 PR x Livello."
+      "casi_speciali": {
+        "Successo_Automatico": "Ottenere almeno due '1' nel lancio (esclusa prova Minima).",
+        "Fallimento_Critico": "Ottenere almeno due '6' nel lancio (esclusa prova Minima).",
+        "Prova_di_Gruppo": "Tutti effettuano la prova; è superata se almeno la metà dei partecipanti ha successo.",
+        "Senza_Luce": "In assenza di luce, ogni prova aumenta di un grado la sua complessità."
       }
     }
   },
-  "combattimento": {
-    "esplorazione_e_movimento": {
-      "griglia": "Una casella corrisponde a circa 1,5 m di lato; può ospitare una sola Creatura.",
-      "ordine_di_marcia": "Stabilisce la successione dei turni di movimento. Può essere modificato in ogni momento, tranne durante eventi inattesi (Trappole o Sorpresa).",
-      "movimento_per_turno": {
-        "orizzontale_verticale": "Pari al punteggio di Prodezza.",
-        "diagonale": "Pari alla metà del punteggio di Prodezza (arrotondato per difetto). Richiede che le caselle adiacenti di partenza e arrivo siano libere.",
-        "accumulo": "Il movimento non effettuato non può essere cumulato e viene perso alla fine del turno."
+  "avventurieri": {
+    "caratteristiche_base": {
+      "prodezza": "Bravura in combattimento, agilità, doti atletiche e tempra fisica.",
+      "intelligenza": "Forza di volontà, carisma, resistenza magica e attitudine alla Magia.",
+      "rapidita": "Accortezza e capacità di risoluzione rapida dei problemi."
+    },
+    "punti_resistenza_pr": {
+      "definizione": "Misurano lo stato di salute; i PR totali dipendono dalla Classe e dal Livello.",
+      "meccanica": "Diminuiscono subendo Punti Impatto (PI) e possono essere incrementati da abilità o riposo."
+    },
+    "punti_impatto_pi_e_protezione": {
+      "pi": "Rappresentano i danni subiti (fuoco, acido, forza, ecc.).",
+      "protezione_p": "Determinata dall'armatura; i PI assorbiti dalla protezione non vengono sottratti ai PR."
+    },
+    "avanzamento_e_pe": {
+      "acquisizione": [
+        "Sconfiggere Mostri o PNG (secondo il Bestiario).",
+        "Trovare Pezzi d'Oro (1 PO = 1 PE).",
+        "Vendere Bottini (PE pari al valore di vendita ricevuto).",
+        "Terminare Missioni (PE divisi equamente nel Gruppo)."
+      ],
+      "limiti": "È possibile effettuare un solo avanzamento di Livello per Missione.",
+      "tabella_livelli": {
+        "1": {"pe": 0, "rango": "Alle Prime Armi"},
+        "2": {"pe": 250, "rango": "Principiante"},
+        "3": {"pe": 500, "rango": "Esperto"},
+        "4": {"pe": 750, "rango": "Navigato"},
+        "5": {"pe": 1250, "rango": "Provetto"},
+        "6": {"pe": 1750, "rango": "Veterano"},
+        "7": {"pe": 2750, "rango": "Straordinario"},
+        "8": {"pe": 3750, "rango": "Leggendario"},
+        "9": {"pe": 5000, "rango": "Epico"}
       }
     },
-    "situazioni_critiche": {
-      "sfida": "Confronto tra due parti (Sfidante vs Sfidato). Se entrambi hanno successo o falliscono, lo sfidante può rinunciare o ripetere con complessità aumentata.",
-      "trappole": {
-        "attivazione": "Il GM lancia 1D6: con 1-4 la trappola si attiva.",
-        "avoidare_disattivare": "Prova difficile di Rapidità per evitare, difficile di Intelligenza per disattivare."
-      },
-      "acrobazie": {
-        "arrampicarsi": "Prova normale di Prodezza. Successo: muove di Movimento/3 caselle. Fallimento: cade e subisce 1D6 PI ogni 3m.",
-        "saltare_avanti": "Prova normale Prodezza. Distanza pari a Movimento/2 caselle.",
-        "saltare_alto": "Prova normale Prodezza. Altezza pari a Movimento/4 caselle."
-      }
+    "morte": {
+      "condizione": "Una creatura viene uccisa quando i PR o una caratteristica scendono a 0.",
+      "conseguenza_giocatore": "Il giocatore deve creare un nuovo Avventuriero; nel frattempo gestisce Mostri e PNG col GM."
     }
   },
-  "equipaggiamento": {
-    "interazione_oggetti": {
-      "porte_e_forzieri": {
-        "aprire": "Porta comune (aperta con 3-6 su 1D6), Forziere comune (aperto con 6 su 1D6).",
-        "forzare": "Prova difficilissima di Prodezza. Se fallisce con critico, l'oggetto usato si rompe.",
-        "sfondare": "Azione di Attacco Ravvicinato. Porta (15 PR, P2), Forziere (5 PR, P1).",
-        "scassinare": "Richiede Grimaldello e prova normale di Rapidità."
-      },
-      "bottino": "Cercare in un'area o stanza richiede una prova di Gruppo (difficilissima per area, difficile per stanza)."
+  "esplorazione_e_movimento": {
+    "griglia": "Una casella corrisponde a circa 1,5 m di lato; può ospitare una sola Creatura.",
+    "ordine_di_marcia": "Stabilisce la successione dei turni di movimento. Può essere modificato in ogni momento, tranne durante eventi inattesi (Trappole o Sorpresa).",
+    "movimento_per_turno": {
+      "orizzontale_verticale": "Pari al punteggio di Prodezza.",
+      "diagonale": "Pari alla metà del punteggio di Prodezza (arrotondato per difetto). Richiede che le caselle adiacenti di partenza e arrivo siano libere.",
+      "accumulo": "Il movimento non effettuato non può essere cumulato e viene perso alla fine del turno."
+    },
+    "acrobazie": {
+      "arrampicarsi": "Prova normale di Prodezza. Successo: muove di Movimento/3 caselle. Fallimento: cade e subisce 1D6 PI ogni 3m.",
+      "saltare_avanti": "Prova normale Prodezza. Distanza pari a Movimento/2 caselle.",
+      "saltare_alto": "Prova normale Prodezza. Altezza pari a Movimento/4 caselle."
+    }
+  },
+  "sfide_e_situazioni": {
+    "sfida": "Confronto tra due parti (Sfidante vs Sfidato). Se entrambi hanno successo o falliscono, lo sfidante può rinunciare o ripetere con complessità aumentata.",
+    "porte_e_forzieri": {
+      "aprire": "Porta comune (aperta con 3-6 su 1D6), Forziere comune (aperto con 6 su 1D6).",
+      "forzare": "Prova difficilissima di Prodezza. Se fallisce con critico, l'oggetto usato si rompe.",
+      "sfondare": "Azione di Attacco Ravvicinato. Porta (15 PR, P2), Forziere (5 PR, P1).",
+      "scassinare": "Richiede Grimaldello e prova normale di Rapidità."
+    },
+    "trappole": {
+      "attivazione": "Il GM lancia 1D6: con 1-4 la trappola si attiva.",
+      "evitare_disattivare": "Prova difficile di Rapidità per evitare, difficile di Intelligenza per disattivare."
+    },
+    "bottino": "Cercare in un'area o stanza richiede una prova di Gruppo (difficilissima per area, difficile per stanza)."
+  },
+  "sostentamento_e_riposo": {
+    "pasti": {
+      "buona_qualita": "+1 PR (max 2 volte/giorno).",
+      "ottima_qualita": "+2 PR (max 2 volte/giorno).",
+      "nessun_pasto": "-1 PR."
+    },
+    "riposo_8_ore": {
+      "all_aperto": "+1 PR x Livello.",
+      "letto_comodo": "+2 PR x Livello.",
+      "mancanza_riposo": "-1 PR x Livello."
     }
   }
 }
