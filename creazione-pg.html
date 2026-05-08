@@ -135,6 +135,7 @@
 </div>
 
 <script>
+    // Configurazione Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
         authDomain: "drakonia-companion.firebaseapp.com",
@@ -148,95 +149,84 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // Database Classi
+    // Database Classi Aggiornato (PO impostati a 5 per tutti)
     const classiData = {
-        "Guerriero": { bonus: 3, max: 9, equip: "Spada, Cotta Maglia", oro: 10, zaino: ["Corda", "Torcia"] },
-        "Mago": { bonus: 1, max: 7, equip: "Bastone, Tunica", oro: 15, zaino: ["Pergamena"] },
-        "Ladro": { bonus: 2, max: 8, equip: "Daga, Cuoio", oro: 25, zaino: ["Grimaldelli"] },
-        "Chierico": { bonus: 2, max: 8, equip: "Mazza, Tunica Pesante", oro: 20, zaino: ["Simbolo Sacro"] }
+        "Guerriero": { bonus: 3, max: 9, equip: "Spada Lunga, Cotta di Maglia", oro: 5, zaino: ["Razioni", "Torcia"] },
+        "Mago": { bonus: 1, max: 7, equip: "Bastone, Tunica", oro: 5, zaino: ["Pergamena di Luce"] },
+        "Ladro": { bonus: 2, max: 8, equip: "Daga, Armatura di Cuoio", oro: 5, zaino: ["Grimaldelli"] },
+        "Chierico": { bonus: 2, max: 8, equip: "Mazza, Tunica Pesante", oro: 5, zaino: ["Acqua Santa"] }
     };
 
-    // Recupero Nome Utente Corretto
+    // Recupero Nome Utente con sistema di sicurezza
     auth.onAuthStateChanged(user => {
+        const ownerNameTag = document.getElementById('owner-name');
         if (user) {
+            // Tenta di prendere il nome dal profilo Firebase
             db.collection("users").doc(user.uid).get().then(doc => {
-                const username = doc.exists ? doc.data().username : (user.displayName || "Eroe");
-                document.getElementById('owner-name').innerText = username;
-            }).catch(() => {
-                document.getElementById('owner-name').innerText = user.displayName || "Eroe";
+                if (doc.exists && doc.data().username) {
+                    ownerNameTag.innerText = doc.data().username;
+                } else {
+                    ownerNameTag.innerText = user.displayName || "Eroe Sconosciuto";
+                }
+            }).catch(err => {
+                console.error("Errore recupero nome:", err);
+                ownerNameTag.innerText = user.displayName || "Eroe";
             });
-        } else { window.location.href = 'login.html'; }
+        } else {
+            window.location.href = 'login.html';
+        }
     });
 
     function applicaClasse() {
-    const classe = document.getElementById('classe-select').value;
-    const data = classiData[classe];
-    
-    if (!data) return;
+        const classe = document.getElementById('classe-select').value;
+        const data = classiData[classe];
+        if (!data) return;
 
-    // Inserisce l'equipaggiamento base
-    document.getElementById('arma').value = data.equip.split(', ')[0] || "";
-    document.getElementById('armatura').value = data.equip.split(', ')[1] || "";
-    
-    // Imposta i PO iniziali della classe
-    document.getElementById('oro').value = data.oro;
+        // Assegnazione Equipaggiamento
+        const equipArray = data.equip.split(', ');
+        document.getElementById('arma').value = equipArray[0] || "";
+        document.getElementById('armatura').value = equipArray[1] || "";
+        
+        // Assegnazione PO (Sempre 5 come richiesto)
+        document.getElementById('oro').value = data.oro;
 
-    // Popola lo zaino
-    for(let i=1; i<=9; i++) {
-        document.getElementById('inv'+i).value = data.zaino[i-1] || "";
+        // Popolamento Zaino
+        for(let i=1; i<=9; i++) {
+            document.getElementById('inv'+i).value = data.zaino[i-1] || "";
+        }
     }
-}
 
     function rollStats() {
         const classe = document.getElementById('classe-select').value;
-        if (!classe) return alert("Scegli prima una Classe!");
+        if (!classe) return alert("Per favore, seleziona prima una Classe!");
         
         const method = document.getElementById('roll-method').value;
         const data = classiData[classe];
 
+        // Funzione per il calcolo delle caratteristiche (PRD, INT, RPD)
         const getVal = () => {
             const d1 = Math.floor(Math.random() * 6) + 1;
             const d2 = Math.floor(Math.random() * 6) + 1;
-            if (method === 'normale') return data.max;
-            if (method === 'difficile') return Math.max(d1, d2) + data.bonus;
-            return d1 + data.bonus;
+            
+            if (method === 'normale') return data.max; //
+            if (method === 'difficile') return Math.max(d1, d2) + data.bonus; //
+            return d1 + data.bonus; // Estrema
         };
 
+        // Funzione per il calcolo dei Punti Resistenza (PR)
         const getPR = () => {
             const d1 = Math.floor(Math.random() * 6) + 1;
             const d2 = Math.floor(Math.random() * 6) + 1;
-            if (method === 'normale') return data.max;
-            if (method === 'difficile') return Math.max(d1, d2);
-            return d1;
+            
+            if (method === 'normale') return data.max; //
+            if (method === 'difficile') return Math.max(d1, d2); //
+            return d1; // Estrema
         };
 
         document.getElementById('prd').value = getVal();
         document.getElementById('int').value = getVal();
         document.getElementById('rpd').value = getVal();
-        document.getElementById('pr').value = Math.max(1, getPR());
-    }
-
-    async function salvaEroe() {
-        const user = auth.currentUser;
-        const characterData = {
-            userId: user.uid,
-            userName: document.getElementById('owner-name').innerText,
-            campagna: document.getElementById('campagna').value,
-            nome: document.getElementById('nome').value,
-            classe: document.getElementById('classe-select').value,
-            stats: {
-                prd: document.getElementById('prd').value,
-                int: document.getElementById('int').value,
-                rpd: document.getElementById('rpd').value,
-                pr: document.getElementById('pr').value
-            },
-            dataCreazione: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        try {
-            await db.collection("characters").add(characterData);
-            alert("Eroe inciso negli annali!");
-            window.location.href = 'profile.html';
-        } catch (e) { alert("Errore: " + e.message); }
+        document.getElementById('pr').value = Math.max(1, getPR()); // PR minimi sempre 1
     }
 </script>
 </body>
