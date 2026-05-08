@@ -5,84 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drakonia - Accesso</title>
     <link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;700&family=Almendra&display=swap" rel="stylesheet">
+    
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
     <style>
         :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; }
         body { 
-            background: #1a1a1a url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
+            background: #1a1a1a; 
             display: flex; justify-content: center; align-items: center; 
             min-height: 100vh; margin: 0; font-family: 'Almendra', serif; padding: 20px;
         }
         .login-card {
-            background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            background: var(--parchment);
             padding: 30px; border: 6px double var(--leather);
-            width: 100%; max-width: 400px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            width: 100%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.8);
         }
-        h1 { font-family: 'Grenze Gotisch'; color: var(--leather); font-size: 3rem; margin: 0; }
+        h1 { font-family: 'Grenze Gotisch'; color: var(--gold); font-size: 3rem; margin: 0; text-shadow: 2px 2px var(--leather); }
         input { 
-            width: 100%; padding: 14px; margin: 10px 0; border: none; 
-            border-bottom: 2px solid var(--leather); background: rgba(0,0,0,0.05); 
+            width: 100%; padding: 12px; margin: 10px 0; border: none; 
+            border-bottom: 2px solid var(--leather); background: transparent; 
             font-family: 'Almendra'; box-sizing: border-box; font-size: 1.1rem;
         }
         .btn-enter {
-            background: var(--leather); color: var(--gold); border: 1px solid var(--gold); 
-            width: 100%; padding: 16px; font-family: 'Grenze Gotisch'; font-size: 1.5rem; 
-            cursor: pointer; clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+            background: #4a321f; color: var(--gold); border: none; width: 100%;
+            padding: 15px; font-family: 'Grenze Gotisch'; font-size: 1.5rem; 
+            cursor: pointer; clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
             margin-top: 20px; transition: 0.3s;
         }
         .google-btn {
-            margin-top: 25px; background: white; padding: 12px;
+            margin-top: 25px; border: 1px solid #ccc; background: white; padding: 10px;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
-            border-radius: 50px; color: #3c4043; font-weight: bold; font-family: sans-serif;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2); width: 100%; transition: 0.2s;
+            border-radius: 5px; color: #757575; font-weight: bold; font-family: sans-serif;
         }
-        .google-btn img { width: 20px; margin-right: 12px; }
-        .google-btn:active { transform: scale(0.98); background: #eee; }
+        .google-btn img { width: 20px; margin-right: 10px; }
     </style>
 </head>
 <body>
+
     <div class="login-card">
         <h1>DRAKONIA</h1>
         <p>Varca la soglia del destino</p>
         <input type="email" id="email" placeholder="Email dell'Eroe">
         <input type="password" id="password" placeholder="Parola d'Ordine">
         <button class="btn-enter" onclick="manualLogin()">ENTRA</button>
+        
         <div class="google-btn" onclick="googleLogin()">
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg">
-            Accedi con Google
+            Entra con Google
         </div>
     </div>
 
     <script>
-        // CONFIGURAZIONE FIREBASE (Inserisci i tuoi dati qui)
-        const firebaseConfig = { apiKey: "TUA_API_KEY", authDomain: "TUO_PROGETTO.firebaseapp.com" };
-        if (firebaseConfig.apiKey !== "TUA_API_KEY") firebase.initializeApp(firebaseConfig);
+        // La tua configurazione inserita correttamente nel formato Compat
+        const firebaseConfig = {
+            apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
+            authDomain: "drakonia-companion.firebaseapp.com",
+            projectId: "drakonia-companion",
+            storageBucket: "drakonia-companion.firebasestorage.app",
+            messagingSenderId: "803844500713",
+            appId: "1:803844500713:web:c902b67f4e395bd20c9478",
+            measurementId: "G-GE42YKVX9G"
+        };
+
+        // Inizializzazione
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
 
         async function googleLogin() {
             const provider = new firebase.auth.GoogleAuthProvider();
             try {
-                const result = await firebase.auth().signInWithPopup(provider);
-                const user = {
-                    username: result.user.displayName,
-                    avatar: result.user.photoURL,
-                    friendCode: "DRK-" + result.user.uid.substring(0,4).toUpperCase(),
-                    email: result.user.email
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+
+                // Salviamo i dati per la pagina profilo
+                const userData = {
+                    username: user.displayName,
+                    avatar: user.photoURL,
+                    email: user.email,
+                    friendCode: "DRK-" + user.uid.substring(0, 5).toUpperCase()
                 };
-                localStorage.setItem('currentUser', JSON.stringify(user));
+
+                localStorage.setItem('currentUser', JSON.stringify(userData));
                 window.location.href = 'profile.html';
-            } catch (e) {
-                alert("Errore Portale: " + e.message);
-                // Fallback per test locale se Firebase non è configurato
-                manualLogin(); 
+
+            } catch (error) {
+                console.error("Errore Portale:", error);
+                alert("Il portale ha respinto l'accesso. Assicurati di aver abilitato 'Google' nella console Firebase!");
             }
         }
 
         function manualLogin() {
-            const email = document.getElementById('email').value || "Viandante";
-            const user = { username: email.split('@')[0], avatar: "", friendCode: "DRK-7777" };
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            window.location.href = 'profile.html';
+            const email = document.getElementById('email').value;
+            if (email) {
+                const user = { username: email.split('@')[0], avatar: "", friendCode: "DRK-OFFLINE" };
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                window.location.href = 'profile.html';
+            }
         }
     </script>
 </body>
