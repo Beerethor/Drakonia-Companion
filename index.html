@@ -200,43 +200,55 @@
     </footer>
 
     <script>
-        // Configurazione Firebase (Assicurati che coincida con le altre pagine)
-        const firebaseConfig = {
-            apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
-            authDomain: "drakonia-companion.firebaseapp.com",
-            projectId: "drakonia-companion",
-            storageBucket: "drakonia-companion.firebasestorage.app",
-            messagingSenderId: "803844500713",
-            appId: "1:803844500713:web:c902b67f4e395bd20c9478"
-        };
+    // Configurazione Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
+        authDomain: "drakonia-companion.firebaseapp.com",
+        projectId: "drakonia-companion",
+        storageBucket: "drakonia-companion.firebasestorage.app",
+        messagingSenderId: "803844500713",
+        appId: "1:803844500713:web:c902b67f4e395bd20c9478"
+    };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-        // Controllo stato login
-        auth.onAuthStateChanged(user => {
-            const avatarImg = document.getElementById('user-avatar');
-            const welcomeText = document.getElementById('welcome-text');
+    // Controllo stato login e recupero dati dal Database
+    auth.onAuthStateChanged(user => {
+        const avatarImg = document.getElementById('user-avatar');
+        const welcomeText = document.getElementById('welcome-text');
 
-            if (user) {
-                // Utente loggato: mostra foto profilo o default
-                avatarImg.src = user.photoURL || "https://img.icons8.com/color/96/fantasy.png";
-                welcomeText.innerText = "Bentornato, " + (user.displayName || "Eroe");
-            } else {
-                // Utente non loggato
-                avatarImg.src = "https://img.icons8.com/ios-filled/50/b8860b/user-shield.png";
-                welcomeText.innerText = "Benvenuto, Viandante. Accedi per continuare.";
-            }
-        });
-
-        // Gestione click su Avatar
-        function handleProfileClick() {
-            if (auth.currentUser) {
-                window.location.href = 'profile.html';
-            } else {
-                window.location.href = 'login.html';
-            }
+        if (user) {
+            // 1. Tenta di recuperare i dati personalizzati dal server Firebase (Firestore)
+            db.collection("users").doc(user.uid).onSnapshot((doc) => {
+                if (doc.exists) {
+                    const userData = doc.data();
+                    // Prende la foto dal database, se non c'è usa quella di Google, altrimenti quella di default
+                    avatarImg.src = userData.avatar || user.photoURL || "https://img.icons8.com/color/96/fantasy.png";
+                    // Prende il nome dal database
+                    welcomeText.innerText = "Bentornato, " + (userData.username || user.displayName || "Eroe");
+                } else {
+                    // Se l'utente non ha ancora un documento nel database (primo accesso)
+                    avatarImg.src = user.photoURL || "https://img.icons8.com/color/96/fantasy.png";
+                    welcomeText.innerText = "Benvenuto, " + (user.displayName || "Viandante");
+                }
+            });
+        } else {
+            // Utente non loggato: mostra icona scudo generica
+            avatarImg.src = "https://img.icons8.com/ios-filled/50/b8860b/user-shield.png";
+            welcomeText.innerText = "Benvenuto, Viandante. Accedi per continuare.";
         }
-    </script>
+    });
+
+    // Gestione click su Avatar
+    function handleProfileClick() {
+        if (auth.currentUser) {
+            window.location.href = 'profile.html';
+        } else {
+            window.location.href = 'login.html';
+        }
+    }
+</script>
 </body>
 </html>
