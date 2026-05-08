@@ -223,48 +223,52 @@
     }
 
     async function salvaEroe() {
-        const user = auth.currentUser;
-        if(!user) return alert("Sessione scaduta.");
-
-        const nomeEroe = document.getElementById('nome').value;
-        if(!nomeEroe) return alert("Inserisci il nome dell'Eroe!");
-
-        const characterData = {
-            userId: user.uid,
-            nome: nomeEroe,
-            campagna: document.getElementById('campagna').value,
-            classe: document.getElementById('classe-select').value,
-            livello: document.getElementById('livello').value,
-            rango: document.getElementById('rango').value,
-            ritratto: document.getElementById('ritratto').value,
-            stats: {
-                prd: document.getElementById('prd').value,
-                int: document.getElementById('int').value,
-                rpd: document.getElementById('rpd').value,
-                pr: document.getElementById('pr').value,
-                pe: document.getElementById('pe').value
-            },
-            storia: document.getElementById('storia').value,
-            equip: {
-                arma: document.getElementById('arma').value,
-                armatura: document.getElementById('armatura').value,
-                anello: document.getElementById('anello').value,
-                oro: document.getElementById('oro').value,
-                incantesimi: document.getElementById('incantesimi').value
-            },
-            zaino: Array.from({length: 9}, (_, i) => document.getElementById('inv'+(i+1)).value),
-            dataCreazione: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        try {
-            await db.collection("characters").add(characterData);
-            alert("Inciso negli annali!");
-            window.location.href = 'index.html';
-        } catch (e) {
-            console.error(e);
-            alert("Errore salvataggio: " + e.message);
-        }
+    const user = auth.currentUser;
+    if (!user) {
+        alert("Devi essere loggato!");
+        return;
     }
+
+    const characterData = {
+        userId: user.uid,
+        nome: document.getElementById('nome').value,
+        classe: document.getElementById('classe-select').value,
+        livello: document.getElementById('livello').value,
+        rango: document.getElementById('rango').value,
+        stats: {
+            prd: document.getElementById('prd').value,
+            int: document.getElementById('int').value,
+            rpd: document.getElementById('rpd').value,
+            pr: document.getElementById('pr').value,
+            pe: document.getElementById('pe').value // Punti Esperienza
+        },
+        ritratto: document.getElementById('ritratto').value,
+        storia: document.getElementById('storia').value,
+        inventario: {
+            armatura: document.getElementById('armatura').value,
+            arma: document.getElementById('arma').value,
+            anello: document.getElementById('anello').value,
+            po: document.getElementById('oro').value, // Pezzi d'Oro
+            zaino: [
+                document.getElementById('inv1').value, document.getElementById('inv2').value, document.getElementById('inv3').value,
+                document.getElementById('inv4').value, document.getElementById('inv5').value, document.getElementById('inv6').value,
+                document.getElementById('inv7').value, document.getElementById('inv8').value, document.getElementById('inv9').value
+            ],
+            incantesimi: document.getElementById('incantesimi').value
+        },
+        dataCreazione: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+        // Usa un ID documento specifico o generato automaticamente
+        await db.collection("characters").add(characterData);
+        alert("Eroe salvato correttamente negli annali!");
+        window.location.href = 'profile.html';
+    } catch (error) {
+        console.error("Errore completo:", error);
+        alert("Errore salvataggio: " + error.message); // Qui vedrai se mancano ancora i permessi
+    }
+}
 </script>
 
 </body>
