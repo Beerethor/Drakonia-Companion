@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codex Drakonia - Database Regole</title>
+    <title>Codex Drakonia - Indice dei Regolamenti</title>
     <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,7 +13,6 @@
             --dark-gold: #8a6508;
             --border: #4a321f;
             --blood: #8b0000;
-            --inner-shadow: inset 0 0 50px rgba(0,0,0,0.2);
         }
 
         body {
@@ -21,10 +20,12 @@
             color: var(--ink);
             font-family: 'Almendra', serif;
             margin: 0;
-            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* Navigazione Superiore */
+        /* Navigazione */
         .top-nav {
             width: 100%;
             background: #1a120b;
@@ -36,30 +37,12 @@
             top: 0;
             z-index: 100;
             border-bottom: 4px solid var(--gold);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.7);
             box-sizing: border-box;
         }
 
-        .btn-home {
-            background: linear-gradient(to bottom, var(--gold), var(--dark-gold));
-            color: white;
-            border: 1px solid #000;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-family: 'MedievalSharp', cursive;
-            font-weight: bold;
-            transition: 0.3s;
-            box-shadow: 3px 3px 0 #000;
-            text-transform: uppercase;
-        }
-
-        .btn-home:hover {
-            filter: brightness(1.2);
-            transform: translateY(-2px);
-        }
-
         #ruleSearch {
-            width: 300px;
+            width: 100%;
+            max-width: 400px;
             padding: 10px 15px;
             border: 2px solid var(--gold);
             background: #2c1e11;
@@ -68,297 +51,218 @@
             border-radius: 20px;
         }
 
-        /* Header */
-        header {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
         header h1 {
             font-family: 'Grenze Gotisch', cursive;
             color: var(--gold);
-            font-size: 5rem;
-            margin: 0;
+            font-size: 4.5rem;
+            margin: 40px 0 10px;
             text-shadow: 4px 4px 8px #000;
-            letter-spacing: 6px;
         }
 
-        /* Dashboard */
-        .database-container {
-            max-width: 1200px;
-            margin: 0 auto 60px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            padding: 20px;
-        }
-
-        .category-card {
+        /* Contenitore Unico Indice */
+        .codex-container {
+            width: 90%;
+            max-width: 1000px;
             background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-            border: 3px solid var(--border);
-            padding: 40px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 8px 8px 20px rgba(0,0,0,0.5);
-            position: relative;
-            overflow: hidden;
+            border: 10px double var(--border);
+            margin: 20px 0 60px;
+            padding: 40px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
-        .category-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            border: 1px solid rgba(184, 134, 11, 0.3);
-            margin: 5px;
-            pointer-events: none;
-        }
-
-        .category-card:hover {
-            transform: scale(1.05);
-            border-color: var(--gold);
-            box-shadow: 0 0 20px var(--gold);
-        }
-
-        .category-card span {
-            font-size: 3.5rem;
-            display: block;
-            margin-bottom: 20px;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
-        }
-
-        .category-card h3 {
-            margin: 0;
+        .section-title {
             font-family: 'Grenze Gotisch', cursive;
-            font-size: 1.8rem;
-            color: var(--ink);
+            font-size: 2.2rem;
+            color: var(--blood);
+            border-bottom: 2px solid var(--gold);
+            margin-top: 30px;
+            padding-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        /* Modali Unificate */
+        /* Lista Regolamenti */
+        .rule-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .rule-item {
+            background: rgba(0,0,0,0.03);
+            margin: 8px 0;
+            padding: 15px 20px;
+            border-left: 4px solid var(--dark-gold);
+            cursor: pointer;
+            font-family: 'MedievalSharp', cursive;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rule-item:hover {
+            background: var(--gold);
+            color: white;
+            transform: translateX(10px);
+        }
+
+        .rule-item span { font-size: 0.9rem; opacity: 0.7; font-style: italic; }
+
+        /* Modal Visualizzazione */
         .modal {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(8px);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            justify-content: center; align-items: center;
+            z-index: 1000; backdrop-filter: blur(5px);
         }
 
         .modal-content {
             background: #e9d5a3 url('https://www.transparenttextures.com/patterns/aged-paper.png');
-            width: 95%;
-            max-width: 900px;
-            height: 85vh;
-            border: 15px solid var(--border);
-            border-image: url('https://i.imgur.com/8SnoX9W.png') 30 stretch; /* Esempio cornice se disponibile */
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 60px rgba(0,0,0,1);
-        }
-
-        .modal-header {
-            padding: 20px;
-            text-align: center;
-            border-bottom: 3px double var(--border);
-            background: rgba(0,0,0,0.05);
-        }
-
-        .modal-body {
-            padding: 40px;
-            overflow-y: auto;
-            flex-grow: 1;
-            scrollbar-width: thin;
-        }
-
-        .back-btn {
-            position: absolute;
-            left: 20px; top: 20px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: var(--blood);
-            font-family: 'MedievalSharp';
-            display: none;
+            width: 90%; max-width: 800px; height: 80vh;
+            border: 8px double var(--border);
+            padding: 40px; overflow-y: auto; position: relative;
         }
 
         .close-btn {
-            position: absolute;
-            right: 20px; top: 15px;
-            font-size: 2.5rem;
-            cursor: pointer;
-            color: var(--blood);
+            position: absolute; right: 20px; top: 10px;
+            font-size: 30px; cursor: pointer; color: var(--blood);
         }
 
-        /* Elementi Testuali Interni */
-        .selection-item {
-            background: rgba(44, 30, 17, 0.08);
-            margin: 10px 0;
-            padding: 15px 25px;
-            border-left: 5px solid var(--gold);
-            cursor: pointer;
-            font-family: 'MedievalSharp', cursive;
-            font-size: 1.4rem;
-            transition: 0.3s;
-        }
-
-        .selection-item:hover {
-            background: var(--gold);
-            color: white;
-            padding-left: 40px;
-        }
-
-        summary {
-            padding: 12px;
-            background: rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
-            margin-top: 10px;
-            font-weight: bold;
-            font-size: 1.3rem;
-            cursor: pointer;
-            list-style: none;
-            color: var(--blood);
-            font-family: 'Grenze Gotisch';
-        }
-
-        .rule-block {
-            padding: 10px;
-            border-bottom: 1px dashed var(--border);
-            line-height: 1.5;
-        }
-
-        .rule-block strong { color: var(--blood); }
+        /* Formattazione Testo Interno */
+        summary { font-weight: bold; color: var(--blood); cursor: pointer; margin-top: 10px; font-family: 'MedievalSharp'; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .rule-block { padding: 8px 0; border-bottom: 1px dashed rgba(0,0,0,0.1); font-size: 1.1rem; }
+        .rule-block strong { color: #5a3e2b; }
 
         .hidden { display: none; }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 12px; }
-        ::-webkit-scrollbar-track { background: #1a120b; }
-        ::-webkit-scrollbar-thumb { 
-            background: var(--gold); 
-            border: 3px solid #1a120b;
-            border-radius: 10px;
-        }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <button class="btn-home" onclick="window.location.href='index.html'">🏰 Home</button>
-        <input type="text" id="ruleSearch" onkeyup="filterRules()" placeholder="Cerca nel Codex...">
+        <button class="btn-home" style="background:var(--gold); border:none; padding:10px; cursor:pointer;" onclick="window.location.href='index.html'">🏰 Torna alla Home</button>
+        <input type="text" id="ruleSearch" onkeyup="filterRules()" placeholder="Cerca una regola o parola chiave...">
     </div>
 
     <header>
         <h1>Codex Drakonia</h1>
-        <p style="color: var(--parchment); font-size: 1.2rem; opacity: 0.8;">Sussurri di saggezza dalle terre perdute</p>
     </header>
 
-    <div class="database-container" id="main-index">
-        <div class="category-card" onclick="openCat('generali')">
-            <span>📜</span>
-            <h3>Leggi Generali</h3>
+    <div class="codex-container">
+        
+        <div class="section-area" data-section="Generali">
+            <h2 class="section-title">📜 Leggi Fondamentali</h2>
+            <ul class="rule-list">
+                <li class="rule-item" onclick="loadRule('rules-data.json')">Meccaniche di Gioco, Prove e Riposo <span>(rules-data.json)</span></li>
+                <li class="rule-item" onclick="loadRule('general-rules.json')">Filosofia OSR e Terminologia <span>(general-rules.json)</span></li>
+            </ul>
         </div>
-        <div class="category-card" onclick="openCat('combattimento')">
-            <span>⚔️</span>
-            <h3>Arte della Guerra</h3>
+
+        <div class="section-area" data-section="Azione">
+            <h2 class="section-title">⚔️ Movimento e Sfide</h2>
+            <ul class="rule-list">
+                <li class="rule-item" onclick="loadRule('combat-rules.json')">Gestione Griglia, Salti e Arrampicate <span>(combat-rules.json)</span></li>
+                <li class="rule-item" onclick="loadRule('traps-interaction.json')">Trappole, Scassinare e Sfondare <span>(interazione)</span></li>
+            </ul>
         </div>
-        <div class="category-card" onclick="openCat('magia')">
-            <span>🧙</span>
-            <h3>Dottrina Arcana</h3>
+
+        <div class="section-area" data-section="Magia">
+            <h2 class="section-title">🧙 Dottrina Arcana</h2>
+            <ul class="rule-list">
+                <li class="rule-item" onclick="loadRule('magic-rules.json')">Leggi della Magia e Resistenza <span>(magic-rules.json)</span></li>
+                <li class="rule-item" onclick="loadRule('sorcerer-grimoire.json')">Grimorio dello Stregone <span>(Incantesimi)</span></li>
+                <li class="rule-item" onclick="loadRule('druid-grimoire.json')">Riti del Druido <span>(Preghiere)</span></li>
+            </ul>
         </div>
-        <div class="category-card" onclick="openCat('grimori')">
-            <span>📖</span>
-            <h3>Antichi Grimori</h3>
+
+        <div class="section-area" data-section="Eroi">
+            <h2 class="section-title">🎭 Sentieri degli Eroi</h2>
+            <ul class="rule-list">
+                <li class="rule-item" onclick="loadClass('Guerriero')">Il Guerriero <span>(Classe)</span></li>
+                <li class="rule-item" onclick="loadClass('Truffatore')">Il Truffatore <span>(Classe)</span></li>
+                <li class="rule-item" onclick="loadClass('Saggio')">Il Saggio <span>(Classe)</span></li>
+                <li class="rule-item" onclick="loadClass('Stregone')">Lo Stregone <span>(Classe)</span></li>
+                <li class="rule-item" onclick="loadClass('Druido')">Il Druido <span>(Classe)</span></li>
+            </ul>
         </div>
-        <div class="category-card" onclick="openCat('equipaggiamento')">
-            <span>🛡️</span>
-            <h3>Armeria e Merci</h3>
+
+        <div class="section-area" data-section="Merci">
+            <h2 class="section-title">🛡️ Equipaggiamento</h2>
+            <ul class="rule-list">
+                <li class="rule-item" onclick="loadRule('equipment-data.json')">Armeria, Oggetti e Costi <span>(equipment-data.json)</span></li>
+            </ul>
         </div>
-        <div class="category-card" onclick="openCat('classi')">
-            <span>🎭</span>
-            <h3>Sentieri degli Eroi</h3>
-        </div>
+
     </div>
 
-    <div id="codex-modal" class="modal">
+    <div id="rule-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <span class="back-btn" id="back-btn" onclick="returnToSelection()">⬅ Indietro</span>
-                <span class="close-btn" onclick="closeCodex()">&times;</span>
-                <h2 id="modal-title" style="font-family: 'Grenze Gotisch'; font-size: 2.5rem; margin: 10px 0;"></h2>
-            </div>
-            <div class="modal-body" id="modal-body">
-                </div>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title" style="font-family:'Grenze Gotisch'; border-bottom:3px double var(--gold); color:var(--blood);"></h2>
+            <div id="modal-body"></div>
         </div>
     </div>
 
     <script>
-        const databaseMap = {
-            'generali': ['general-rules.json', 'rules-data.json'],
-            'combattimento': ['combat-rules.json'],
-            'magia': ['magic-rules.json'],
-            'grimori': ['sorcerer-grimoire.json', 'druid-grimoire.json'],
-            'equipaggiamento': ['equipment-data.json'],
-            'classi': ['Guerriero', 'Truffatore', 'Saggio', 'Stregone', 'Druido']
-        };
-
-        let currentCategory = '';
-
+        // Funzione di ricerca globale
         function filterRules() {
             let input = document.getElementById('ruleSearch').value.toLowerCase();
-            let cards = document.getElementsByClassName('category-card');
-            for (let card of cards) {
-                card.classList.toggle('hidden', !card.innerText.toLowerCase().includes(input));
+            let items = document.getElementsByClassName('rule-item');
+            let sections = document.getElementsByClassName('section-area');
+
+            for (let item of items) {
+                let text = item.innerText.toLowerCase();
+                item.style.display = text.includes(input) ? "flex" : "none";
+            }
+
+            // Nascondi sezioni vuote durante la ricerca
+            for (let section of sections) {
+                let hasVisible = Array.from(section.querySelectorAll('.rule-item')).some(li => li.style.display !== "none");
+                section.style.display = hasVisible ? "block" : "none";
             }
         }
 
-        function openCat(cat) {
-            currentCategory = cat;
-            const options = databaseMap[cat];
-            const body = document.getElementById('modal-body');
-            const title = document.getElementById('modal-title');
-            
-            title.innerText = cat.replace(/-/g, ' ').toUpperCase();
-            body.innerHTML = '';
-            document.getElementById('back-btn').style.display = 'none';
-
-            options.forEach(opt => {
-                const div = document.createElement('div');
-                div.className = 'selection-item';
-                div.innerHTML = `✙ ${opt.replace('.json', '').replace(/-/g, ' ').toUpperCase()}`;
-                div.onclick = () => loadDocument(opt, cat === 'classi');
-                body.appendChild(div);
-            });
-
-            document.getElementById('codex-modal').style.display = 'flex';
-        }
-
-        async function loadDocument(name, isClass) {
-            const body = document.getElementById('modal-body');
-            const title = document.getElementById('modal-title');
-            const backBtn = document.getElementById('back-btn');
-
-            title.innerText = name.replace('.json', '').replace(/-/g, ' ').toUpperCase();
-            body.innerHTML = "<p style='text-align:center;'>Consultando gli annali...</p>";
-            backBtn.style.display = 'block';
-
+        // Carica Regolamento standard
+        async function loadRule(file) {
+            showModal("Consultando gli Antichi Tomi...");
             try {
-                const fileName = isClass ? 'classi.json' : name;
-                const response = await fetch(fileName);
-                if (!response.ok) throw new Error("Documento perduto nel tempo.");
+                const response = await fetch(file);
                 const data = await response.json();
-                
-                const finalData = isClass ? data[name] : data;
-                body.innerHTML = formatJsonToHtml(finalData);
-            } catch (err) {
-                body.innerHTML = `<p style="color:var(--blood); text-align:center;">Errore Arcano: ${err.message}</p>`;
+                renderData(file.replace('.json', '').toUpperCase(), data);
+            } catch (e) {
+                renderData("ERRORE", { messaggio: "Documento non trovato negli archivi." });
             }
         }
 
-        function returnToSelection() {
-            openCat(currentCategory);
+        // Carica Classe specifica
+        async function loadClass(className) {
+            showModal("Invocando l'Eroe...");
+            try {
+                const response = await fetch('classi.json');
+                const data = await response.json();
+                renderData(className.toUpperCase(), data[className]);
+            } catch (e) {
+                renderData("ERRORE", { messaggio: "Archivio Classi non trovato." });
+            }
+        }
+
+        function renderData(title, data) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerHTML = formatJsonToHtml(data);
+        }
+
+        function showModal(msg) {
+            document.getElementById('modal-title').innerText = "Attendere...";
+            document.getElementById('modal-body').innerHTML = msg;
+            document.getElementById('rule-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('rule-modal').style.display = 'none';
         }
 
         function formatJsonToHtml(obj) {
@@ -368,13 +272,13 @@
                 let cleanKey = key.replace(/_/g, ' ').toUpperCase();
 
                 if (Array.isArray(value)) {
-                    html += `<details open><summary>📜 ${cleanKey}</summary><ul style="padding-left:20px;">`;
+                    html += `<details open><summary>📜 ${cleanKey}</summary><ul>`;
                     value.forEach(item => {
                         html += `<li>${typeof item === 'object' ? formatJsonToHtml(item) : item}</li>`;
                     });
                     html += `</ul></details>`;
                 } else if (typeof value === 'object' && value !== null) {
-                    html += `<details open><summary>📜 ${cleanKey}</summary><div style="padding-left:15px; border-left:3px solid var(--gold); margin:10px 0;">${formatJsonToHtml(value)}</div></details>`;
+                    html += `<details open><summary>📜 ${cleanKey}</summary><div style="padding-left:15px; border-left:2px solid var(--gold);">${formatJsonToHtml(value)}</div></details>`;
                 } else {
                     html += `<div class="rule-block"><strong>${cleanKey}:</strong> ${value}</div>`;
                 }
@@ -382,13 +286,7 @@
             return html;
         }
 
-        function closeCodex() {
-            document.getElementById('codex-modal').style.display = 'none';
-        }
-
-        window.onclick = (e) => {
-            if (e.target.className === 'modal') closeCodex();
-        }
+        window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); }
     </script>
 </body>
 </html>
