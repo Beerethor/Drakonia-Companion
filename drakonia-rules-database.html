@@ -13,6 +13,7 @@
             --dark-gold: #8a6508;
             --border: #4a321f;
             --blood: #8b0000;
+            --inner-shadow: inset 0 0 50px rgba(0,0,0,0.2);
         }
 
         body {
@@ -20,247 +21,280 @@
             color: var(--ink);
             font-family: 'Almendra', serif;
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            overflow-x: hidden;
         }
 
+        /* Navigazione Superiore */
         .top-nav {
             width: 100%;
-            background: #2c1e11 url('https://www.transparenttextures.com/patterns/black-linen.png');
-            padding: 15px 30px;
+            background: #1a120b;
+            padding: 15px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 3px solid var(--gold);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            border-bottom: 4px solid var(--gold);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.7);
             box-sizing: border-box;
         }
 
         .btn-home {
-            background: var(--gold);
+            background: linear-gradient(to bottom, var(--gold), var(--dark-gold));
             color: white;
-            border: 2px solid var(--dark-gold);
-            padding: 10px 25px;
+            border: 1px solid #000;
+            padding: 10px 20px;
             cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
             font-family: 'MedievalSharp', cursive;
+            font-weight: bold;
             transition: 0.3s;
-            box-shadow: 2px 2px 0 #000;
+            box-shadow: 3px 3px 0 #000;
+            text-transform: uppercase;
         }
 
         .btn-home:hover {
-            background: var(--blood);
-            transform: scale(1.05);
+            filter: brightness(1.2);
+            transform: translateY(-2px);
         }
 
         #ruleSearch {
-            width: 100%;
-            max-width: 400px;
-            padding: 12px;
-            border-radius: 4px;
-            border: 1px solid var(--gold);
-            background: #3d2b1d;
+            width: 300px;
+            padding: 10px 15px;
+            border: 2px solid var(--gold);
+            background: #2c1e11;
             color: var(--parchment);
             font-family: 'Almendra', serif;
-            font-size: 1rem;
+            border-radius: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 20px;
         }
 
         header h1 {
             font-family: 'Grenze Gotisch', cursive;
             color: var(--gold);
-            font-size: 4rem;
-            margin: 40px 0 10px;
-            text-shadow: 3px 3px 6px #000;
-            letter-spacing: 4px;
+            font-size: 5rem;
+            margin: 0;
+            text-shadow: 4px 4px 8px #000;
+            letter-spacing: 6px;
         }
 
+        /* Dashboard */
         .database-container {
-            max-width: 1100px;
-            width: 90%;
-            margin: 30px auto 60px;
+            max-width: 1200px;
+            margin: 0 auto 60px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            padding: 20px;
         }
 
         .category-card {
             background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-            border: 2px solid var(--border);
-            outline: 4px double var(--border);
-            outline-offset: -10px;
+            border: 3px solid var(--border);
             padding: 40px 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.6);
+            transition: all 0.3s ease;
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.5);
             position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border: 1px solid rgba(184, 134, 11, 0.3);
+            margin: 5px;
+            pointer-events: none;
         }
 
         .category-card:hover {
-            transform: translateY(-8px) rotate(-1deg);
-            background-color: #fff;
-            outline-color: var(--gold);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.8);
+            transform: scale(1.05);
+            border-color: var(--gold);
+            box-shadow: 0 0 20px var(--gold);
         }
 
         .category-card span {
-            font-size: 2.5rem;
+            font-size: 3.5rem;
             display: block;
-            margin-bottom: 15px;
-            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+            margin-bottom: 20px;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
         }
 
         .category-card h3 {
             margin: 0;
-            font-family: 'MedievalSharp', cursive;
-            font-size: 1.5rem;
+            font-family: 'Grenze Gotisch', cursive;
+            font-size: 1.8rem;
             color: var(--ink);
-            text-transform: uppercase;
         }
 
+        /* Modali Unificate */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
+            background: rgba(0,0,0,0.95);
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
 
         .modal-content {
             background: #e9d5a3 url('https://www.transparenttextures.com/patterns/aged-paper.png');
-            width: 90%;
-            max-width: 850px;
-            max-height: 85vh;
-            padding: 50px;
-            border: 10px double var(--border);
-            overflow-y: auto;
+            width: 95%;
+            max-width: 900px;
+            height: 85vh;
+            border: 15px solid var(--border);
+            border-image: url('https://i.imgur.com/8SnoX9W.png') 30 stretch; /* Esempio cornice se disponibile */
             position: relative;
-            box-shadow: 0 0 50px #000;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 60px rgba(0,0,0,1);
+        }
+
+        .modal-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px double var(--border);
+            background: rgba(0,0,0,0.05);
+        }
+
+        .modal-body {
+            padding: 40px;
+            overflow-y: auto;
+            flex-grow: 1;
+            scrollbar-width: thin;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px; top: 20px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--blood);
+            font-family: 'MedievalSharp';
+            display: none;
         }
 
         .close-btn {
             position: absolute;
-            right: 25px; top: 15px;
-            font-size: 40px;
+            right: 20px; top: 15px;
+            font-size: 2.5rem;
             cursor: pointer;
             color: var(--blood);
-            font-family: serif;
         }
 
+        /* Elementi Testuali Interni */
         .selection-item {
-            background: rgba(0, 0, 0, 0.05);
-            margin: 15px 0;
-            padding: 20px;
-            border: 1px dashed var(--border);
+            background: rgba(44, 30, 17, 0.08);
+            margin: 10px 0;
+            padding: 15px 25px;
+            border-left: 5px solid var(--gold);
             cursor: pointer;
             font-family: 'MedievalSharp', cursive;
-            font-size: 1.3rem;
-            transition: 0.2s;
+            font-size: 1.4rem;
+            transition: 0.3s;
         }
 
         .selection-item:hover {
             background: var(--gold);
             color: white;
-            padding-left: 30px;
-        }
-
-        details {
-            background: rgba(0,0,0,0.03);
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 4px;
+            padding-left: 40px;
         }
 
         summary {
+            padding: 12px;
+            background: rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            margin-top: 10px;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             cursor: pointer;
-            color: var(--blood);
             list-style: none;
-        }
-
-        summary::before {
-            content: "📜 ";
+            color: var(--blood);
+            font-family: 'Grenze Gotisch';
         }
 
         .rule-block {
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 10px;
+            border-bottom: 1px dashed var(--border);
+            line-height: 1.5;
         }
+
+        .rule-block strong { color: var(--blood); }
 
         .hidden { display: none; }
 
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: var(--ink); }
-        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #1a120b; }
+        ::-webkit-scrollbar-thumb { 
+            background: var(--gold); 
+            border: 3px solid #1a120b;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <button class="btn-home" onclick="window.location.href='index.html'">🏰 Torna alla Home</button>
-        <input type="text" id="ruleSearch" onkeyup="filterRules()" placeholder="Cerca nel Codex (es. Forza, Fuoco, PE)...">
+        <button class="btn-home" onclick="window.location.href='index.html'">🏰 Home</button>
+        <input type="text" id="ruleSearch" onkeyup="filterRules()" placeholder="Cerca nel Codex...">
     </div>
 
     <header>
         <h1>Codex Drakonia</h1>
+        <p style="color: var(--parchment); font-size: 1.2rem; opacity: 0.8;">Sussurri di saggezza dalle terre perdute</p>
     </header>
 
     <div class="database-container" id="main-index">
-        <div class="category-card" onclick="openSelection('generali')">
+        <div class="category-card" onclick="openCat('generali')">
             <span>📜</span>
             <h3>Leggi Generali</h3>
         </div>
-        <div class="category-card" onclick="openSelection('combattimento')">
+        <div class="category-card" onclick="openCat('combattimento')">
             <span>⚔️</span>
             <h3>Arte della Guerra</h3>
         </div>
-        <div class="category-card" onclick="openSelection('magia')">
+        <div class="category-card" onclick="openCat('magia')">
             <span>🧙</span>
             <h3>Dottrina Arcana</h3>
         </div>
-        <div class="category-card" onclick="openSelection('grimori')">
+        <div class="category-card" onclick="openCat('grimori')">
             <span>📖</span>
             <h3>Antichi Grimori</h3>
         </div>
-        <div class="category-card" onclick="openSelection('equipaggiamento')">
+        <div class="category-card" onclick="openCat('equipaggiamento')">
             <span>🛡️</span>
             <h3>Armeria e Merci</h3>
         </div>
-        <div class="category-card" onclick="openSelection('classi')">
+        <div class="category-card" onclick="openCat('classi')">
             <span>🎭</span>
             <h3>Sentieri degli Eroi</h3>
         </div>
     </div>
 
-    <div id="modal-selection" class="modal">
+    <div id="codex-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-selection')">&times;</span>
-            <h2 id="selection-title" style="font-family: 'Grenze Gotisch'; font-size: 2.5rem; text-align: center;">Seleziona Documento</h2>
-            <div id="selection-options"></div>
-        </div>
-    </div>
-
-    <div id="modal-view" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-view')">&times;</span>
-            <h2 id="view-title" style="color: var(--blood); font-family: 'MedievalSharp'; text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px;">Dettaglio</h2>
-            <div id="view-body"></div>
+            <div class="modal-header">
+                <span class="back-btn" id="back-btn" onclick="returnToSelection()">⬅ Indietro</span>
+                <span class="close-btn" onclick="closeCodex()">&times;</span>
+                <h2 id="modal-title" style="font-family: 'Grenze Gotisch'; font-size: 2.5rem; margin: 10px 0;"></h2>
+            </div>
+            <div class="modal-body" id="modal-body">
+                </div>
         </div>
     </div>
 
     <script>
-        // Mappa dei file. Per le classi usiamo il file 'classi.json'
         const databaseMap = {
             'generali': ['general-rules.json', 'rules-data.json'],
             'combattimento': ['combat-rules.json'],
@@ -270,6 +304,8 @@
             'classi': ['Guerriero', 'Truffatore', 'Saggio', 'Stregone', 'Druido']
         };
 
+        let currentCategory = '';
+
         function filterRules() {
             let input = document.getElementById('ruleSearch').value.toLowerCase();
             let cards = document.getElementsByClassName('category-card');
@@ -278,52 +314,51 @@
             }
         }
 
-        function openSelection(cat) {
+        function openCat(cat) {
+            currentCategory = cat;
             const options = databaseMap[cat];
-            const container = document.getElementById('selection-options');
-            document.getElementById('selection-title').innerText = "Archivi di: " + cat.toUpperCase();
-            container.innerHTML = '';
+            const body = document.getElementById('modal-body');
+            const title = document.getElementById('modal-title');
             
+            title.innerText = cat.replace(/-/g, ' ').toUpperCase();
+            body.innerHTML = '';
+            document.getElementById('back-btn').style.display = 'none';
+
             options.forEach(opt => {
-                const item = document.createElement('div');
-                item.className = 'selection-item';
-                item.innerText = "➤ " + opt.replace('.json', '').replace(/-/g, ' ').toUpperCase();
-                
-                // Se la categoria è 'classi', passiamo true come secondo parametro
-                item.onclick = () => showFinalRule(opt, cat === 'classi');
-                container.appendChild(item);
+                const div = document.createElement('div');
+                div.className = 'selection-item';
+                div.innerHTML = `✙ ${opt.replace('.json', '').replace(/-/g, ' ').toUpperCase()}`;
+                div.onclick = () => loadDocument(opt, cat === 'classi');
+                body.appendChild(div);
             });
-            document.getElementById('modal-selection').style.display = 'flex';
+
+            document.getElementById('codex-modal').style.display = 'flex';
         }
 
-        async function showFinalRule(name, isClassRequest) {
-            const body = document.getElementById('view-body');
-            document.getElementById('view-title').innerText = name.replace('.json', '').replace(/-/g, ' ').toUpperCase();
-            body.innerHTML = "<p style='text-align:center;'>Consultando gli antichi tomi...</p>";
-            document.getElementById('modal-view').style.display = 'flex';
+        async function loadDocument(name, isClass) {
+            const body = document.getElementById('modal-body');
+            const title = document.getElementById('modal-title');
+            const backBtn = document.getElementById('back-btn');
+
+            title.innerText = name.replace('.json', '').replace(/-/g, ' ').toUpperCase();
+            body.innerHTML = "<p style='text-align:center;'>Consultando gli annali...</p>";
+            backBtn.style.display = 'block';
 
             try {
-                if (isClassRequest) {
-                    // Carica il file classi.json e cerca l'eroe specifico
-                    const response = await fetch('classi.json');
-                    if (!response.ok) throw new Error("Archivio classi non trovato.");
-                    const allHeroData = await response.json();
-                    
-                    if (allHeroData[name]) {
-                        body.innerHTML = formatJsonToHtml(allHeroData[name]);
-                    } else {
-                        throw new Error("Dati eroe non trovati nell'archivio.");
-                    }
-                } else {
-                    // Caricamento standard per gli altri file JSON
-                    const response = await fetch(name);
-                    if (!response.ok) throw new Error("Documento non trovato o corrotto.");
-                    const data = await response.json();
-                    body.innerHTML = formatJsonToHtml(data);
-                }
+                const fileName = isClass ? 'classi.json' : name;
+                const response = await fetch(fileName);
+                if (!response.ok) throw new Error("Documento perduto nel tempo.");
+                const data = await response.json();
+                
+                const finalData = isClass ? data[name] : data;
+                body.innerHTML = formatJsonToHtml(finalData);
             } catch (err) {
                 body.innerHTML = `<p style="color:var(--blood); text-align:center;">Errore Arcano: ${err.message}</p>`;
             }
+        }
+
+        function returnToSelection() {
+            openCat(currentCategory);
         }
 
         function formatJsonToHtml(obj) {
@@ -333,13 +368,13 @@
                 let cleanKey = key.replace(/_/g, ' ').toUpperCase();
 
                 if (Array.isArray(value)) {
-                    html += `<details open><summary>${cleanKey}</summary><ul style="padding-left:20px;">`;
+                    html += `<details open><summary>📜 ${cleanKey}</summary><ul style="padding-left:20px;">`;
                     value.forEach(item => {
                         html += `<li>${typeof item === 'object' ? formatJsonToHtml(item) : item}</li>`;
                     });
                     html += `</ul></details>`;
                 } else if (typeof value === 'object' && value !== null) {
-                    html += `<details open><summary>${cleanKey}</summary><div style="padding-left:15px; border-left:2px solid var(--gold); margin:10px 0;">${formatJsonToHtml(value)}</div></details>`;
+                    html += `<details open><summary>📜 ${cleanKey}</summary><div style="padding-left:15px; border-left:3px solid var(--gold); margin:10px 0;">${formatJsonToHtml(value)}</div></details>`;
                 } else {
                     html += `<div class="rule-block"><strong>${cleanKey}:</strong> ${value}</div>`;
                 }
@@ -347,12 +382,12 @@
             return html;
         }
 
-        function closeModal(id) { 
-            document.getElementById(id).style.display = 'none'; 
+        function closeCodex() {
+            document.getElementById('codex-modal').style.display = 'none';
         }
 
-        window.onclick = (event) => {
-            if (event.target.className === 'modal') event.target.style.display = "none";
+        window.onclick = (e) => {
+            if (e.target.className === 'modal') closeCodex();
         }
     </script>
 </body>
