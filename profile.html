@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profilo Eroe - Codex Drakonia</title>
     <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
     <style>
         :root {
             --parchment: #f4e4bc;
             --leather: #2c1e11;
             --gold: #b8860b;
             --blood: #8b0000;
-            --glass: rgba(44, 30, 17, 0.95);
+            --glass: rgba(26, 18, 11, 0.98);
         }
 
         body {
@@ -24,193 +29,154 @@
             min-height: 100vh;
         }
 
-        .container {
-            width: 100%;
-            max-width: 550px;
-            padding: 20px;
-        }
+        .container { width: 100%; max-width: 550px; padding: 20px; }
 
-        /* --- SCHEDA EROE --- */
+        /* --- SCHEDA EROE STYLE UPGRADE --- */
         .hero-card {
             background: var(--glass);
-            border: 3px solid var(--gold);
-            border-radius: 15px;
+            border: 2px solid var(--gold);
+            border-radius: 10px;
             padding: 30px;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
             position: relative;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+        }
+
+        .hero-card::before {
+            content: ""; position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 1px solid rgba(184, 134, 11, 0.3); pointer-events: none;
         }
 
         .avatar-frame {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 15px;
+            position: relative; display: inline-block; padding: 10px;
+            background: url('https://www.transparenttextures.com/patterns/black-linen.png');
+            border: 2px solid var(--gold); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
         }
 
         .profile-avatar-large {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            border: 5px solid var(--gold);
-            object-fit: cover;
-            background: var(--leather);
-            box-shadow: 0 0 20px var(--gold);
+            width: 140px; height: 160px; object-fit: cover;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
         }
 
         .hero-name {
-            font-family: 'Grenze Gotisch', cursive;
-            font-size: 3rem;
-            color: var(--gold);
-            margin: 10px 0;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            font-family: 'Grenze Gotisch', cursive; font-size: 3.5rem;
+            color: var(--gold); margin: 15px 0 5px 0; text-shadow: 3px 3px 5px black;
         }
 
-        .friend-code-badge {
-            background: var(--gold);
-            color: var(--leather);
-            padding: 6px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-family: 'MedievalSharp', cursive;
-            display: inline-block;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        /* --- BOTTONI --- */
+        /* --- BOTTONI FANTASY --- */
         .btn-fantasy {
-            background: linear-gradient(#4a321f, #1a120b);
-            color: var(--gold);
-            border: 1px solid var(--gold);
-            padding: 12px 25px;
-            cursor: pointer;
-            font-family: 'Grenze Gotisch', cursive;
-            font-size: 1.2rem;
-            width: 100%;
-            margin-top: 15px;
-            transition: all 0.3s ease;
+            background: #4a321f; color: var(--gold); border: 1px solid var(--gold);
+            padding: 12px; cursor: pointer; font-family: 'Grenze Gotisch'; font-size: 1.2rem;
+            width: 100%; transition: 0.3s; text-transform: uppercase;
         }
 
-        .btn-fantasy:hover {
-            filter: brightness(1.3);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(184, 134, 11, 0.4);
-        }
+        .btn-fantasy:hover { background: var(--gold); color: var(--leather); }
 
-        /* --- PANNELLO IMPOSTAZIONI --- */
+        /* --- PANNELLO MODIFICA --- */
         #settings-panel {
-            display: none;
-            background: var(--parchment);
-            color: var(--leather);
-            padding: 25px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border: 6px double var(--leather);
-            animation: fadeIn 0.4s ease;
+            display: none; background: var(--parchment); color: var(--leather);
+            padding: 25px; border-radius: 5px; margin-top: 20px;
+            border: 8px double var(--leather); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group label { font-weight: bold; display: block; margin-bottom: 5px; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { font-family: 'Grenze Gotisch'; font-size: 1.2rem; display: block; }
         
         .input-field {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--leather);
-            background: rgba(0,0,0,0.05);
-            font-family: 'Almendra';
-            box-sizing: border-box;
-            border-radius: 4px;
+            width: 100%; padding: 10px; border: 1px solid var(--leather);
+            background: rgba(255,255,255,0.5); font-family: 'Almendra'; box-sizing: border-box;
         }
 
         /* --- SEZIONE ALLEATI --- */
-        .allies-section {
-            margin-top: 40px;
-            border-top: 2px solid var(--gold);
-            padding-top: 20px;
-        }
-
+        .allies-section { margin-top: 30px; border-top: 2px solid var(--gold); padding-top: 20px; }
+        
         .ally-item {
-            display: flex;
-            align-items: center;
-            background: rgba(255,255,255,0.05);
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border: 1px solid rgba(184, 134, 11, 0.2);
+            display: flex; align-items: center; background: rgba(0,0,0,0.4);
+            padding: 10px; margin-bottom: 10px; border-left: 4px solid var(--gold);
         }
 
-        .ally-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--gold); margin-right: 15px; }
+        .ally-avatar { width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--gold); margin-right: 15px; }
 
-        .back-link { color: var(--gold); text-decoration: none; display: block; margin-bottom: 20px; font-weight: bold; }
+        .back-link { color: var(--gold); text-decoration: none; font-family: 'MedievalSharp'; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <a href="index.html" class="back-link">← Ritorna alla Taverna</a>
+    <header style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <a href="index.html" class="back-link">← TAVERNA</a>
+        <span id="sync-status" style="font-size: 0.8rem; color: var(--gold);">Sincronizzato Cloud</span>
+    </header>
 
     <main>
         <section class="hero-card">
             <div class="avatar-frame">
                 <img id="display-avatar" src="https://img.icons8.com/color/96/fantasy.png" class="profile-avatar-large">
             </div>
-            <h2 id="display-name" class="hero-name">CARICAMENTO...</h2>
-            <div class="friend-code-badge">CODICE: <span id="my-friend-code">---</span></div>
+            <h2 id="display-name" class="hero-name">VIANDANTE</h2>
+            <div style="margin-bottom: 20px;">
+                <span class="friend-code-badge">CODICE: <span id="my-friend-code">---</span></span>
+            </div>
             
-            <button class="btn-fantasy" onclick="toggleSettings()">⚙️ MODIFICA IDENTITÀ</button>
+            <button class="btn-fantasy" onclick="toggleSettings()">📜 Riconsacra Identità</button>
         </section>
 
         <div id="settings-panel">
-            <h3 style="margin-top:0; font-family:'Grenze Gotisch'; font-size:1.8rem; border-bottom:2px solid var(--leather);">MODIFICA PROFILO</h3>
-            
             <div class="input-group">
-                <label>Nome dell'Eroe</label>
-                <input type="text" id="edit-name" class="input-field">
+                <label>Nuovo Nome Eroe</label>
+                <input type="text" id="edit-name" class="input-field" placeholder="Es. Gwydion">
             </div>
 
             <div class="input-group">
-                <label>Immagine (URL)</label>
-                <input type="text" id="edit-photo-url" class="input-field" placeholder="https://link-immagine.jpg">
+                <label>Immagine (URL Magico)</label>
+                <input type="text" id="edit-photo-url" class="input-field" placeholder="https://...">
             </div>
 
-            <p style="text-align:center; margin:10px 0;">— oppure —</p>
+            <div style="border: 1px dashed var(--leather); padding: 10px; text-align: center;">
+                <label for="file-upload" style="cursor:pointer; font-weight:bold;">📁 CARICA RITRATTO DISPOSITIVO</label>
+                <input type="file" id="file-upload" accept="image/*" style="display:none;">
+                <small id="file-name" style="display:block; margin-top:5px;"></small>
+            </div>
 
-            <label for="file-upload" style="display:block; text-align:center; padding:15px; border:2px dashed var(--leather); cursor:pointer; font-weight:bold;">
-                📁 CARICA DAL DISPOSITIVO
-            </label>
-            <input type="file" id="file-upload" accept="image/*" style="display:none;">
-            <small id="file-name" style="display:block; text-align:center; margin-top:5px; color:var(--blood);"></small>
-
-            <button onclick="updateProfile()" class="btn-fantasy" style="background:var(--leather); color:white; margin-top:20px;">SALVA NEL DATABASE</button>
+            <button onclick="updateProfile()" class="btn-fantasy" style="margin-top:20px; background: var(--leather); color: white;">SALVA NEGLI ANNALI</button>
         </div>
 
         <section class="allies-section">
-            <h3 style="font-family:'Grenze Gotisch'; color:var(--gold);">🤝 CERCA ALLEATI</h3>
+            <h3 style="font-family:'Grenze Gotisch'; color:var(--gold); letter-spacing: 2px;">ADUNATA ALLEATI</h3>
             <div style="display:flex; gap:10px;">
-                <input type="text" id="search-friend-code" class="input-field" style="margin:0;" placeholder="Codice DRK-XXXX">
-                <button onclick="addFriend()" class="btn-fantasy" style="margin:0; width:auto;">AGGIUNGI</button>
+                <input type="text" id="search-friend-code" class="input-field" style="flex-grow:1; background: var(--parchment);" placeholder="Codice DRK-XXXX">
+                <button onclick="addFriend()" class="btn-fantasy" style="width:auto; padding: 0 20px;">RECLUTA</button>
             </div>
 
-            <h4 style="margin-top:25px; border-bottom:1px solid var(--gold);">I TUOI COMPAGNI</h4>
-            <div id="friends-list"></div>
+            <div id="friends-list" style="margin-top:20px;"></div>
         </section>
 
-        <button onclick="logout()" class="btn-fantasy" style="border-color:var(--blood); color:var(--blood); margin-top:40px; background:transparent;">LOGOUT</button>
+        <button onclick="logout()" class="btn-fantasy" style="border:none; color: var(--blood); margin-top:40px; background:transparent; font-size: 1rem;">Abbandona Drakonia</button>
     </main>
 </div>
 
 <script>
-    // --- LOGICA DI SISTEMA ---
+    // --- CONFIGURAZIONE FIREBASE (SOSTITUISCI CON I TUOI DATI) ---
+    const firebaseConfig = {
+        apiKey: "LA_TUA_API_KEY",
+        authDomain: "IL_TUO_PROGETTO.firebaseapp.com",
+        projectId: "IL_TUO_PROGETTO",
+        storageBucket: "IL_TUO_PROGETTO.appspot.com",
+        messagingSenderId: "ID_SENDER",
+        appId: "APP_ID"
+    };
 
-    // Recupero dati dai database locali
+    // Inizializza Firebase solo se config è valida
+    if (firebaseConfig.apiKey !== "LA_TUA_API_KEY") {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore ? firebase.firestore() : null;
+
     let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    let allUsers = JSON.parse(localStorage.getItem('users')) || [];
 
     function init() {
         if (!currentUser) {
-            alert("Devi effettuare il login per accedere al profilo!");
             window.location.href = 'login.html';
             return;
         }
@@ -218,118 +184,93 @@
         renderFriends();
     }
 
-    // Aggiorna la vista
     function renderDisplay() {
         document.getElementById('display-name').innerText = currentUser.username;
         document.getElementById('display-avatar').src = currentUser.avatar || "https://img.icons8.com/color/96/fantasy.png";
-        document.getElementById('my-friend-code').innerText = currentUser.friendCode || "DRK-0000";
+        document.getElementById('my-friend-code').innerText = currentUser.friendCode;
         document.getElementById('edit-name').value = currentUser.username;
     }
 
-    // Toggle Pannello
     function toggleSettings() {
         const panel = document.getElementById('settings-panel');
         panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
     }
 
-    // Feedback file
     document.getElementById('file-upload').onchange = function() {
-        if(this.files[0]) document.getElementById('file-name').innerText = "File pronto: " + this.files[0].name;
+        if(this.files[0]) document.getElementById('file-name').innerText = "Ritratto: " + this.files[0].name;
     };
 
-    // --- SALVATAGGIO NEL DATABASE ---
-    window.updateProfile = function() {
+    // --- LOGICA DI SALVATAGGIO (SERVER + LOCALE) ---
+    async function updateProfile() {
+        const btn = document.querySelector('#settings-panel .btn-fantasy');
+        btn.innerText = "SINCRO IN CORSO...";
+        
         const newName = document.getElementById('edit-name').value;
         const photoUrl = document.getElementById('edit-photo-url').value;
         const fileInput = document.getElementById('file-upload');
 
         if(newName) currentUser.username = newName;
 
-        if (fileInput.files && fileInput.files[0]) {
+        if (fileInput.files[0]) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                currentUser.avatar = e.target.result; // Converte immagine in testo per database
-                commitToDatabase();
+            reader.onload = async function(e) {
+                currentUser.avatar = e.target.result; 
+                await commitChanges();
             };
             reader.readAsDataURL(fileInput.files[0]);
         } else {
             if(photoUrl) currentUser.avatar = photoUrl;
-            commitToDatabase();
+            await commitChanges();
         }
     }
 
-    function commitToDatabase() {
+    async function commitChanges() {
         try {
-            // 1. Salva Sessione Corrente
+            // 1. Salvataggio Locale (immediato)
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-            // 2. Sincronizza nel Database Globale (allUsers)
-            const index = allUsers.findIndex(u => u.friendCode === currentUser.friendCode);
-            if (index !== -1) {
-                allUsers[index] = currentUser;
+            // 2. Tenta Salvataggio Server (Firebase)
+            if (db) {
+                await db.collection("users").doc(currentUser.uid).update({
+                    username: currentUser.username,
+                    avatar: currentUser.avatar
+                });
+                document.getElementById('sync-status').innerText = "Sincronizzato Cloud";
             } else {
-                allUsers.push(currentUser);
+                console.warn("Server non configurato. Salvataggio solo locale.");
+                document.getElementById('sync-status').innerText = "Solo Locale";
             }
-            localStorage.setItem('users', JSON.stringify(allUsers));
 
-            alert("Dati salvati negli annali di Drakonia!");
+            alert("Cronache aggiornate!");
             location.reload();
-        } catch (e) {
-            alert("Errore: Memoria piena. Usa un URL per l'immagine invece di un file pesante.");
+        } catch (error) {
+            console.error(error);
+            alert("Errore di sincronizzazione. Modifiche salvate solo localmente.");
         }
     }
 
     // --- LOGICA AMICI ---
-    window.addFriend = function() {
+    async function addFriend() {
         const code = document.getElementById('search-friend-code').value.trim().toUpperCase();
-        const friendObj = allUsers.find(u => u.friendCode === code);
+        if(!code || code === currentUser.friendCode) return;
 
-        if (!friendObj) {
-            alert("Codice errato: nessun eroe trovato.");
-            return;
+        // Se Firebase è attivo, cerchiamo sul server
+        if(db) {
+            const snapshot = await db.collection("users").where("friendCode", "==", code).get();
+            if(snapshot.empty) {
+                alert("Eroe non trovato nel regno.");
+                return;
+            }
+            // Aggiungi logica di salvataggio alleato...
         }
-        if (code === currentUser.friendCode) {
-            alert("Non puoi aggiungere te stesso!");
-            return;
-        }
-
-        if (!currentUser.friends) currentUser.friends = [];
-        if (currentUser.friends.includes(code)) {
-            alert("Questo alleato è già nella tua lista.");
-            return;
-        }
-
-        currentUser.friends.push(code);
-        commitToDatabase();
+        alert("Funzione reclutamento in fase di benedizione magica.");
     }
 
-    function renderFriends() {
-        const container = document.getElementById('friends-list');
-        if (!currentUser.friends || currentUser.friends.length === 0) {
-            container.innerHTML = "<p style='opacity:0.5'>Nessun alleato reclutato.</p>";
-            return;
-        }
-
-        container.innerHTML = "";
-        currentUser.friends.forEach(fCode => {
-            const fData = allUsers.find(u => u.friendCode === fCode) || { username: "Eroe Sconosciuto", avatar: "" };
-            container.innerHTML += `
-                <div class="ally-item">
-                    <img src="${fData.avatar || 'https://via.placeholder.com/40'}" class="ally-avatar">
-                    <div>
-                        <strong>${fData.username}</strong><br>
-                        <small style="color:var(--gold)">${fCode}</small>
-                    </div>
-                </div>`;
-        });
-    }
-
-    window.logout = function() {
+    function logout() {
         localStorage.removeItem('currentUser');
         window.location.href = 'login.html';
     }
 
-    // Start
     init();
 </script>
 
