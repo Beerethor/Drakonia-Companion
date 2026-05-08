@@ -51,7 +51,7 @@
       "sfida": "Confronto tra due parti (Sfidante vs Sfidato). Se entrambi hanno successo o falliscono, lo sfidante può rinunciare o ripetere con complessità aumentata.",
       "trappole": {
         "attivazione": "Il GM lancia 1D6: con 1-4 la trappola si attiva.",
-        "evitare_disattivare": "Prova difficile di Rapidità per evitare, difficile di Intelligenza per disattivare."
+        "avoidare_disattivare": "Prova difficile di Rapidità per evitare, difficile di Intelligenza per disattivare."
       },
       "acrobazie": {
         "arrampicarsi": "Prova normale di Prodezza. Successo: muove di Movimento/3 caselle. Fallimento: cade e subisce 1D6 PI ogni 3m.",
@@ -70,4 +70,5 @@
       },
       "bottino": "Cercare in un'area o stanza richiede una prova di Gruppo (difficilissima per area, difficile per stanza)."
     }
+  }
 }
