@@ -22,16 +22,19 @@
         }
 
         .nav-controls {
-            max-width: 800px; margin: 0 auto 15px; display: flex; gap: 10px; justify-content: space-between;
+            max-width: 800px; margin: 0 auto 15px; display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap;
         }
 
         .btn {
             background: var(--leather); color: var(--gold); border: 1px solid var(--gold);
             padding: 10px 15px; cursor: pointer; font-family: 'Grenze Gotisch'; 
             text-decoration: none; transition: 0.3s; display: flex; align-items: center; gap: 8px;
-            font-size: 0.9rem; flex: 1; justify-content: center;
+            font-size: 0.9rem; flex: 1; justify-content: center; min-width: 120px;
         }
         .btn:hover { background: var(--blood); color: white; }
+        
+        /* Tasto Elimina: Nascosto di base */
+        .btn-delete { background: var(--blood); color: white; display: none; border: 1px solid white; }
 
         #sheet-to-print {
             background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
@@ -42,33 +45,24 @@
         }
 
         h1 { font-family: 'Grenze Gotisch'; text-align: center; font-size: 2.2rem; margin: 10px 0; border-bottom: 2px solid var(--leather); }
-        
-        /* Layout Header per Mobile */
         .header-info { display: flex; flex-direction: column-reverse; gap: 15px; margin-bottom: 20px; }
         .portrait { width: 120px; height: 150px; border: 3px double var(--leather); object-fit: cover; align-self: center; background: rgba(0,0,0,0.1); }
-        
         .info-row { font-size: 1.1rem; margin-bottom: 5px; border-bottom: 1px dashed rgba(0,0,0,0.2); display: flex; justify-content: space-between; }
         .info-label { font-family: 'Grenze Gotisch'; color: var(--blood); }
-
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 20px 0; }
         .stat-box { border: 2px solid var(--leather); border-radius: 8px; padding: 8px; background: rgba(0,0,0,0.03); text-align: center; }
         .stat-val { font-size: 1.5rem; font-weight: bold; display: block; color: var(--blood); }
         .stat-label { font-size: 0.75rem; font-family: 'Grenze Gotisch'; text-transform: uppercase; }
-
         .section-title { font-family: 'Grenze Gotisch'; font-size: 1.5rem; border-bottom: 1px solid var(--gold); margin: 20px 0 10px; color: var(--blood); text-align: center; }
         .content-box { white-space: pre-wrap; line-height: 1.3; font-size: 1rem; min-height: 40px; background: rgba(0,0,0,0.02); padding: 5px; }
-
-        /* Layout Inventario per Mobile */
         .inv-grid { display: flex; flex-direction: column; gap: 15px; }
         .zaino-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
         .zaino-list li { border-bottom: 1px solid rgba(0,0,0,0.1); padding: 2px 0; font-size: 0.9rem; }
-
         #loading-overlay { text-align: center; padding: 100px 20px; font-family: 'Grenze Gotisch'; font-size: 1.5rem; color: var(--gold); }
 
-        /* Media Query per schermi più grandi (Tablet/PC) */
         @media (min-width: 600px) {
             h1 { font-size: 3rem; }
-            .header-info { display: grid; grid-template-columns: 1fr 150px; flex-direction: row; }
+            .header-info { display: grid; grid-template-columns: 1fr 150px; }
             .portrait { width: 150px; height: 180px; }
             .stats-grid { grid-template-columns: repeat(4, 1fr); }
             .inv-grid { display: grid; grid-template-columns: 1fr 1fr; }
@@ -81,7 +75,9 @@
 
     <div class="nav-controls">
         <a href="archivio-pg.html" class="btn">⬅ ARCHIVIO</a>
+        <a id="btn-lvl-up" href="#" class="btn">⚔️ LEVEL UP</a>
         <button class="btn" onclick="scaricaPDF()">📜 SALVA PDF</button>
+        <button id="btn-delete-pg" class="btn btn-delete" onclick="eliminaPersonaggio()">🔥 ELIMINA</button>
     </div>
 
     <div id="loading-overlay">Consultando i Tomi Antichi...</div>
@@ -145,17 +141,37 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        auth.onAuthStateChanged(user => {
-            if (user) { caricaScheda(); } 
+        const urlParams = new URLSearchParams(window.location.search);
+        const characterId = urlParams.get('id');
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) { 
+                await checkFounderRole(user.uid);
+                caricaScheda(); 
+            } 
             else { window.location.href = 'login.html'; }
         });
 
+        // Funzione che controlla il ruolo nel documento "users"
+        async function checkFounderRole(uid) {
+            try {
+                const userDoc = await db.collection("users").doc(uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    // Controlla se il campo "role" o "ruolo" è "founder"
+                    if (userData.role === "founder" || userData.ruolo === "founder") {
+                        document.getElementById('btn-delete-pg').style.display = 'flex';
+                    }
+                }
+            } catch (e) {
+                console.error("Errore controllo permessi:", e);
+            }
+        }
+
         async function caricaScheda() {
             try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const characterId = urlParams.get('id');
-
                 if (!characterId) { window.location.href = "archivio-pg.html"; return; }
+                document.getElementById('btn-lvl-up').href = `level-up.html?id=${characterId}`;
 
                 const doc = await db.collection("characters").doc(characterId).get();
                 if (!doc.exists) { alert("Eroe non trovato."); window.location.href = "archivio-pg.html"; return; }
@@ -165,7 +181,15 @@
                 document.getElementById('val-nome').innerText = data.nome || "Senza Nome";
                 document.getElementById('val-owner').innerText = data.userName || "Ignoto";
                 document.getElementById('val-campagna').innerText = data.campagna || "Cieli di Drakonia";
-                document.getElementById('val-classe').innerText = data.classe || "Viandante";
+                
+                if (typeof data.classe === 'object') {
+                    let classiStr = "";
+                    for(let cl in data.classe) classiStr += `${cl} (${data.classe[cl]}), `;
+                    document.getElementById('val-classe').innerText = classiStr.slice(0, -2);
+                } else {
+                    document.getElementById('val-classe').innerText = data.classe || "Viandante";
+                }
+
                 document.getElementById('val-livello').innerText = data.livello || "1";
                 document.getElementById('val-rango').innerText = data.rango || "-";
                 
@@ -204,6 +228,18 @@
             } catch (error) {
                 console.error(error);
                 alert("Errore nel recupero dati.");
+            }
+        }
+
+        async function eliminaPersonaggio() {
+            if (confirm("ATTENZIONE: Sei sicuro di voler cancellare questo eroe per sempre?")) {
+                try {
+                    await db.collection("characters").doc(characterId).delete();
+                    alert("Eroe rimosso dagli annali.");
+                    window.location.href = "archivio-pg.html";
+                } catch (error) {
+                    alert("Errore durante l'eliminazione: " + error.message);
+                }
             }
         }
 
