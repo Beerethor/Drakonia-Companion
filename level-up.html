@@ -2,88 +2,144 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drakonia - Avanzamento Eroe</title>
-    <link rel="icon" type="image/png" href="icon/icon_192x192.png">
-    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Drakonia - Level Up</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
+    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
         :root { --gold: #b8860b; --leather: #2c1e11; --parchment: #f4e4bc; --blood: #8b0000; }
+        
         body { 
-            background: #120d08 url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
-            color: var(--leather); font-family: 'Almendra', serif; margin: 0; padding: 10px;
-            display: flex; justify-content: center;
+            background: #120d08; 
+            color: var(--leather); 
+            font-family: 'Almendra', serif; 
+            margin: 0; 
+            padding: 10px;
+            display: flex;
+            justify-content: center;
         }
+
         .sheet-container {
             background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-            width: 100%; max-width: 800px; padding: 25px;
-            border: 15px solid transparent;
+            width: 100%;
+            max-width: 500px;
+            padding: 15px;
+            border: 10px solid transparent;
             border-image: url('https://www.transparenttextures.com/patterns/dark-leather.png') 30 stretch;
-            box-shadow: 0 0 50px black; position: relative; box-sizing: border-box;
+            box-shadow: 0 0 30px black;
+            box-sizing: border-box;
         }
-        .btn-back {
-            position: absolute; top: 10px; left: 10px;
-            background: var(--leather); color: var(--gold); border: 1px solid var(--gold);
-            padding: 5px 15px; cursor: pointer; font-family: 'Grenze Gotisch'; text-decoration: none; font-size: 0.8rem;
+
+        h1 { font-family: 'Grenze Gotisch'; font-size: 1.8rem; text-align: center; margin: 10px 0; border-bottom: 2px solid var(--leather); }
+        h2 { font-family: 'Grenze Gotisch'; font-size: 1.3rem; text-align: center; color: var(--blood); margin-bottom: 20px; }
+
+        .section { 
+            background: rgba(0,0,0,0.05); 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+            border: 1px solid rgba(44, 30, 17, 0.3); 
         }
-        h1, h2 { font-family: 'Grenze Gotisch'; text-align: center; border-bottom: 2px solid var(--leather); margin-top: 25px; }
-        .section { background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--leather); }
+
+        label { display: block; font-weight: bold; font-family: 'Grenze Gotisch'; margin-bottom: 5px; color: var(--leather); font-size: 0.9rem; }
         
-        label { display: block; font-weight: bold; font-family: 'Grenze Gotisch'; margin-bottom: 5px; color: var(--blood); }
-        input, textarea, select { 
-            width: 100%; padding: 10px; border: 1px solid var(--leather);
-            background: rgba(255,255,255,0.7); font-family: 'Almendra'; font-size: 1rem; box-sizing: border-box;
+        select, input, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 10px;
+            border: 1px solid var(--leather);
+            background: white;
+            font-family: 'Almendra';
+            font-size: 1rem;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
 
-        .stat-display-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
-        .stat-box { text-align: center; border: 2px solid var(--leather); padding: 5px; border-radius: 5px; background: rgba(255,255,255,0.3); }
-        .stat-val { font-size: 1.5rem; font-weight: bold; color: var(--blood); }
-
-        .ability-gain { background: var(--leather); color: var(--gold); padding: 15px; margin-top: 10px; border-radius: 5px; display: none; border: 1px solid var(--gold); }
-        .inventory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-        
-        #bonus-stat-selector { 
-            display: none; background: #fff3cd; padding: 15px; border-radius: 5px; 
-            border: 2px solid var(--gold); margin-top: 15px; animation: flash 1.5s infinite alternate;
+        /* Grid Stats ottimizzata per Mobile */
+        .stat-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 8px; 
+            margin-bottom: 10px; 
         }
-        @keyframes flash { from { box-shadow: 0 0 5px var(--gold); } to { box-shadow: 0 0 15px var(--gold); } }
-
-        .btn-update { 
-            background: var(--blood); color: white; border: 2px solid var(--gold); 
-            padding: 15px; width: 100%; font-family: 'Grenze Gotisch'; 
-            font-size: 1.5rem; cursor: pointer; margin-top: 10px; transition: 0.3s;
+        .stat-box { 
+            background: rgba(255,255,255,0.5); 
+            border: 1px solid var(--leather); 
+            text-align: center; 
+            padding: 8px;
+            border-radius: 4px;
         }
-        .btn-update:hover { background: #600000; transform: scale(1.01); }
+        .stat-val { font-size: 1.4rem; font-weight: bold; color: var(--blood); }
+
+        .ability-box {
+            background: var(--leather);
+            color: var(--gold);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            display: none;
+            border: 1px solid var(--gold);
+            margin-top: 10px;
+        }
+
+        .inventory-mini {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+        }
+        .inventory-mini input { padding: 8px; font-size: 0.8rem; text-align: center; }
+
+        .btn-main {
+            background: var(--blood);
+            color: white;
+            border: 2px solid var(--gold);
+            padding: 15px;
+            width: 100%;
+            font-family: 'Grenze Gotisch';
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .bonus-highlight {
+            background: #fff3cd;
+            border: 2px dashed var(--gold);
+            padding: 10px;
+            margin-top: 10px;
+            display: none;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
     </style>
 </head>
 <body>
 
 <div class="sheet-container">
-    <a href="archivio-pg.html" class="btn-back">⬅ ANNULLA</a>
-    
-    <h1>AVANZAMENTO DI LIVELLO</h1>
-    <h2 id="char-name">Invocando l'Eroe...</h2>
+    <h1>AVANZAMENTO LIVELLO</h1>
+    <h2 id="display-nome">Caricamento...</h2>
 
     <div class="section">
-        <label>RITUALE DI CRESCITA</label>
-        <select id="levelup-choice" onchange="updateLevelingUI()">
-            <option value="aumenta">Migliora classe attuale</option>
-            <option value="multiclasse">Intraprendi nuova via (Multiclasse)</option>
+        <label>AZIONE</label>
+        <select id="mode-select" onchange="toggleMode()">
+            <option value="up">Aumenta Classe Esistente</option>
+            <option value="multi">Nuova Classe (Multiclasse)</option>
         </select>
 
-        <div id="ui-aumenta" style="margin-top:15px;">
-            <label>Quale via vuoi seguire?</label>
-            <select id="select-class-to-up" onchange="previewAbility()"></select>
+        <div id="box-up">
+            <label>QUALE CLASSE?</label>
+            <select id="select-current-class" onchange="checkNextAbility()"></select>
         </div>
 
-        <div id="ui-multiclasse" style="margin-top:15px; display:none;">
-            <label>Scegli la nuova classe (Partirai dal Livello 1):</label>
-            <select id="select-new-class" onchange="previewAbility()">
-                <option value="">Scegli...</option>
+        <div id="box-multi" style="display:none;">
+            <label>SCEGLI NUOVA VIA</label>
+            <select id="select-new-class" onchange="checkNextAbility()">
+                <option value="">-- Seleziona --</option>
                 <option value="Guerriero">Guerriero</option>
                 <option value="Truffatore">Truffatore</option>
                 <option value="Saggio">Saggio</option>
@@ -92,24 +148,14 @@
             </select>
         </div>
 
-        <div id="ability-preview" class="ability-gain">
-            <strong>✨ NUOVA ABILITÀ:</strong> <span id="ability-text"></span>
-        </div>
-    </div>
-
-    <div class="section">
-        <label>CARATTERISTICHE ATTUALI</label>
-        <div class="stat-display-grid">
-            <div class="stat-box"><label>PRD</label><div id="val-prd" class="stat-val">0</div></div>
-            <div class="stat-box"><label>INT</label><div id="val-int" class="stat-val">0</div></div>
-            <div class="stat-box"><label>RPD</label><div id="val-rpd" class="stat-val">0</div></div>
-            <div class="stat-box"><label>PR</label><div id="val-pr" class="stat-val">0</div></div>
+        <div id="ability-info" class="ability-box">
+            <strong>ABILITÀ:</strong> <span id="ability-name"></span>
         </div>
 
-        <div id="bonus-stat-selector">
-            <label>⚡ DONO DEGLI DEI! Scegli quale Caratteristica aumentare di +1:</label>
-            <select id="chosen-stat-bonus">
-                <option value="">-- Seleziona --</option>
+        <div id="stat-bonus-box" class="bonus-highlight">
+            <label>✨ SELEZIONA AUMENTO STAT (+1)</label>
+            <select id="stat-to-boost">
+                <option value="">-- Scegli --</option>
                 <option value="prd">Prodezza (PRD)</option>
                 <option value="int">Intelligenza (INT)</option>
                 <option value="rpd">Rapidità (RPD)</option>
@@ -119,24 +165,21 @@
     </div>
 
     <div class="section">
-        <label>AGGIORNA LA STORIA</label>
-        <textarea id="edit-storia" rows="3" placeholder="Scrivi qui le tue recenti gesta..."></textarea>
-        
-        <label style="margin-top:15px;">EQUIPAGGIAMENTO</label>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
-            <input type="text" id="edit-arma" placeholder="Arma">
-            <input type="text" id="edit-armatura" placeholder="Armatura">
-            <input type="text" id="edit-anello" placeholder="Anello">
+        <label>STATS ATTUALI</label>
+        <div class="stat-grid">
+            <div class="stat-box"><small>PRD</small><div id="cur-prd" class="stat-val">0</div></div>
+            <div class="stat-box"><small>INT</small><div id="cur-int" class="stat-val">0</div></div>
+            <div class="stat-box"><small>RPD</small><div id="cur-rpd" class="stat-val">0</div></div>
+            <div class="stat-box"><small>PR</small><div id="cur-pr" class="stat-val">0</div></div>
         </div>
-
-        <label style="margin-top:15px;">ZAINO (9 SLOT)</label>
-        <div class="inventory-grid" id="inventory-inputs"></div>
-
-        <label style="margin-top:15px;">POTERI E CONOSCENZE</label>
-        <textarea id="edit-incantesimi" rows="3" placeholder="Aggiungi i nuovi poteri ottenuti..."></textarea>
     </div>
 
-    <button class="btn-update" onclick="salvaAvanzamento()">INCIDI I PROGRESSI</button>
+    <div class="section">
+        <label>ZAINO (OGGETTI)</label>
+        <div class="inventory-mini" id="zaino-slots"></div>
+    </div>
+
+    <button class="btn-main" onclick="confermaLevelUp()">Incidi nel Destino</button>
 </div>
 
 <script>
@@ -151,146 +194,121 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const charId = new URLSearchParams(window.location.search).get('id');
-    let charData = null;
-    let canGainStat = false;
+    const urlParams = new URLSearchParams(window.location.search);
+    const charId = urlParams.get('id');
+    let pgData = null;
 
-    const classAbilities = {
-        "Guerriero": ["", "Casta dei Guerrieri", "Armature Pesanti", "Minaccioso", "Aumento Caratteristica / Tecnica Scudo", "Lasciapassare / Ambidestro 1", "Veterano / Ambidestro 2", "Aumento Caratteristica / Addestramento Marziale", "Aumento Caratteristica", "Aumento Caratteristica / Ambidestro 3"],
-        "Truffatore": ["", "Furbizia Lesta", "Tecnica dell'Arco", "Virtuoso", "Aggancio / Tecnica del Pugnale", "Aumento Caratteristica / Velocità di Pensiero 1", "Aumento Caratteristica / Intrallazzo", "Aumento Caratteristica / Velocità di Pensiero 2", "Aumento Caratteristica / Velocità di Pensiero 3", "Aumento Caratteristica"],
-        "Saggio": ["", "Guarigione / Esorcismo 1", "Tecnica del Bastone", "Leggere la Mente", "Conoscenza Superiore / Vista Paranormale", "Esorcismo 2 / Dono delle Lingue / Aumento Caratteristica", "Aumento Caratteristica / Levitazione / Tecnica dell'Arco", "Aumento Caratteristica / Immunità", "Aumento Caratteristica", "Esorcismo 3 / Aumento Caratteristica"],
-        "Stregone": ["", "Stregoneria 1 / Armi", "Incantesimo Rituale 1", "Incantesimo Rituale 2 / Memoria Magica 1", "Stregoneria 2 / Incantesimo Rituale 3", "Incantesimo Rituale 4 / Memoria Magica 2 / Aumento Caratteristica", "Apprendimento Trascrizione", "Stregoneria 3 / Memoria Magica 3 / Aumento Caratteristica", "Aumento Caratteristica", "Stregoneria 4 / Aumento Caratteristica"],
-        "Druido": ["", "Magia Primordiale 1 / Martello", "Incantesimo Rituale 1 / Tecnica della Natura", "Esperto / Aumento Caratteristica", "Magia Primordiale 2 / Sintonia con la Natura 1", "Aumento Caratteristica / Furia della Natura", "Magia Primordiale 3 / Sintonia con la Natura 2", "Incantesimo Rituale 2", "Aumento Caratteristica", "Magia Primordiale 4 / Aumento Caratteristica"]
+    const tabelle = {
+        "Guerriero": ["", "Casta dei Guerrieri", "Armature Pesanti", "Minaccioso", "Aumento Caratteristica", "Ambidestro 1", "Aumento Caratteristica", "Addestramento Marziale", "Aumento Caratteristica", "Ambidestro 3"],
+        "Truffatore": ["", "Furbizia Lesto", "Tecnica dell'Arco", "Virtuoso", "Tecnica del Pugnale", "Aumento Caratteristica", "Intrallazzo", "Aumento Caratteristica", "Aumento Caratteristica", "Velocità di Pensiero 3"],
+        "Saggio": ["", "Guarigione", "Tecnica del Bastone", "Leggere la Mente", "Vista Paranormale", "Aumento Caratteristica", "Aumento Caratteristica", "Immunità", "Aumento Caratteristica", "Esorcismo 3"],
+        "Stregone": ["", "Stregoneria 1", "Rituale 1", "Memoria Magica 1", "Stregoneria 2", "Aumento Caratteristica", "Trascrizione", "Aumento Caratteristica", "Aumento Caratteristica", "Stregoneria 4"],
+        "Druido": ["", "Magia Primordiale 1", "Tecnica della Natura", "Aumento Caratteristica", "Sintonia 1", "Aumento Caratteristica", "Sintonia 2", "Rituale 2", "Aumento Caratteristica", "Magia Primordiale 4"]
     };
 
     window.onload = async () => {
-        if(!charId) { alert("Nessun eroe selezionato!"); window.location.href="archivio-pg.html"; return; }
-
-        const invContainer = document.getElementById('inventory-inputs');
-        for(let i=0; i<9; i++) invContainer.innerHTML += `<input type="text" id="inv-${i}" placeholder="Slot ${i+1}">`;
+        if(!charId) return alert("Nessun ID Personaggio!");
+        
+        // Setup slot zaino
+        const container = document.getElementById('zaino-slots');
+        for(let i=0; i<9; i++) container.innerHTML += `<input type="text" id="slot-${i}">`;
 
         try {
             const doc = await db.collection("characters").doc(charId).get();
-            if(!doc.exists) { alert("Eroe svanito nel nulla!"); return; }
-            charData = doc.data();
-            initFields();
-        } catch(e) { console.error(e); }
+            if(!doc.exists) return alert("Eroe non trovato!");
+            pgData = doc.data();
+            renderPG();
+        } catch(e) { console.error("Errore caricamento:", e); }
     };
 
-    function initFields() {
-        document.getElementById('char-name').innerText = charData.nome || "Senza Nome";
-        document.getElementById('edit-storia').value = charData.storia || "";
+    function renderPG() {
+        document.getElementById('display-nome').innerText = pgData.nome;
         
-        const inv = charData.inventario || {};
-        document.getElementById('edit-arma').value = inv.arma || "";
-        document.getElementById('edit-armatura').value = inv.armatura || "";
-        document.getElementById('edit-anello').value = inv.anello || "";
-        document.getElementById('edit-incantesimi').value = inv.incantesimi || "";
+        const s = pgData.stats || {prd:0, int:0, rpd:0, pr:0};
+        document.getElementById('cur-prd').innerText = s.prd;
+        document.getElementById('cur-int').innerText = s.int;
+        document.getElementById('cur-rpd').innerText = s.rpd;
+        document.getElementById('cur-pr').innerText = s.pr;
 
-        const sts = charData.stats || {prd:0, int:0, rpd:0, pr:0};
-        document.getElementById('val-prd').innerText = sts.prd || 0;
-        document.getElementById('val-int').innerText = sts.int || 0;
-        document.getElementById('val-rpd').innerText = sts.rpd || 0;
-        document.getElementById('val-pr').innerText = sts.pr || 0;
+        // Gestione classi (compatibilità mappa/stringa)
+        let mappa = (typeof pgData.classe === 'object') ? pgData.classe : {[pgData.classe]: pgData.livello};
+        pgData.mappaClassi = mappa;
 
-        if(inv.zaino) {
-            inv.zaino.forEach((item, i) => {
-                if(i < 9) document.getElementById(`inv-${i}`).value = item || "";
+        const sel = document.getElementById('select-current-class');
+        sel.innerHTML = "";
+        for(let c in mappa) {
+            sel.innerHTML += `<option value="${c}">${c} (Liv. ${mappa[c]})</option>`;
+        }
+
+        if(pgData.inventario && pgData.inventario.zaino) {
+            pgData.inventario.zaino.forEach((item, i) => {
+                if(i < 9) document.getElementById(`slot-${i}`).value = item;
             });
         }
-
-        let map = {};
-        if(typeof charData.classe === 'object') map = charData.classe;
-        else map[charData.classe || "Viandante"] = parseInt(charData.livello) || 1;
-        
-        charData.classiMappa = map;
-
-        const selectUp = document.getElementById('select-class-to-up');
-        selectUp.innerHTML = '<option value="">-- Scegli la classe --</option>';
-        for(let c in map) {
-            selectUp.innerHTML += `<option value="${c}">${c} (Liv. ${map[c]})</option>`;
-        }
     }
 
-    function updateLevelingUI() {
-        const mode = document.getElementById('levelup-choice').value;
-        document.getElementById('ui-aumenta').style.display = (mode === 'aumenta') ? 'block' : 'none';
-        document.getElementById('ui-multiclasse').style.display = (mode === 'multiclasse') ? 'block' : 'none';
-        previewAbility();
+    function toggleMode() {
+        const mode = document.getElementById('mode-select').value;
+        document.getElementById('box-up').style.display = mode === 'up' ? 'block' : 'none';
+        document.getElementById('box-multi').style.display = mode === 'multi' ? 'block' : 'none';
+        checkNextAbility();
     }
 
-    function previewAbility() {
-        const mode = document.getElementById('levelup-choice').value;
-        let target = (mode === 'aumenta') ? document.getElementById('select-class-to-up').value : document.getElementById('select-new-class').value;
+    function checkNextAbility() {
+        const mode = document.getElementById('mode-select').value;
+        const cls = mode === 'up' ? document.getElementById('select-current-class').value : document.getElementById('select-new-class').value;
         
-        if(!target) {
-            document.getElementById('ability-preview').style.display = 'none';
-            document.getElementById('bonus-stat-selector').style.display = 'none';
+        if(!cls) {
+            document.getElementById('ability-info').style.display = 'none';
             return;
         }
 
-        let nxt = (mode === 'aumenta') ? (charData.classiMappa[target] || 0) + 1 : 1;
-        let txt = (classAbilities[target] && classAbilities[target][nxt]) ? classAbilities[target][nxt] : "Avanzamento generico Liv. " + nxt;
+        const livFuturo = mode === 'up' ? (pgData.mappaClassi[cls] || 0) + 1 : 1;
+        const abil = (tabelle[cls] && tabelle[cls][livFuturo]) ? tabelle[cls][livFuturo] : "Avanzamento Standard";
         
-        document.getElementById('ability-text').innerText = txt;
-        document.getElementById('ability-preview').style.display = 'block';
-
-        canGainStat = txt.includes("Aumento Caratteristica");
-        document.getElementById('bonus-stat-selector').style.display = canGainStat ? 'block' : 'none';
+        document.getElementById('ability-name').innerText = abil;
+        document.getElementById('ability-info').style.display = 'block';
+        
+        // Mostra selettore stat se l'abilità contiene "Aumento Caratteristica"
+        document.getElementById('stat-bonus-box').style.display = abil.includes("Aumento") ? 'block' : 'none';
     }
 
-    async function salvaAvanzamento() {
-        console.log("Inizio salvataggio...");
-        const mode = document.getElementById('levelup-choice').value;
-        const bonus = document.getElementById('chosen-stat-bonus').value;
+    async function confermaLevelUp() {
+        if(!pgData) return alert("Dati non pronti!");
+        
+        const mode = document.getElementById('mode-select').value;
+        const cls = mode === 'up' ? document.getElementById('select-current-class').value : document.getElementById('select-new-class').value;
+        const boost = document.getElementById('stat-to-boost').value;
 
-        if(canGainStat && !bonus) { alert("Devi scegliere quale Caratteristica aumentare!"); return; }
-
-        let nMap = {...charData.classiMappa};
-        let tLvl = parseInt(charData.livello) || 1;
-
-        if(mode === 'aumenta') {
-            const c = document.getElementById('select-class-to-up').value;
-            if(!c) { alert("Seleziona una classe!"); return; }
-            nMap[c]++;
-        } else {
-            const c = document.getElementById('select-new-class').value;
-            if(!c) { alert("Seleziona la nuova classe!"); return; }
-            if(nMap[c]) { alert("Possiedi già questa via!"); return; }
-            nMap[c] = 1;
+        if(!cls) return alert("Seleziona una classe!");
+        if(document.getElementById('stat-bonus-box').style.display === 'block' && !boost) {
+            return alert("Scegli quale statistica aumentare!");
         }
-        tLvl++;
 
-        let nStats = {...charData.stats};
-        if(canGainStat && bonus) nStats[bonus] = (parseInt(nStats[bonus]) || 0) + 1;
+        let nuovaMappa = {...pgData.mappaClassi};
+        nuovaMappa[cls] = (nuovaMappa[cls] || 0) + 1;
+        
+        let nuovoLvl = (parseInt(pgData.livello) || 1) + 1;
+        let nuoveStats = {...pgData.stats};
+        if(boost) nuoveStats[boost] = (parseInt(nuoveStats[boost]) || 0) + 1;
 
-        const rTab = {1:"Alle Prime Armi", 2:"Principiante", 3:"Esperto", 4:"Navigato", 5:"Provetto", 6:"Veterano", 7:"Straordinario", 8:"Leggendario", 9:"Epico"};
+        const ranghi = {1:"Alle Prime Armi", 2:"Principiante", 3:"Esperto", 4:"Navigato", 5:"Provetto", 6:"Veterano", 7:"Straordinario", 8:"Leggendario", 9:"Epico"};
 
-        const payload = {
-            livello: tLvl,
-            rango: rTab[tLvl] || "Leggenda",
-            classe: nMap,
-            storia: document.getElementById('edit-storia').value,
-            stats: nStats,
-            inventario: {
-                arma: document.getElementById('edit-arma').value,
-                armatura: document.getElementById('edit-armatura').value,
-                anello: document.getElementById('edit-anello').value,
-                incantesimi: document.getElementById('edit-incantesimi').value,
-                zaino: Array.from({length:9}, (_,i) => document.getElementById(`inv-${i}`).value),
-                oro: charData.inventario.oro || 0
-            }
+        const updateData = {
+            livello: nuovoLvl,
+            rango: ranghi[nuovoLvl] || "Leggenda",
+            classe: nuovaMappa,
+            stats: nuoveStats,
+            "inventario.zaino": Array.from({length:9}, (_,i) => document.getElementById(`slot-${i}`).value)
         };
 
         try {
-            await db.collection("characters").doc(charId).update(payload);
-            alert("✨ L'EROE È ASCESO!");
-            window.location.href = "archivio-pg.html";
-        } catch(e) {
-            console.error(e);
-            alert("Errore dei Tomi: " + e.message);
-        }
+            await db.collection("characters").doc(charId).update(updateData);
+            alert("L'Eroe è progredito!");
+            window.location.href = "index.html";
+        } catch(e) { alert("Errore: " + e.message); }
     }
 </script>
+
 </body>
 </html>
