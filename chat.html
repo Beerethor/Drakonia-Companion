@@ -10,7 +10,14 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; --blood: #8b0000; --ink: #1a110a; }
+        :root { 
+            --gold: #b8860b; 
+            --parchment: #f4e4bc; 
+            --leather: #2c1e11; 
+            --blood: #8b0000; 
+            --ink: #1a110a; 
+            --shadow: rgba(0,0,0,0.5);
+        }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -22,123 +29,144 @@
             display: flex; 
             flex-direction: column; 
             height: 100vh; 
-            height: -webkit-fill-available; /* Fix per browser mobile */
+            height: -webkit-fill-available;
             overflow: hidden;
         }
 
-        html { height: -webkit-fill-available; }
-
+        /* Header e Timer */
         .header { 
             background: var(--leather); 
-            padding: 10px 15px; 
+            padding: 12px 18px; 
             border-bottom: 2px solid var(--gold); 
             display: flex; 
             align-items: center; 
             justify-content: space-between;
-            flex-shrink: 0;
+            box-shadow: 0 2px 10px var(--shadow);
             z-index: 10;
         }
+
+        .back-link { color: var(--gold); text-decoration: none; font-size: 1.5rem; line-height: 1; }
 
         #expiry-timer { 
             font-size: 0.75rem; 
             text-align: center; 
-            padding: 4px; 
-            background: rgba(139, 0, 0, 0.3); 
-            color: #ffaaaa; 
-            font-weight: bold;
-            flex-shrink: 0;
+            padding: 6px; 
+            background: rgba(139, 0, 0, 0.4); 
+            color: #ffcccc; 
+            border-bottom: 1px solid rgba(184, 134, 11, 0.3);
+            font-family: 'MedievalSharp';
         }
 
+        /* Finestra Chat */
         #chat-window { 
             flex: 1; 
             overflow-y: auto; 
-            padding: 15px; 
+            padding: 20px 15px; 
             display: flex; 
             flex-direction: column; 
-            gap: 12px; 
+            gap: 15px; 
             background: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-            /* Scroll fluido su iOS */
             -webkit-overflow-scrolling: touch;
         }
 
+        /* Bolle Messaggi */
         .msg { 
-            max-width: 85%; 
-            padding: 10px 14px; 
-            border-radius: 12px; 
+            max-width: 80%; 
+            padding: 12px 16px; 
+            border-radius: 15px; 
             line-height: 1.4; 
             position: relative; 
             word-wrap: break-word;
-            font-size: 1rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            font-size: 1.05rem;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+            animation: fadeIn 0.3s ease;
         }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .msg.sent { 
             align-self: flex-end; 
-            background: var(--gold); 
-            color: var(--leather); 
+            background: linear-gradient(135deg, #d4af37, var(--gold));
+            color: #1a110a; 
             border-bottom-right-radius: 2px; 
+            font-weight: 500;
         }
 
         .msg.received { 
             align-self: flex-start; 
-            background: var(--leather); 
+            background: #2a221a;
             color: var(--parchment); 
             border: 1px solid var(--gold); 
             border-bottom-left-radius: 2px; 
         }
 
+        .msg-time {
+            display: block;
+            font-size: 0.65rem;
+            margin-top: 5px;
+            opacity: 0.7;
+            text-align: right;
+        }
+
+        /* Area Input */
         .input-area { 
             background: var(--leather); 
-            padding: 10px; 
+            padding: 12px; 
             display: flex; 
-            gap: 8px; 
+            gap: 10px; 
             border-top: 2px solid var(--gold);
-            flex-shrink: 0;
-            padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* Supporto iPhone Notch */
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
         }
 
         input { 
             flex: 1; 
             background: var(--parchment); 
             border: 2px solid transparent; 
-            padding: 12px; 
+            padding: 12px 15px; 
             font-family: 'Almendra'; 
-            border-radius: 8px; 
-            font-size: 16px; /* Evita lo zoom automatico su iOS */
-            color: var(--ink);
+            border-radius: 25px; 
+            font-size: 16px; 
+            color: #1a110a;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        input:focus { outline: none; border-color: var(--gold); }
+        input:focus { outline: none; border-color: var(--gold); background: #fff; }
 
         .send-btn { 
             background: var(--gold); 
             border: none; 
-            padding: 0 15px; 
-            font-family: 'MedievalSharp'; 
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             cursor: pointer; 
-            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--leather);
-            font-weight: bold;
+            box-shadow: 0 2px 5px var(--shadow);
+            transition: transform 0.1s;
         }
 
-        .back-link { color: var(--gold); text-decoration: none; font-size: 1.2rem; }
+        .send-btn:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
 
     <div class="header">
         <a href="messaggi.html" class="back-link">«</a>
-        <h3 id="chat-with-name" style="margin:0; color:var(--gold); font-size: 1.1rem;">Missiva</h3>
+        <h3 id="chat-with-name" style="margin:0; color:var(--gold); letter-spacing: 1px;">MISSIVA</h3>
         <div style="width:24px;"></div>
     </div>
     
-    <div id="expiry-timer">Caricamento sigilli...</div>
+    <div id="expiry-timer">Verificando i sigilli temporali...</div>
     
     <div id="chat-window"></div>
     
     <div class="input-area">
-        <input type="text" id="msg-input" placeholder="Scrivi una missiva..." autocomplete="off" enterkeyhint="send">
-        <button class="send-btn" onclick="sendMessage()">INVIA</button>
+        <input type="text" id="msg-input" placeholder="Scrivi un messaggio..." autocomplete="off" enterkeyhint="send">
+        <button class="send-btn" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
     </div>
 
 <script>
@@ -160,90 +188,92 @@
     let chatId = null;
 
     if (!friendId) location.href = 'messaggi.html';
-    document.getElementById('chat-with-name').innerText = friendName || "Alleato";
+    document.getElementById('chat-with-name').innerText = (friendName || "Viandante").toUpperCase();
 
     const inputField = document.getElementById('msg-input');
     const chatWindow = document.getElementById('chat-window');
 
-    // Gestione tasto Invio dalla tastiera
-    inputField.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-            sendMessage();
-        }
-    });
+    // Invio con tasto Enter
+    inputField.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
 
     auth.onAuthStateChanged(user => {
         if (user) {
             chatId = user.uid < friendId ? `${user.uid}_${friendId}` : `${friendId}_${user.uid}`;
             
-            // Caricamento Messaggi
+            // Listener Messaggi
             db.collection("chats").doc(chatId).collection("messages").orderBy("timestamp", "asc")
             .onSnapshot(snap => {
                 chatWindow.innerHTML = "";
                 snap.forEach(doc => {
                     const m = doc.data();
                     const isSent = m.senderId === user.uid;
+                    const time = m.timestamp ? new Date(m.timestamp.toMillis()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "";
+                    
                     const msgDiv = document.createElement('div');
                     msgDiv.className = `msg ${isSent ? 'sent' : 'received'}`;
-                    msgDiv.textContent = m.text;
+                    msgDiv.innerHTML = `${m.text} <span class="msg-time">${time}</span>`;
                     chatWindow.appendChild(msgDiv);
                 });
                 chatWindow.scrollTop = chatWindow.scrollHeight;
-            });
+            }, err => console.error("Errore snapshot:", err));
 
-            // Timer Scadenza
+            // Listener Scadenza
             db.collection("chats").doc(chatId).onSnapshot(doc => {
-                if (doc.exists) {
-                    const last = doc.data().lastUpdate?.toMillis() || Date.now();
+                if (doc.exists && doc.data().lastUpdate) {
+                    const last = doc.data().lastUpdate.toMillis();
                     const expiry = last + (7 * 24 * 60 * 60 * 1000);
-                    updateTimer(expiry);
+                    const updateTimer = () => {
+                        const diff = expiry - Date.now();
+                        if (diff <= 0) {
+                            document.getElementById('expiry-timer').innerText = "QUESTA MISSIVA È SVANITA NEL NULLA.";
+                            return;
+                        }
+                        const d = Math.floor(diff / (1000*60*60*24));
+                        const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+                        const m = Math.floor((diff % (1000*60*60)) / (1000*60));
+                        document.getElementById('expiry-timer').innerText = `📜 I messaggi svaniranno tra: ${d}g ${h}h ${m}m`;
+                    };
+                    updateTimer();
+                } else {
+                    document.getElementById('expiry-timer').innerText = "📜 Prima missiva di questa conversazione.";
                 }
             });
         } else { location.href = 'login.html'; }
     });
 
-    function updateTimer(expiry) {
-        const now = Date.now();
-        const diff = expiry - now;
-        if (diff <= 0) {
-            document.getElementById('expiry-timer').innerText = "MISSIVA SCADUTA";
-            return;
-        }
-        const d = Math.floor(diff / (1000*60*60*24));
-        const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-        document.getElementById('expiry-timer').innerText = `📜 Svanirà tra: ${d}g ${h}ore`;
-    }
-
     async function sendMessage() {
         const text = inputField.value.trim();
-        if (!text) return;
+        if (!text || !chatId) return;
 
-        // 1. Pulisci subito l'interfaccia (Feedback immediato)
-        inputField.value = "";
+        inputField.value = ""; // Svuota subito per UX fluida
         inputField.focus();
 
         try {
             const now = firebase.firestore.FieldValue.serverTimestamp();
+            
+            // Usiamo un Batch per garantire che entrambi i documenti vengano aggiornati o nessuno
             const batch = db.batch();
             
-            const msgRef = db.collection("chats").doc(chatId).collection("messages").doc();
-            batch.set(msgRef, {
-                senderId: auth.currentUser.uid,
-                text: text,
-                timestamp: now
-            });
-
+            // Riferimento al documento chat (crea se non esiste)
             const chatRef = db.collection("chats").doc(chatId);
             batch.set(chatRef, {
                 lastUpdate: now,
                 participants: [auth.currentUser.uid, friendId]
             }, { merge: true });
 
+            // Aggiunta messaggio
+            const msgRef = chatRef.collection("messages").doc();
+            batch.set(msgRef, {
+                senderId: auth.currentUser.uid,
+                text: text,
+                timestamp: now
+            });
+
             await batch.commit();
             chatWindow.scrollTop = chatWindow.scrollHeight;
         } catch (e) {
             console.error("Errore invio:", e);
-            alert("Errore nell'invio della pergamena.");
+            alert("La magia del messaggio è fallita. Riprova, eroe.");
         }
     }
 </script>
