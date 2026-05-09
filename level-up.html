@@ -6,6 +6,7 @@
     <title>Drakonia - Evoluzione Eroe</title>
     <link rel="icon" type="image/png" href="icon/icon_192x192.png">
     <link rel="apple-touch-icon" href="icon/icon_192x192.png">
+    
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -65,7 +66,7 @@
         <button onclick="window.history.back()" style="background: var(--leather); color: var(--gold); border: 1px solid var(--gold); padding: 5px 10px; font-family: 'Grenze Gotisch'; cursor: pointer; border-radius: 4px;">
             ← Indietro
         </button>
-        <span id="auth-status" style="font-family: 'Grenze Gotisch'; color: var(--blood); font-size: 0.8rem;">VERIFICA ACCESSO...</span>
+        <span id="auth-status" style="font-family: 'Grenze Gotisch'; color: var(--blood); font-size: 0.8rem;">VERIFICA...</span>
     </div>
     
     <h1>EVOLUZIONE</h1>
@@ -77,7 +78,7 @@
             <div>
                 <label>VIA DA SEGUIRE</label>
                 <select id="sel-class" onchange="previewUpdate()">
-                    <option value="">Caricamento vie...</option>
+                    <option value="">Caricamento...</option>
                 </select>
             </div>
             <div>
@@ -111,20 +112,19 @@
 
     <div class="section-title"><span>EQUIPAGGIAMENTO</span></div>
     <div class="card">
-        <input type="text" id="edit-arma" placeholder="Arma impugnata">
-        <input type="text" id="edit-armatura" placeholder="Protezione indossata">
-        <input type="text" id="edit-anello" placeholder="Accessorio magico">
+        <input type="text" id="edit-arma" placeholder="Arma">
+        <input type="text" id="edit-armatura" placeholder="Armatura">
+        <input type="text" id="edit-anello" placeholder="Accessorio">
         <label>ZAINO (9 SLOT)</label>
         <div class="inv-grid" id="zaino-slots"></div>
         <label>POTERI E INCANTESIMI</label>
-        <textarea id="edit-poteri" placeholder="Lista abilità magiche e fisiche..." rows="3"></textarea>
+        <textarea id="edit-poteri" placeholder="Abilità..." rows="3"></textarea>
     </div>
 
     <button class="btn-evolve" id="btn-save" onclick="confermaEvoluzione()" disabled>CARICAMENTO...</button>
 </div>
 
 <script>
-    // Configurazione Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
         authDomain: "drakonia-companion.firebaseapp.com",
@@ -148,21 +148,18 @@
         "Druido": ["", "Magia Primordiale 1", "Tecnica della Natura", "Aumento Caratteristica", "Sintonia 1", "Aumento Caratteristica", "Sintonia 2", "Rituale 2", "Aumento Caratteristica", "Magia Primordiale 4"]
     };
 
-    // 1. Gestione Autenticazione (Previene errori di permessi)
     auth.onAuthStateChanged(async (user) => {
         if (user) {
-            document.getElementById('auth-status').innerText = "MODALITÀ EDITING";
+            document.getElementById('auth-status').innerText = "EDITING ATTIVO";
             await initPagina();
         } else {
-            alert("Devi aver effettuato l'accesso per evolvere un eroe.");
+            alert("Effettua il login per procedere.");
             document.getElementById('auth-status').innerText = "NON LOGGATO";
         }
     });
 
     async function initPagina() {
-        if(!charId) return alert("Errore: ID Eroe mancante nell'URL.");
-
-        // Inizializza graficamente lo zaino
+        if(!charId) return alert("ID Mancante");
         const container = document.getElementById('zaino-slots');
         container.innerHTML = "";
         for(let i=0; i<9; i++) container.innerHTML += `<input type="text" id="z-${i}" placeholder="Vuoto">`;
@@ -170,14 +167,10 @@
         try {
             const doc = await db.collection("characters").doc(charId).get();
             if(!doc.exists) return alert("Eroe non trovato!");
-            
             pg = doc.data();
             
-            // Fix per compatibilità classi (se salvate come stringa singola)
             if (typeof pg.classe !== 'object' || pg.classe === null) {
-                const classeAttuale = pg.classe || "Senza Classe";
-                const lvAttuale = parseInt(pg.livello) || 1;
-                pg.mappaClassi = { [classeAttuale]: lvAttuale };
+                pg.mappaClassi = { [pg.classe || "Senza Classe"]: parseInt(pg.livello) || 1 };
             } else {
                 pg.mappaClassi = pg.classe;
             }
@@ -185,77 +178,56 @@
             caricaDatiUI();
             document.getElementById('btn-save').disabled = false;
             document.getElementById('btn-save').innerText = "INCIDI PROGRESSI";
-        } catch(e) {
-            console.error(e);
-            alert("Errore nel risveglio dell'eroe: " + e.message);
-        }
+        } catch(e) { console.error(e); }
     }
 
     function caricaDatiUI() {
-        document.getElementById('pg-nome').innerText = pg.nome || "Eroe Ignoto";
+        document.getElementById('pg-nome').innerText = pg.nome || "Ignoto";
         document.getElementById('display-lv').innerText = "Lv. " + (pg.livello || 1);
         document.getElementById('edit-storia').value = pg.storia || "";
         document.getElementById('edit-arma').value = pg.inventario?.arma || "";
         document.getElementById('edit-armatura').value = pg.inventario?.armatura || "";
         document.getElementById('edit-anello').value = pg.inventario?.anello || "";
         document.getElementById('edit-poteri').value = pg.inventario?.incantesimi || "";
-
         const s = pg.stats || {prd:0, int:0, rpd:0, pr:0};
         document.getElementById('cur-prd').innerText = s.prd;
         document.getElementById('cur-int').innerText = s.int;
         document.getElementById('cur-rpd').innerText = s.rpd;
         document.getElementById('cur-pr').innerText = s.pr;
-
         if(pg.inventario?.zaino) {
             pg.inventario.zaino.forEach((item, i) => { if(i<9) document.getElementById(`z-${i}`).value = item; });
         }
-
-        // Popola il menu a tendina delle classi
         const sel = document.getElementById('sel-class');
-        sel.innerHTML = '<option value="">-- Seleziona la Via --</option>';
-        
-        const gAttuali = document.createElement('optgroup');
-        gAttuali.label = "Vie già intraprese";
-        for(let c in pg.mappaClassi) {
-            gAttuali.appendChild(new Option(`${c} (Grado ${pg.mappaClassi[c]})`, c));
-        }
-        sel.appendChild(gAttuali);
-
-        const gNuove = document.createElement('optgroup');
-        gNuove.label = "Nuove Vie (Multiclasse)";
-        Object.keys(ALBERO_CLASSI).forEach(c => {
-            if(!pg.mappaClassi[c]) gNuove.appendChild(new Option(c, c));
-        });
-        sel.appendChild(gNuove);
+        sel.innerHTML = '<option value="">-- Seleziona --</option>';
+        const gA = document.createElement('optgroup'); gA.label = "Vie attuali";
+        for(let c in pg.mappaClassi) gA.appendChild(new Option(`${c} (${pg.mappaClassi[c]})`, c));
+        sel.appendChild(gA);
+        const gN = document.createElement('optgroup'); gN.label = "Nuove Vie";
+        Object.keys(ALBERO_CLASSI).forEach(c => { if(!pg.mappaClassi[c]) gN.appendChild(new Option(c, c)); });
+        sel.appendChild(gN);
     }
 
     function previewUpdate() {
         const cls = document.getElementById('sel-class').value;
         const qty = parseInt(document.getElementById('lv-qty').value) || 0;
         const box = document.getElementById('preview-area');
-        
         if(!cls || qty <= 0) { box.style.display = 'none'; return; }
-
-        let lvAttualeClasse = pg.mappaClassi[cls] || 0;
-        let lvFuturoClasse = lvAttualeClasse + qty;
+        let lvA = pg.mappaClassi[cls] || 0;
+        let lvF = lvA + qty;
         let sblocchi = [];
         let deveScegliereStat = false;
-
-        for(let i = lvAttualeClasse + 1; i <= lvFuturoClasse; i++) {
-            let abilita = (ALBERO_CLASSI[cls] && ALBERO_CLASSI[cls][i]) ? ALBERO_CLASSI[cls][i] : "Miglioramento Generico";
-            sblocchi.push(`Grado ${i}: ${abilita}`);
-            if(abilita.includes("Aumento")) deveScegliereStat = true;
+        for(let i = lvA + 1; i <= lvF; i++) {
+            let ab = (ALBERO_CLASSI[cls] && ALBERO_CLASSI[cls][i]) ? ALBERO_CLASSI[cls][i] : "Miglioramento";
+            sblocchi.push(`Grado ${i}: ${ab}`);
+            if(ab.includes("Aumento")) deveScegliereStat = true;
         }
-
-        box.innerHTML = `L'eroe diventerà <span class="highlight">${cls} di Grado ${lvFuturoClasse}</span>.<br><br>` + 
-                        `<strong>Nuovi Saperi:</strong><br>• ` + sblocchi.join('<br>• ');
+        box.innerHTML = `Evoluzione in <span class="highlight">${cls} Grado ${lvF}</span>.<br>• ` + sblocchi.join('<br>• ');
         box.style.display = 'block';
         document.getElementById('stat-bonus-panel').style.display = deveScegliereStat ? 'block' : 'none';
     }
 
     async function confermaEvoluzione() {
-        if(!pg) return alert("Attendi il caricamento dei dati!");
-        
+        if(!pg) return;
         const cls = document.getElementById('sel-class').value;
         const qty = parseInt(document.getElementById('lv-qty').value) || 0;
         const boost = document.getElementById('stat-boost').value;
@@ -272,15 +244,12 @@
         if(cls && qty > 0) {
             let nuovaMappa = {...pg.mappaClassi};
             nuovaMappa[cls] = (nuovaMappa[cls] || 0) + qty;
-            
             updateData.livello = (parseInt(pg.livello) || 1) + qty;
             updateData.classe = nuovaMappa;
-
             const ranghi = ["", "Novizio", "Viandante", "Esperto", "Veterano", "Campione", "Eroe", "Leggenda", "Semidio", "Eterno"];
             updateData.rango = ranghi[Math.min(updateData.livello, 9)];
-
             if(document.getElementById('stat-bonus-panel').style.display === 'block') {
-                if(!boost) return alert("Devi scegliere quale caratteristica aumentare!");
+                if(!boost) return alert("Scegli la statistica!");
                 let nuoveStats = {...pg.stats};
                 nuoveStats[boost] = (parseInt(nuoveStats[boost]) || 0) + 1;
                 updateData.stats = nuoveStats;
@@ -290,17 +259,16 @@
         try {
             document.getElementById('btn-save').innerText = "INCIDENDO...";
             document.getElementById('btn-save').disabled = true;
-
             await db.collection("characters").doc(charId).update(updateData);
-            alert("✨ Destino segnato! L'eroe si è evoluto.");
-            window.location.href = `visualizza.html?id=${charId}`;
+            
+            // Reindirizzamento immediato all'archivio
+            window.location.href = `archivio-pg.html?id=${charId}`;
         } catch(e) { 
-            alert("Errore di permessi Firestore. Verifica le regole o il tuo UID."); 
+            alert("Errore salvataggio!"); 
             document.getElementById('btn-save').innerText = "INCIDI PROGRESSI";
             document.getElementById('btn-save').disabled = false;
         }
     }
 </script>
-
 </body>
 </html>
