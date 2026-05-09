@@ -158,8 +158,8 @@
                 const userDoc = await db.collection("users").doc(uid).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
-                    // Controlla se il campo "role" o "ruolo" è "founder"
-                    if (userData.role === "founder" || userData.ruolo === "founder") {
+                    // Controlla se il campo "role" o "ruolo" è "Founder"
+                    if (userData.role === "Founder" || userData.ruolo === "Founder") {
                         document.getElementById('btn-delete-pg').style.display = 'flex';
                     }
                 }
