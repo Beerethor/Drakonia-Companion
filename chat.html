@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missiva - Drakonia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; --blood: #8b0000; --ink: #1a110a; }
+        body { background: var(--ink) url('https://www.transparenttextures.com/patterns/dark-leather.png'); color: var(--parchment); font-family: 'Almendra', serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        .header { background: var(--leather); padding: 15px; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; }
+        #expiry-timer { font-size: 0.85rem; text-align: center; padding: 5px; background: rgba(139, 0, 0, 0.2); color: #ff6666; font-weight: bold; }
+        #chat-window { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: url('https://www.transparenttextures.com/patterns/paper-fibers.png'); }
+        .msg { max-width: 80%; padding: 10px; border-radius: 8px; line-height: 1.4; position: relative; }
+        .msg.sent { align-self: flex-end; background: var(--gold); color: var(--leather); border-bottom-right-radius: 2px; }
+        .msg.received { align-self: flex-start; background: var(--leather); color: var(--parchment); border: 1px solid var(--gold); border-bottom-left-radius: 2px; }
+        .input-area { background: var(--leather); padding: 15px; display: flex; gap: 10px; border-top: 2px solid var(--gold); }
+        input { flex: 1; background: var(--parchment); border: none; padding: 12px; font-family: 'Almendra'; border-radius: 4px; }
+        .send-btn { background: var(--gold); border: none; padding: 0 20px; font-family: 'MedievalSharp'; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="messaggi.html" style="color: var(--gold); text-decoration: none;">⬅ Inbox</a>
+        <h3 id="chat-with-name" style="margin:0; color:var(--gold);">Missiva</h3>
+        <div style="width:40px;"></div>
+    </div>
+    <div id="expiry-timer">Calcolo tempo rimasto...</div>
+    <div id="chat-window"></div>
+    <div class="input-area">
+        <input type="text" id="msg-input" placeholder="Scrivi una missiva..." autocomplete="off">
+        <button class="send-btn" onclick="sendMessage()">INVIA</button>
+    </div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
+        authDomain: "drakonia-companion.firebaseapp.com",
+        projectId: "drakonia-companion",
+        storageBucket: "drakonia-companion.firebasestorage.app",
+        messagingSenderId: "803844500713",
+        appId: "1:803844500713:web:c902b67f4e395bd20c9478"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const friendId = urlParams.get('id');
+    const friendName = urlParams.get('name');
+    let chatId = null;
+
+    if (!friendId) location.href = 'messaggi.html';
+    document.getElementById('chat-with-name').innerText = friendName;
+
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            chatId = user.uid < friendId ? `${user.uid}_${friendId}` : `${friendId}_${user.uid}`;
+            db.collection("chats").doc(chatId).collection("messages").orderBy("timestamp", "asc")
+            .onSnapshot(snap => {
+                const win = document.getElementById('chat-window');
+                win.innerHTML = "";
+                snap.forEach(doc => {
+                    const m = doc.data();
+                    const isSent = m.senderId === user.uid;
+                    win.innerHTML += `<div class="msg ${isSent ? 'sent' : 'received'}">${m.text}</div>`;
+                });
+                win.scrollTop = win.scrollHeight;
+            });
+            db.collection("chats").doc(chatId).onSnapshot(doc => {
+                if (doc.exists) {
+                    const last = doc.data().lastUpdate?.toMillis() || Date.now();
+                    const expiry = last + (7 * 24 * 60 * 60 * 1000);
+                    const diff = expiry - Date.now();
+                    const d = Math.floor(diff / (1000*60*60*24));
+                    const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+                    document.getElementById('expiry-timer').innerText = diff > 0 ? 
+                        `📜 I messaggi svaniranno tra: ${d}g ${h}ore` : "MISSIVA SCADUTA.";
+                }
+            });
+        } else { location.href = 'login.html'; }
+    });
+
+    async function sendMessage() {
+        const input = document.getElementById('msg-input');
+        const text = input.value.trim();
+        if (!text) return;
+        const now = firebase.firestore.FieldValue.serverTimestamp();
+        await db.collection("chats").doc(chatId).collection("messages").add({ senderId: auth.currentUser.uid, text: text, timestamp: now });
+        await db.collection("chats").doc(chatId).set({ lastUpdate: now, participants: [auth.currentUser.uid, friendId] }, { merge: true });
+        input.value = "";
+    }
+</script>
+</body>
+</html>
