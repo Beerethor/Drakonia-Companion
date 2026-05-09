@@ -37,18 +37,12 @@
         .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
         .hero-name { font-family: 'Grenze Gotisch'; font-size: 2.5rem; color: var(--gold); margin: 10px 0 5px 0; }
         
-        /* Grado Label */
         .rank-label {
             display: inline-block; background: var(--gold); color: var(--leather);
             padding: 2px 15px; font-family: 'Grenze Gotisch'; font-weight: bold;
             border-radius: 5px; margin-bottom: 15px; letter-spacing: 1px;
         }
 
-        .friends-section {
-            width: 100%; max-width: 400px; margin-top: 30px;
-            background: rgba(0,0,0,0.4); padding: 20px; border-radius: 10px;
-            border: 1px solid var(--gold); box-sizing: border-box;
-        }
         .btn-fantasy {
             background: var(--leather); color: var(--gold); border: 1px solid var(--gold);
             padding: 12px; width: 100%; font-family: 'Grenze Gotisch'; cursor: pointer; 
@@ -56,7 +50,6 @@
         }
         .btn-fantasy:hover { background: var(--gold); color: var(--leather); }
         
-        /* Tasto Diventa Master */
         .btn-master { background: var(--blood); color: white; border: 1px solid white; margin-top: 15px; }
 
         #settings-panel {
@@ -67,12 +60,6 @@
             width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--leather); 
             box-sizing: border-box; font-family: 'Almendra';
         }
-        .friend-item { 
-            display: flex; justify-content: space-between; padding: 10px; 
-            background: var(--leather); margin-bottom: 5px; border-radius: 4px;
-            border-left: 2px solid var(--gold);
-        }
-        .remove-btn { color: #ff4444; cursor: pointer; background: none; border: none; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -87,6 +74,10 @@
         
         <button class="btn-fantasy" onclick="toggleSettings()">⚙️ GESTISCI PROFILO</button>
         
+        <a href="amici-pg.html" style="text-decoration: none;">
+            <button class="btn-fantasy">🛡️ COMPAGNI D'ARME</button>
+        </a>
+
         <button id="master-promotion-btn" class="btn-fantasy btn-master" style="display: none;" onclick="becomeMaster()">📜 DIVENTA MASTER</button>
     </div>
 
@@ -95,13 +86,6 @@
         <input type="text" id="edit-name" class="edit-field" placeholder="Nome Eroe">
         <input type="text" id="edit-url" class="edit-field" placeholder="URL Immagine Avatar">
         <button class="btn-fantasy" onclick="saveProfile()" style="background:var(--leather); color:white;">SALVA IN FIRESTORE</button>
-    </div>
-
-    <div class="friends-section">
-        <h3>LISTA AMICI</h3>
-        <input type="text" id="new-friend-code" class="edit-field" placeholder="Codice Amico (DRK-XXXX)" style="background:rgba(255,255,255,0.1); color:white;">
-        <button class="btn-fantasy" onclick="addFriend()">AGGIUNGI COMPAGNO</button>
-        <div id="friends-list" style="margin-top:15px;"></div>
     </div>
 
     <button onclick="logout()" style="color:rgba(255,0,0,0.6); background:none; border:none; margin-top:40px; cursor:pointer; font-family:'Grenze Gotisch';">RITIRATI DALL'AVVENTURA</button>
@@ -127,17 +111,17 @@
                 db.collection("users").doc(user.uid).onSnapshot((doc) => {
                     if (doc.exists) {
                         currentUserData = doc.data();
+                        render();
                     } else {
-                        currentUserData = {
+                        // Inizializzazione se il documento non esiste
+                        const initialData = {
                             username: user.displayName || "Nuovo Eroe",
                             avatar: user.photoURL || "",
-                            role: "Giocatore", // Ruolo predefinito
-                            friendCode: "DRK-" + user.uid.substring(0,5).toUpperCase(),
-                            friends: []
+                            role: "Giocatore",
+                            friendCode: "DRK-" + user.uid.substring(0,5).toUpperCase()
                         };
-                        db.collection("users").doc(user.uid).set(currentUserData);
+                        db.collection("users").doc(user.uid).set(initialData);
                     }
-                    render();
                 });
             } else {
                 window.location.href = 'login.html';
@@ -151,38 +135,17 @@
             document.getElementById('display-rank').innerText = currentUserData.role.toUpperCase();
             document.getElementById('display-avatar').src = currentUserData.avatar || "https://img.icons8.com/color/96/fantasy.png";
             
-            // Logica tasto Master
             const masterBtn = document.getElementById('master-promotion-btn');
-            if(currentUserData.role === "Giocatore") {
-                masterBtn.style.display = "block";
-            } else {
-                masterBtn.style.display = "none";
-            }
+            masterBtn.style.display = (currentUserData.role === "Giocatore") ? "block" : "none";
 
             document.getElementById('edit-name').value = currentUserData.username;
             document.getElementById('edit-url').value = currentUserData.avatar;
-            
-            const list = document.getElementById('friends-list');
-            list.innerHTML = "";
-            if(currentUserData.friends && currentUserData.friends.length > 0) {
-                currentUserData.friends.forEach((f, i) => {
-                    list.innerHTML += `
-                        <div class="friend-item">
-                            <span>🛡️ ${f}</span>
-                            <button class="remove-btn" onclick="removeFriend(${i})">X</button>
-                        </div>`;
-                });
-            } else {
-                list.innerHTML = "<p style='font-style:italic; opacity:0.5;'>Nessun compagno...</p>";
-            }
         }
 
         async function becomeMaster() {
             if(confirm("Vuoi davvero abbandonare la vita da semplice avventuriero per guidare il destino di Drakonia come Master?")) {
                 try {
-                    await db.collection("users").doc(auth.currentUser.uid).update({
-                        role: "Master"
-                    });
+                    await db.collection("users").doc(auth.currentUser.uid).update({ role: "Master" });
                     alert("Congratulazioni, Master. Il potere della narrazione è ora nelle tue mani.");
                 } catch(e) { alert("Errore: " + e.message); }
             }
@@ -202,26 +165,6 @@
                     alert("Annali di Firestore aggiornati!");
                     toggleSettings();
                 } catch(e) { alert("Errore: " + e.message); }
-            }
-        }
-
-        async function addFriend() {
-            const code = document.getElementById('new-friend-code').value.trim().toUpperCase();
-            if(code && auth.currentUser) {
-                const friends = currentUserData.friends || [];
-                if(!friends.includes(code) && code !== currentUserData.friendCode) {
-                    friends.push(code);
-                    await db.collection("users").doc(auth.currentUser.uid).update({ friends: friends });
-                    document.getElementById('new-friend-code').value = "";
-                }
-            }
-        }
-
-        async function removeFriend(index) {
-            if(confirm("Rimuovere questo compagno?")) {
-                const friends = [...currentUserData.friends];
-                friends.splice(index, 1);
-                await db.collection("users").doc(auth.currentUser.uid).update({ friends: friends });
             }
         }
 
