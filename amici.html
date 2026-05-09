@@ -81,9 +81,11 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
+    // Stato globale per il nome utente corrente (evita "Un Viandante")
+    let currentUserName = "Un Viandante";
+
     auth.onAuthStateChanged(user => {
         if (user) {
-            console.log("Utente loggato:", user.uid);
             setupMyCodeDisplay(user);
             loadFriends(user);
             loadPendingRequests(user);
@@ -96,7 +98,9 @@
         try {
             const doc = await db.collection("users").doc(user.uid).get();
             if (doc.exists) {
-                const code = doc.data().friendCode || "Non generato";
+                const data = doc.data();
+                currentUserName = data.username || user.displayName || "Un Viandante";
+                const code = data.friendCode || "Non generato";
                 document.getElementById('my-display-code').innerText = "Il tuo codice: " + code;
             }
         } catch (e) { console.error("Errore caricamento codice:", e); }
@@ -110,11 +114,8 @@
 
         if (!code) { alert("Inserisci un codice!"); return; }
 
-        // Disabilita tasto per evitare invii multipli
         btn.disabled = true;
         btn.innerText = "VERIFICA IN CORSO...";
-
-        console.log("Ricerca codice:", code);
 
         try {
             // Cerchiamo l'utente con quel codice
@@ -122,29 +123,32 @@
 
             if (userSnap.empty) {
                 alert("Codice errato o inesistente negli Annali!");
-                btn.disabled = false;
-                btn.innerText = "INVIA RICHIESTA";
                 return;
             }
 
             const targetId = userSnap.docs[0].id;
-            const targetData = userSnap.docs[0].data();
 
             if (targetId === user.uid) {
                 alert("Non puoi essere amico di te stesso!");
-                btn.disabled = false;
-                btn.innerText = "INVIA RICHIESTA";
                 return;
             }
 
-            // Calcola scadenza (7 giorni da ora)
+            // Controllo se esiste già una richiesta tra i due
+            const existing = await db.collection("friendships")
+                .where("users", "array-contains", user.uid)
+                .get();
+            
+            const giapresente = existing.docs.some(d => d.data().users.includes(targetId));
+            if (giapresente) {
+                alert("Esiste già un legame o una richiesta pendente con questo guerriero.");
+                return;
+            }
+
             const expiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000);
 
-            // Aggiunge il documento alla collezione "friendships"
-            // Firestore la crea automaticamente se non esiste
             await db.collection("friendships").add({
                 senderId: user.uid,
-                senderName: user.displayName || "Un Viandante",
+                senderName: currentUserName, // Usa il nome reale preso dal database
                 receiverId: targetId,
                 receiverCode: code,
                 status: "pending",
@@ -156,8 +160,8 @@
             alert("Missiva inviata! L'alleato ha 7 giorni per accettare.");
             inputField.value = "";
         } catch (e) {
-            console.error("Errore durante l'invio della richiesta:", e);
-            alert("Errore del server. Riprova più tardi.");
+            console.error(e);
+            alert("Errore del server.");
         } finally {
             btn.disabled = false;
             btn.innerText = "INVIA RICHIESTA";
@@ -176,7 +180,7 @@
 
                 snap.forEach(doc => {
                     const data = doc.data();
-                    // Controllo scadenza real-time
+                    // Controllo scadenza
                     if (data.expiresAt && data.expiresAt.toMillis() < Date.now()) {
                         db.collection("friendships").doc(doc.id).delete();
                     } else {
@@ -193,6 +197,7 @@
                 });
                 badge.innerText = count;
                 badge.style.display = count > 0 ? "inline-block" : "none";
+                if (count === 0) document.getElementById('pending-panel').style.display = 'none';
             });
     }
 
@@ -204,19 +209,21 @@
                 const list = document.getElementById('friends-list');
                 list.innerHTML = "";
 
-                for (const d of snap.docs) {
+                // Usiamo Promise.all per caricare i nomi in parallelo
+                const friendPromises = snap.docs.map(async d => {
                     const data = d.data();
                     const friendId = data.users.find(id => id !== user.uid);
-                    
                     const fDoc = await db.collection("users").doc(friendId).get();
                     const name = fDoc.exists ? (fDoc.data().username || "Compagno") : "Ignoto";
-
-                    list.innerHTML += `
+                    return `
                         <li class="card-item">
                             <span>🛡️ ${name}</span>
                             <span style="font-size:0.8rem; color:var(--gold);">ALLEATO</span>
                         </li>`;
-                }
+                });
+
+                const results = await Promise.all(friendPromises);
+                list.innerHTML = results.join("");
             });
     }
 
@@ -224,10 +231,11 @@
         try {
             if (status === 'accepted') {
                 await db.collection("friendships").doc(docId).update({ status: 'accepted' });
+                // Il pannello si chiuderà o aggiornerà tramite snapshot
             } else {
                 await db.collection("friendships").doc(docId).delete();
             }
-        } catch (e) { console.error("Errore aggiornamento:", e); }
+        } catch (e) { console.error(e); }
     }
 
     function toggleRequests() {
