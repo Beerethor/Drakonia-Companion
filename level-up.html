@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Drakonia - Level Up</title>
+    <title>Drakonia - Avanzamento Completo</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -13,133 +13,69 @@
 
     <style>
         :root { --gold: #b8860b; --leather: #2c1e11; --parchment: #f4e4bc; --blood: #8b0000; }
-        
-        body { 
-            background: #120d08; 
-            color: var(--leather); 
-            font-family: 'Almendra', serif; 
-            margin: 0; 
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-        }
+        body { background: #120d08; color: var(--leather); font-family: 'Almendra', serif; margin: 0; padding: 5px; }
 
         .sheet-container {
             background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-            width: 100%;
-            max-width: 500px;
-            padding: 15px;
+            width: 100%; max-width: 600px; margin: auto; padding: 15px;
             border: 10px solid transparent;
             border-image: url('https://www.transparenttextures.com/patterns/dark-leather.png') 30 stretch;
-            box-shadow: 0 0 30px black;
-            box-sizing: border-box;
+            box-sizing: border-box; box-shadow: 0 0 30px black;
         }
 
-        h1 { font-family: 'Grenze Gotisch'; font-size: 1.8rem; text-align: center; margin: 10px 0; border-bottom: 2px solid var(--leather); }
-        h2 { font-family: 'Grenze Gotisch'; font-size: 1.3rem; text-align: center; color: var(--blood); margin-bottom: 20px; }
+        h1, h2 { font-family: 'Grenze Gotisch'; text-align: center; margin: 5px 0; }
+        h1 { font-size: 1.6rem; border-bottom: 2px solid var(--leather); }
+        h2 { font-size: 1.2rem; color: var(--blood); }
 
         .section { 
-            background: rgba(0,0,0,0.05); 
-            padding: 12px; 
-            border-radius: 8px; 
-            margin-bottom: 15px; 
-            border: 1px solid rgba(44, 30, 17, 0.3); 
+            background: rgba(0,0,0,0.05); padding: 12px; border-radius: 8px; 
+            margin-bottom: 15px; border: 1px solid rgba(44, 30, 17, 0.3); 
         }
 
-        label { display: block; font-weight: bold; font-family: 'Grenze Gotisch'; margin-bottom: 5px; color: var(--leather); font-size: 0.9rem; }
+        label { display: block; font-weight: bold; font-family: 'Grenze Gotisch'; margin-top: 10px; color: var(--blood); }
         
         select, input, textarea { 
-            width: 100%; 
-            padding: 12px; 
-            margin-bottom: 10px;
-            border: 1px solid var(--leather);
-            background: white;
-            font-family: 'Almendra';
-            font-size: 1rem;
-            border-radius: 4px;
-            box-sizing: border-box;
+            width: 100%; padding: 10px; margin-top: 5px;
+            border: 1px solid var(--leather); background: rgba(255,255,255,0.8);
+            font-family: 'Almendra'; font-size: 1rem; border-radius: 4px; box-sizing: border-box;
         }
 
-        /* Grid Stats ottimizzata per Mobile */
-        .stat-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 8px; 
-            margin-bottom: 10px; 
-        }
-        .stat-box { 
-            background: rgba(255,255,255,0.5); 
-            border: 1px solid var(--leather); 
-            text-align: center; 
-            padding: 8px;
-            border-radius: 4px;
-        }
-        .stat-val { font-size: 1.4rem; font-weight: bold; color: var(--blood); }
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; text-align: center; }
+        .stat-box { border: 1px solid var(--leather); padding: 5px; background: white; }
+        .stat-val { font-size: 1.2rem; font-weight: bold; }
 
-        .ability-box {
-            background: var(--leather);
-            color: var(--gold);
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            display: none;
-            border: 1px solid var(--gold);
-            margin-top: 10px;
-        }
+        .inventory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+        .inventory-grid input { font-size: 0.85rem; padding: 8px; }
 
-        .inventory-mini {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
+        .ability-box { 
+            background: var(--leather); color: var(--gold); padding: 10px; 
+            border-radius: 4px; margin-top: 10px; display: none; border: 1px solid var(--gold); 
         }
-        .inventory-mini input { padding: 8px; font-size: 0.8rem; text-align: center; }
 
         .btn-main {
-            background: var(--blood);
-            color: white;
-            border: 2px solid var(--gold);
-            padding: 15px;
-            width: 100%;
-            font-family: 'Grenze Gotisch';
-            font-size: 1.2rem;
-            cursor: pointer;
-            margin-top: 10px;
-            text-transform: uppercase;
+            background: var(--blood); color: white; border: 2px solid var(--gold);
+            padding: 18px; width: 100%; font-family: 'Grenze Gotisch';
+            font-size: 1.3rem; cursor: pointer; margin-top: 20px;
         }
-
-        .bonus-highlight {
-            background: #fff3cd;
-            border: 2px dashed var(--gold);
-            padding: 10px;
-            margin-top: 10px;
-            display: none;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
     </style>
 </head>
 <body>
 
 <div class="sheet-container">
-    <h1>AVANZAMENTO LIVELLO</h1>
-    <h2 id="display-nome">Caricamento...</h2>
+    <h1>AVANZAMENTO EROE</h1>
+    <h2 id="pg-nome">Caricamento...</h2>
 
     <div class="section">
-        <label>AZIONE</label>
-        <select id="mode-select" onchange="toggleMode()">
+        <label>GESTIONE LIVELLO</label>
+        <select id="level-mode" onchange="updateUI()">
             <option value="up">Aumenta Classe Esistente</option>
-            <option value="multi">Nuova Classe (Multiclasse)</option>
+            <option value="multi">Nuova Via (Multiclasse)</option>
         </select>
 
-        <div id="box-up">
-            <label>QUALE CLASSE?</label>
-            <select id="select-current-class" onchange="checkNextAbility()"></select>
-        </div>
-
-        <div id="box-multi" style="display:none;">
-            <label>SCEGLI NUOVA VIA</label>
-            <select id="select-new-class" onchange="checkNextAbility()">
-                <option value="">-- Seleziona --</option>
+        <div id="ui-up"><select id="sel-class-up" onchange="previewAbil()"></select></div>
+        <div id="ui-multi" style="display:none;">
+            <select id="sel-new-class" onchange="previewAbil()">
+                <option value="">-- Scegli Classe --</option>
                 <option value="Guerriero">Guerriero</option>
                 <option value="Truffatore">Truffatore</option>
                 <option value="Saggio">Saggio</option>
@@ -148,14 +84,12 @@
             </select>
         </div>
 
-        <div id="ability-info" class="ability-box">
-            <strong>ABILITÀ:</strong> <span id="ability-name"></span>
-        </div>
+        <div id="abil-preview" class="ability-box"></div>
 
-        <div id="stat-bonus-box" class="bonus-highlight">
-            <label>✨ SELEZIONA AUMENTO STAT (+1)</label>
-            <select id="stat-to-boost">
-                <option value="">-- Scegli --</option>
+        <div id="stat-bonus-ui" style="display:none; background:#fff3cd; padding:10px; margin-top:10px; border:1px solid var(--gold);">
+            <label>✨ AUMENTO CARATTERISTICA (+1)</label>
+            <select id="stat-boost">
+                <option value="">-- Seleziona --</option>
                 <option value="prd">Prodezza (PRD)</option>
                 <option value="int">Intelligenza (INT)</option>
                 <option value="rpd">Rapidità (RPD)</option>
@@ -165,21 +99,32 @@
     </div>
 
     <div class="section">
-        <label>STATS ATTUALI</label>
+        <label>CARATTERISTICHE ATTUALI</label>
         <div class="stat-grid">
-            <div class="stat-box"><small>PRD</small><div id="cur-prd" class="stat-val">0</div></div>
-            <div class="stat-box"><small>INT</small><div id="cur-int" class="stat-val">0</div></div>
-            <div class="stat-box"><small>RPD</small><div id="cur-rpd" class="stat-val">0</div></div>
-            <div class="stat-box"><small>PR</small><div id="cur-pr" class="stat-val">0</div></div>
+            <div class="stat-box">PRD<div id="cur-prd" class="stat-val">0</div></div>
+            <div class="stat-box">INT<div id="cur-int" class="stat-val">0</div></div>
+            <div class="stat-box">RPD<div id="cur-rpd" class="stat-val">0</div></div>
+            <div class="stat-box">PR<div id="cur-pr" class="stat-val">0</div></div>
         </div>
+
+        <label>LA TUA CRONACA (STORIA)</label>
+        <textarea id="edit-storia" rows="4"></textarea>
     </div>
 
     <div class="section">
+        <label>EQUIPAGGIAMENTO ATTIVO</label>
+        <input type="text" id="edit-arma" placeholder="Arma">
+        <input type="text" id="edit-armatura" placeholder="Armatura">
+        <input type="text" id="edit-anello" placeholder="Accessorio/Anello">
+
         <label>ZAINO (OGGETTI)</label>
-        <div class="inventory-mini" id="zaino-slots"></div>
+        <div class="inventory-grid" id="zaino-inputs"></div>
+
+        <label>ABILITÀ E INCANTESIMI</label>
+        <textarea id="edit-incantesimi" rows="4" placeholder="Lista poteri e magie..."></textarea>
     </div>
 
-    <button class="btn-main" onclick="confermaLevelUp()">Incidi nel Destino</button>
+    <button class="btn-main" onclick="salvaTutto()">INCIDI PROGRESSI</button>
 </div>
 
 <script>
@@ -194,11 +139,10 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const charId = urlParams.get('id');
-    let pgData = null;
+    const charId = new URLSearchParams(window.location.search).get('id');
+    let charData = null;
 
-    const tabelle = {
+    const abilDB = {
         "Guerriero": ["", "Casta dei Guerrieri", "Armature Pesanti", "Minaccioso", "Aumento Caratteristica", "Ambidestro 1", "Aumento Caratteristica", "Addestramento Marziale", "Aumento Caratteristica", "Ambidestro 3"],
         "Truffatore": ["", "Furbizia Lesto", "Tecnica dell'Arco", "Virtuoso", "Tecnica del Pugnale", "Aumento Caratteristica", "Intrallazzo", "Aumento Caratteristica", "Aumento Caratteristica", "Velocità di Pensiero 3"],
         "Saggio": ["", "Guarigione", "Tecnica del Bastone", "Leggere la Mente", "Vista Paranormale", "Aumento Caratteristica", "Aumento Caratteristica", "Immunità", "Aumento Caratteristica", "Esorcismo 3"],
@@ -207,108 +151,104 @@
     };
 
     window.onload = async () => {
-        if(!charId) return alert("Nessun ID Personaggio!");
+        if(!charId) return alert("ID mancante!");
         
-        // Setup slot zaino
-        const container = document.getElementById('zaino-slots');
-        for(let i=0; i<9; i++) container.innerHTML += `<input type="text" id="slot-${i}">`;
+        const inv = document.getElementById('zaino-inputs');
+        for(let i=0; i<9; i++) inv.innerHTML += `<input type="text" id="z-${i}" placeholder="Slot ${i+1}">`;
 
-        try {
-            const doc = await db.collection("characters").doc(charId).get();
-            if(!doc.exists) return alert("Eroe non trovato!");
-            pgData = doc.data();
-            renderPG();
-        } catch(e) { console.error("Errore caricamento:", e); }
+        const doc = await db.collection("characters").doc(charId).get();
+        if(!doc.exists) return alert("Errore!");
+        charData = doc.data();
+        initUI();
     };
 
-    function renderPG() {
-        document.getElementById('display-nome').innerText = pgData.nome;
-        
-        const s = pgData.stats || {prd:0, int:0, rpd:0, pr:0};
-        document.getElementById('cur-prd').innerText = s.prd;
-        document.getElementById('cur-int').innerText = s.int;
-        document.getElementById('cur-rpd').innerText = s.rpd;
-        document.getElementById('cur-pr').innerText = s.pr;
+    function initUI() {
+        document.getElementById('pg-nome').innerText = charData.nome;
+        document.getElementById('edit-storia').value = charData.storia || "";
+        document.getElementById('edit-arma').value = charData.inventario?.arma || "";
+        document.getElementById('edit-armatura').value = charData.inventario?.armatura || "";
+        document.getElementById('edit-anello').value = charData.inventario?.anello || "";
+        document.getElementById('edit-incantesimi').value = charData.inventario?.incantesimi || "";
 
-        // Gestione classi (compatibilità mappa/stringa)
-        let mappa = (typeof pgData.classe === 'object') ? pgData.classe : {[pgData.classe]: pgData.livello};
-        pgData.mappaClassi = mappa;
+        const sts = charData.stats || {prd:0, int:0, rpd:0, pr:0};
+        document.getElementById('cur-prd').innerText = sts.prd;
+        document.getElementById('cur-int').innerText = sts.int;
+        document.getElementById('cur-rpd').innerText = sts.rpd;
+        document.getElementById('cur-pr').innerText = sts.pr;
 
-        const sel = document.getElementById('select-current-class');
-        sel.innerHTML = "";
-        for(let c in mappa) {
-            sel.innerHTML += `<option value="${c}">${c} (Liv. ${mappa[c]})</option>`;
+        if(charData.inventario?.zaino) {
+            charData.inventario.zaino.forEach((v, i) => { if(i<9) document.getElementById(`z-${i}`).value = v; });
         }
 
-        if(pgData.inventario && pgData.inventario.zaino) {
-            pgData.inventario.zaino.forEach((item, i) => {
-                if(i < 9) document.getElementById(`slot-${i}`).value = item;
-            });
-        }
+        let map = (typeof charData.classe === 'object') ? charData.classe : {[charData.classe]: charData.livello};
+        charData.mappaClassi = map;
+
+        const sel = document.getElementById('sel-class-up');
+        sel.innerHTML = '<option value="">-- Seleziona Classe --</option>';
+        for(let c in map) sel.innerHTML += `<option value="${c}">${c} (Lv. ${map[c]})</option>`;
     }
 
-    function toggleMode() {
-        const mode = document.getElementById('mode-select').value;
-        document.getElementById('box-up').style.display = mode === 'up' ? 'block' : 'none';
-        document.getElementById('box-multi').style.display = mode === 'multi' ? 'block' : 'none';
-        checkNextAbility();
+    function updateUI() {
+        const m = document.getElementById('level-mode').value;
+        document.getElementById('ui-up').style.display = m === 'up' ? 'block' : 'none';
+        document.getElementById('ui-multi').style.display = m === 'multi' ? 'block' : 'none';
+        previewAbil();
     }
 
-    function checkNextAbility() {
-        const mode = document.getElementById('mode-select').value;
-        const cls = mode === 'up' ? document.getElementById('select-current-class').value : document.getElementById('select-new-class').value;
+    function previewAbil() {
+        const m = document.getElementById('level-mode').value;
+        const c = m === 'up' ? document.getElementById('sel-class-up').value : document.getElementById('sel-new-class').value;
         
-        if(!cls) {
-            document.getElementById('ability-info').style.display = 'none';
-            return;
-        }
+        if(!c) return document.getElementById('abil-preview').style.display = 'none';
 
-        const livFuturo = mode === 'up' ? (pgData.mappaClassi[cls] || 0) + 1 : 1;
-        const abil = (tabelle[cls] && tabelle[cls][livFuturo]) ? tabelle[cls][livFuturo] : "Avanzamento Standard";
+        const nxt = m === 'up' ? (charData.mappaClassi[c] || 0) + 1 : 1;
+        const txt = (abilDB[c] && abilDB[c][nxt]) ? abilDB[c][nxt] : "Nuova abilità di Livello " + nxt;
         
-        document.getElementById('ability-name').innerText = abil;
-        document.getElementById('ability-info').style.display = 'block';
-        
-        // Mostra selettore stat se l'abilità contiene "Aumento Caratteristica"
-        document.getElementById('stat-bonus-box').style.display = abil.includes("Aumento") ? 'block' : 'none';
+        const box = document.getElementById('abil-preview');
+        box.innerHTML = `<strong>LIVELLO ${nxt}:</strong> ${txt}`;
+        box.style.display = 'block';
+
+        document.getElementById('stat-bonus-ui').style.display = txt.includes("Aumento") ? 'block' : 'none';
     }
 
-    async function confermaLevelUp() {
-        if(!pgData) return alert("Dati non pronti!");
-        
-        const mode = document.getElementById('mode-select').value;
-        const cls = mode === 'up' ? document.getElementById('select-current-class').value : document.getElementById('select-new-class').value;
-        const boost = document.getElementById('stat-to-boost').value;
+    async function salvaTutto() {
+        const mode = document.getElementById('level-mode').value;
+        const cls = mode === 'up' ? document.getElementById('sel-class-up').value : document.getElementById('sel-new-class').value;
+        const boost = document.getElementById('stat-boost').value;
 
-        if(!cls) return alert("Seleziona una classe!");
-        if(document.getElementById('stat-bonus-box').style.display === 'block' && !boost) {
-            return alert("Scegli quale statistica aumentare!");
-        }
-
-        let nuovaMappa = {...pgData.mappaClassi};
-        nuovaMappa[cls] = (nuovaMappa[cls] || 0) + 1;
-        
-        let nuovoLvl = (parseInt(pgData.livello) || 1) + 1;
-        let nuoveStats = {...pgData.stats};
-        if(boost) nuoveStats[boost] = (parseInt(nuoveStats[boost]) || 0) + 1;
-
-        const ranghi = {1:"Alle Prime Armi", 2:"Principiante", 3:"Esperto", 4:"Navigato", 5:"Provetto", 6:"Veterano", 7:"Straordinario", 8:"Leggendario", 9:"Epico"};
-
-        const updateData = {
-            livello: nuovoLvl,
-            rango: ranghi[nuovoLvl] || "Leggenda",
-            classe: nuovaMappa,
-            stats: nuoveStats,
-            "inventario.zaino": Array.from({length:9}, (_,i) => document.getElementById(`slot-${i}`).value)
+        // Se non è stato scelto di livellare, salviamo solo i campi testo
+        let updateData = {
+            storia: document.getElementById('edit-storia').value,
+            "inventario.arma": document.getElementById('edit-arma').value,
+            "inventario.armatura": document.getElementById('edit-armatura').value,
+            "inventario.anello": document.getElementById('edit-anello').value,
+            "inventario.incantesimi": document.getElementById('edit-incantesimi').value,
+            "inventario.zaino": Array.from({length:9}, (_,i) => document.getElementById(`z-${i}`).value)
         };
+
+        // Se una classe è selezionata, applichiamo il level up
+        if(cls) {
+            let nMap = {...charData.mappaClassi};
+            nMap[cls] = (nMap[cls] || 0) + 1;
+            let nLvl = (parseInt(charData.livello) || 1) + 1;
+            
+            updateData.livello = nLvl;
+            updateData.classe = nMap;
+
+            if(document.getElementById('stat-bonus-ui').style.display === 'block') {
+                if(!boost) return alert("Scegli l'aumento caratteristica!");
+                let nStats = {...charData.stats};
+                nStats[boost] = (parseInt(nStats[boost]) || 0) + 1;
+                updateData.stats = nStats;
+            }
+        }
 
         try {
             await db.collection("characters").doc(charId).update(updateData);
-            alert("L'Eroe è progredito!");
+            alert("✨ Progressi salvati!");
             window.location.href = "index.html";
         } catch(e) { alert("Errore: " + e.message); }
     }
 </script>
-
 </body>
 </html>
