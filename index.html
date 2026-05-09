@@ -109,6 +109,61 @@
             font-size: 0.8rem; border-top: 1px solid var(--gold);
             opacity: 0.6;
         }
+
+        /* Banner PWA Mobile */
+#mobile-install-tip {
+    display: none; /* Nascosto di default, attivato da JS su mobile */
+    position: fixed;
+    bottom: 20px;
+    left: 10px;
+    right: 10px;
+    background: var(--parchment);
+    color: var(--ink);
+    border: 3px double var(--gold);
+    border-radius: 12px;
+    padding: 15px;
+    z-index: 1000;
+    box-shadow: 0 -5px 25px rgba(0,0,0,0.8);
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.tip-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.tip-icon { font-size: 2rem; }
+
+.tip-text {
+    flex-grow: 1;
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+
+.tip-text b { color: var(--blood); font-family: 'Grenze Gotisch'; font-size: 1.1rem; }
+
+.close-tip {
+    background: var(--ink);
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-family: 'MedievalSharp';
+}
+
+/* Mostra solo su dispositivi touch/piccoli */
+@media (max-width: 768px) {
+    #mobile-install-tip.active {
+        display: block;
+    }
+}
     </style>
 </head>
 <body>
@@ -201,6 +256,35 @@
         function handleProfileClick() {
             window.location.href = auth.currentUser ? 'profile.html' : 'login.html';
         }
+        // Gestione Tip Installazione Mobile
+function checkMobileTip() {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const tipClosed = localStorage.getItem('drakoniaTipClosed');
+    
+    // Mostra il tip solo se è mobile e non è già stato chiuso
+    if (isMobile && !tipClosed) {
+        document.getElementById('mobile-install-tip').classList.add('active');
+    }
+}
+
+function closeTip() {
+    document.getElementById('mobile-install-tip').classList.remove('active');
+    // Ricorda la scelta dell'utente per 7 giorni (opzionale, qui è permanente)
+    localStorage.setItem('drakoniaTipClosed', 'true');
+}
+
+// Esegui il controllo al caricamento
+window.addEventListener('load', checkMobileTip);
     </script>
+    <div id="mobile-install-tip">
+    <div class="tip-content">
+        <div class="tip-icon">📱</div>
+        <div class="tip-text">
+            <b>Drakonia Web-App</b><br>
+            Tocca <img src="https://img.icons8.com/ios/20/000000/export.png" style="vertical-align:middle"> (Safari) o i tre puntini (Chrome) e seleziona <b>"Aggiungi alla schermata Home"</b> per un'esperienza a schermo intero.
+        </div>
+        <button class="close-tip" onclick="closeTip()">CHIUDI</button>
+    </div>
+</div>
 </body>
 </html>
