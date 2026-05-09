@@ -67,7 +67,7 @@
     </div>
     
     <h1>EVOLUZIONE</h1>
-    <div id="pg-nome" class="hero-name">Caricamento...</div>
+    <div id="pg-nome" class="hero-name">In attesa degli spiriti...</div>
 
     <div class="section-title"><span>POTENZIAMENTO</span> <span id="display-lv">Lv. ?</span></div>
     <div class="card">
@@ -75,7 +75,7 @@
             <div>
                 <label>VIA DA SEGUIRE</label>
                 <select id="sel-class" onchange="previewUpdate()">
-                    <option value="">-- Seleziona --</option>
+                    <option value="">Caricamento vie...</option>
                 </select>
             </div>
             <div>
@@ -87,7 +87,7 @@
         <div id="preview-area" class="preview-box"></div>
 
         <div id="stat-bonus-panel" style="display:none; background:#fff3cd; padding:10px; margin-top:10px; border:1px solid var(--gold); border-radius:4px;">
-            <label>✨ AUMENTO CARATTERISTICA</label>
+            <label>✨ SELEZIONA AUMENTO STATISTICA</label>
             <select id="stat-boost">
                 <option value="">-- Scegli quale migliorare --</option>
                 <option value="prd">Prodezza (PRD)</option>
@@ -105,23 +105,24 @@
         <div class="stat-item"><div class="stat-label">RPD</div><div id="cur-rpd" class="stat-val">0</div></div>
         <div class="stat-item"><div class="stat-label">PR</div><div id="cur-pr" class="stat-val">0</div></div>
     </div>
-    <textarea id="edit-storia" placeholder="Note sulla storia..." rows="3"></textarea>
+    <textarea id="edit-storia" placeholder="Cronaca del tuo viaggio..." rows="3"></textarea>
 
     <div class="section-title"><span>EQUIPAGGIAMENTO</span></div>
     <div class="card">
-        <input type="text" id="edit-arma" placeholder="Arma principale">
-        <input type="text" id="edit-armatura" placeholder="Armatura">
-        <input type="text" id="edit-anello" placeholder="Accessorio">
-        <label>ZAINO</label>
+        <input type="text" id="edit-arma" placeholder="Arma impugnata">
+        <input type="text" id="edit-armatura" placeholder="Protezione indossata">
+        <input type="text" id="edit-anello" placeholder="Accessorio magico">
+        <label>ZAINO (9 SLOT)</label>
         <div class="inv-grid" id="zaino-slots"></div>
-        <label>INCANTESIMI / ABILITÀ</label>
-        <textarea id="edit-poteri" placeholder="Lista poteri..." rows="3"></textarea>
+        <label>POTERI E INCANTESIMI</label>
+        <textarea id="edit-poteri" placeholder="Lista abilità magiche e fisiche..." rows="3"></textarea>
     </div>
 
-    <button class="btn-evolve" onclick="confermaEvoluzione()">INCIDI PROGRESSI</button>
+    <button class="btn-evolve" id="btn-save" onclick="confermaEvoluzione()">INCIDI PROGRESSI</button>
 </div>
 
 <script>
+    // Configurazione Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
         authDomain: "drakonia-companion.firebaseapp.com",
@@ -134,7 +135,7 @@
     const db = firebase.firestore();
 
     const charId = new URLSearchParams(window.location.search).get('id');
-    let pg = null;
+    let pg = null; // Dati del personaggio
 
     const ALBERO_CLASSI = {
         "Guerriero": ["", "Casta dei Guerrieri", "Armature Pesanti", "Minaccioso", "Aumento Caratteristica", "Ambidestro 1", "Aumento Caratteristica", "Addestramento Marziale", "Aumento Caratteristica", "Ambidestro 3"],
@@ -145,17 +146,36 @@
     };
 
     window.onload = async () => {
-        if(!charId) return alert("ID mancante!");
-        const container = document.getElementById('zaino-slots');
-        for(let i=0; i<9; i++) container.innerHTML += `<input type="text" id="z-${i}" placeholder="Slot ${i+1}">`;
+        if(!charId) return alert("Errore: Nessun Eroe selezionato!");
 
-        const doc = await db.collection("characters").doc(charId).get();
-        if(!doc.exists) return alert("Personaggio non trovato!");
-        pg = doc.data();
-        initUI();
+        // Inizializza Zaino
+        const container = document.getElementById('zaino-slots');
+        container.innerHTML = "";
+        for(let i=0; i<9; i++) container.innerHTML += `<input type="text" id="z-${i}" placeholder="Vuoto">`;
+
+        try {
+            const doc = await db.collection("characters").doc(charId).get();
+            if(!doc.exists) return alert("Eroe non trovato nel database!");
+            
+            pg = doc.data();
+            
+            // Fix per vecchi dati (trasforma classe stringa in oggetto mappaClassi)
+            if (typeof pg.classe !== 'object' || pg.classe === null) {
+                const classeAttuale = pg.classe || "Senza Classe";
+                const lvAttuale = parseInt(pg.livello) || 1;
+                pg.mappaClassi = { [classeAttuale]: lvAttuale };
+            } else {
+                pg.mappaClassi = pg.classe;
+            }
+
+            caricaDatiUI();
+        } catch(e) {
+            console.error(e);
+            alert("Errore nel risveglio dell'eroe: " + e.message);
+        }
     };
 
-    function initUI() {
+    function caricaDatiUI() {
         document.getElementById('pg-nome').innerText = pg.nome;
         document.getElementById('display-lv').innerText = "Lv. " + (pg.livello || 1);
         document.getElementById('edit-storia').value = pg.storia || "";
@@ -174,28 +194,25 @@
             pg.inventario.zaino.forEach((item, i) => { if(i<9) document.getElementById(`z-${i}`).value = item; });
         }
 
-        // Fix Mappa Classi
-        let currentMap = pg.classe;
-        if (typeof currentMap !== 'object' || currentMap === null) {
-            currentMap = { [pg.classe]: pg.livello || 1 };
-        }
-        pg.mappaClassi = currentMap;
-
-        // Popola tendina
+        // Popola Menu Classi
         const sel = document.getElementById('sel-class');
         sel.innerHTML = '<option value="">-- Seleziona la Via --</option>';
         
-        sel.innerHTML += '<optgroup label="Classi Attuali">';
+        // Sezione Classi Attuali
+        const gAttuali = document.createElement('optgroup');
+        gAttuali.label = "Vie già intraprese";
         for(let c in pg.mappaClassi) {
-            sel.innerHTML += `<option value="${c}">${c} (Liv. ${pg.mappaClassi[c]})</option>`;
+            gAttuali.appendChild(new Option(`${c} (Grado ${pg.mappaClassi[c]})`, c));
         }
-        sel.innerHTML += '</optgroup>';
+        sel.appendChild(gAttuali);
 
-        sel.innerHTML += '<optgroup label="Nuove Vie (Multiclasse)">';
+        // Sezione Nuove Classi
+        const gNuove = document.createElement('optgroup');
+        gNuove.label = "Nuove Vie (Multiclasse)";
         Object.keys(ALBERO_CLASSI).forEach(c => {
-            if(!pg.mappaClassi[c]) sel.innerHTML += `<option value="${c}">${c} (Nuova)</option>`;
+            if(!pg.mappaClassi[c]) gNuove.appendChild(new Option(c, c));
         });
-        sel.innerHTML += '</optgroup>';
+        sel.appendChild(gNuove);
     }
 
     function previewUpdate() {
@@ -205,29 +222,32 @@
         
         if(!cls || qty <= 0) { box.style.display = 'none'; return; }
 
-        let currentLv = pg.mappaClassi[cls] || 0;
-        let futureLv = currentLv + qty;
+        let lvAttualeClasse = pg.mappaClassi[cls] || 0;
+        let lvFuturoClasse = lvAttualeClasse + qty;
         let sblocchi = [];
-        let needsStat = false;
+        let deveScegliereStat = false;
 
-        for(let i = currentLv + 1; i <= futureLv; i++) {
-            let abil = (ALBERO_CLASSI[cls] && ALBERO_CLASSI[cls][i]) ? ALBERO_CLASSI[cls][i] : "Potenziamento generico";
-            sblocchi.push(`Liv. ${i}: ${abil}`);
-            if(abil.includes("Aumento")) needsStat = true;
+        for(let i = lvAttualeClasse + 1; i <= lvFuturoClasse; i++) {
+            let abilità = (ALBERO_CLASSI[cls] && ALBERO_CLASSI[cls][i]) ? ALBERO_CLASSI[cls][i] : "Miglioramento Generico";
+            sblocchi.push(`Grado ${i}: ${abilità}`);
+            if(abilità.includes("Aumento")) deveScegliereStat = true;
         }
 
-        box.innerHTML = `Evoluzione in <span class="highlight">${cls}</span> fino al <span class="highlight">Grado ${futureLv}</span>.<br><br>` + 
-                        `<strong>Ricompense:</strong><br>• ` + sblocchi.join('<br>• ');
+        box.innerHTML = `L'eroe diventerà <span class="highlight">${cls} di Grado ${lvFuturoClasse}</span>.<br><br>` + 
+                        `<strong>Nuovi Saperi:</strong><br>• ` + sblocchi.join('<br>• ');
         box.style.display = 'block';
-        document.getElementById('stat-bonus-panel').style.display = needsStat ? 'block' : 'none';
+        document.getElementById('stat-bonus-panel').style.display = deveScegliereStat ? 'block' : 'none';
     }
 
     async function confermaEvoluzione() {
+        if(!pg) return alert("Errore: Dati non caricati!");
+        
         const cls = document.getElementById('sel-class').value;
         const qty = parseInt(document.getElementById('lv-qty').value) || 0;
         const boost = document.getElementById('stat-boost').value;
 
-        let upd = {
+        // Raccolta dati base
+        let updateData = {
             storia: document.getElementById('edit-storia').value,
             "inventario.arma": document.getElementById('edit-arma').value,
             "inventario.armatura": document.getElementById('edit-armatura').value,
@@ -236,30 +256,39 @@
             "inventario.zaino": Array.from({length:9}, (_,i) => document.getElementById(`z-${i}`).value)
         };
 
+        // Calcolo evoluzione
         if(cls && qty > 0) {
-            let newMap = {...pg.mappaClassi};
-            newMap[cls] = (newMap[cls] || 0) + qty;
+            let nuovaMappa = {...pg.mappaClassi};
+            nuovaMappa[cls] = (nuovaMappa[cls] || 0) + qty;
             
-            upd.livello = (parseInt(pg.livello) || 1) + qty;
-            upd.classe = newMap;
+            updateData.livello = (parseInt(pg.livello) || 1) + qty;
+            updateData.classe = nuovaMappa;
 
-            // Rango
-            const r = ["", "Novizio", "Viandante", "Esperto", "Veterano", "Campione", "Eroe", "Leggenda", "Semidio", "Eterno"];
-            upd.rango = r[Math.min(upd.livello, 9)];
+            // Rango estetico
+            const ranghi = ["", "Novizio", "Viandante", "Esperto", "Veterano", "Campione", "Eroe", "Leggenda", "Semidio", "Eterno"];
+            updateData.rango = ranghi[Math.min(updateData.livello, 9)];
 
+            // Gestione Bonus Statistica
             if(document.getElementById('stat-bonus-panel').style.display === 'block') {
-                if(!boost) return alert("Seleziona la statistica da aumentare!");
-                let ns = {...pg.stats};
-                ns[boost] = (parseInt(ns[boost]) || 0) + 1;
-                upd.stats = ns;
+                if(!boost) return alert("Devi scegliere quale caratteristica aumentare!");
+                let nuoveStats = {...pg.stats};
+                nuoveStats[boost] = (parseInt(nuoveStats[boost]) || 0) + 1;
+                updateData.stats = nuoveStats;
             }
         }
 
         try {
-            await db.collection("characters").doc(charId).update(upd);
-            alert("Evoluzione completata!");
+            document.getElementById('btn-save').innerText = "INCIDENDO...";
+            document.getElementById('btn-save').disabled = true;
+
+            await db.collection("characters").doc(charId).update(updateData);
+            alert("✨ Il destino è stato segnato! L'eroe si è evoluto.");
             window.location.href = `visualizza.html?id=${charId}`;
-        } catch(e) { alert("Errore: " + e.message); }
+        } catch(e) { 
+            alert("Errore nell'incisione: " + e.message); 
+            document.getElementById('btn-save').innerText = "INCIDI PROGRESSI";
+            document.getElementById('btn-save').disabled = false;
+        }
     }
 </script>
 
