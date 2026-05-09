@@ -154,7 +154,7 @@
 
         if (!characterId) {
             alert("Nessun eroe selezionato!");
-            window.location.href = "archivio.html";
+            window.location.href = "archivio-pg.html";
         }
 
         // 2. Carica dati da Firestore
@@ -163,7 +163,7 @@
                 const doc = await db.collection("characters").doc(characterId).get();
                 if (!doc.exists) {
                     alert("Eroe scomparso nelle nebbie del tempo...");
-                    window.location.href = "archivio.html";
+                    window.location.href = "archivio-pg.html";
                     return;
                 }
 
