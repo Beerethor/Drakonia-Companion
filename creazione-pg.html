@@ -124,9 +124,10 @@
             <select id="classe-select" onchange="applicaClasse()">
                 <option value="">Scegli...</option>
                 <option value="Guerriero">Guerriero</option>
-                <option value="Mago">Mago</option>
-                <option value="Chierico">Chierico</option>
-                <option value="Ladro">Ladro</option>
+                <option value="Truffatore">Truffatore</option>
+                <option value="Saggio">Saggio</option>
+                <option value="Stregone">Stregone</option>
+                <option value="Druido">Druido</option>
             </select>
             <label>Livello</label><input type="number" id="livello" value="1" min="1" max="9" oninput="aggiornaLivelloERango()">
             <label>Rango</label><input type="text" id="rango" readonly>
@@ -204,10 +205,11 @@
     const auth = firebase.auth();
 
     const classiData = {
-        "Guerriero": { bonus: 3, max: 9, equip: "Spada Lunga, Cotta di Maglia", oro: 5, zaino: ["Scudo"] },
-        "Mago":      { bonus: 1, max: 7, equip: "Bastone, Tunica", oro: 5, zaino: ["Libro Incantesimi"] },
-        "Ladro":     { bonus: 2, max: 8, equip: "Daga, Armatura di Cuoio", oro: 5, zaino: ["Grimaldelli"] },
-        "Chierico":  { bonus: 2, max: 8, equip: "Mazza, Tunica Pesante", oro: 5, zaino: ["Simbolo Sacro"] }
+    "Guerriero": { bonus: 3, max: 9, equip: "Spada Lunga, Cotta di Maglia", oro: 5, zaino: ["Scudo"] },
+    "Truffatore": { bonus: 2, max: 8, equip: "Daga, Armatura di Cuoio", oro: 5, zaino: ["Grimaldelli"] },
+    "Saggio":     { bonus: 2, max: 8, equip: "Bastone, Tunica", oro: 5, zaino: ["Simbolo Sacro"] },
+    "Stregone":   { bonus: 1, max: 7, equip: "Pugnale Cerimoniale, Tunica", oro: 5, zaino: ["Pergamena Magica"] },
+    "Druido":     { bonus: 2, max: 8, equip: "Falcetto, Vesti di Pelle", oro: 5, zaino: ["Sacchetto di Erbe"] }
     };
 
     // Auth monitor
@@ -318,7 +320,7 @@
             userName: document.getElementById('owner-name').innerText,
             nome: document.getElementById('nome').value,
             campagna: campagna,
-            classe: document.getElementById('classe-select').value,
+            classe: { [document.getElementById('classe-select').value]: parseInt(document.getElementById('livello').value) || 1 },
             livello: document.getElementById('livello').value,
             rango: document.getElementById('rango').value,
             ritratto: document.getElementById('ritratto').value,
