@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Drakonia - Evoluzione Eroe</title>
-    
+    <link rel="icon" type="image/png" href="icon/icon_192x192.png">
+    <link rel="apple-touch-icon" href="icon/icon_192x192.png">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -51,6 +52,7 @@
             font-size: 1.4rem; cursor: pointer; margin-top: 30px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5); transition: 0.3s;
         }
+        .btn-evolve:disabled { background: #555; cursor: not-allowed; }
 
         .preview-box { background: var(--leather); color: var(--gold); padding: 15px; border-radius: 4px; margin-top: 15px; display: none; font-size: 0.95rem; line-height: 1.4; border: 1px solid var(--gold); }
         .highlight { color: #fff; font-weight: bold; border-bottom: 1px dashed var(--gold); }
@@ -63,7 +65,7 @@
         <button onclick="window.history.back()" style="background: var(--leather); color: var(--gold); border: 1px solid var(--gold); padding: 5px 10px; font-family: 'Grenze Gotisch'; cursor: pointer; border-radius: 4px;">
             ← Indietro
         </button>
-        <span style="font-family: 'Grenze Gotisch'; color: var(--blood); font-size: 0.8rem;">MODALITÀ EDITING</span>
+        <span id="auth-status" style="font-family: 'Grenze Gotisch'; color: var(--blood); font-size: 0.8rem;">VERIFICA ACCESSO...</span>
     </div>
     
     <h1>EVOLUZIONE</h1>
@@ -118,7 +120,7 @@
         <textarea id="edit-poteri" placeholder="Lista abilità magiche e fisiche..." rows="3"></textarea>
     </div>
 
-    <button class="btn-evolve" id="btn-save" onclick="confermaEvoluzione()">INCIDI PROGRESSI</button>
+    <button class="btn-evolve" id="btn-save" onclick="confermaEvoluzione()" disabled>CARICAMENTO...</button>
 </div>
 
 <script>
@@ -133,9 +135,10 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const auth = firebase.auth();
 
     const charId = new URLSearchParams(window.location.search).get('id');
-    let pg = null; // Dati del personaggio
+    let pg = null; 
 
     const ALBERO_CLASSI = {
         "Guerriero": ["", "Casta dei Guerrieri", "Armature Pesanti", "Minaccioso", "Aumento Caratteristica", "Ambidestro 1", "Aumento Caratteristica", "Addestramento Marziale", "Aumento Caratteristica", "Ambidestro 3"],
@@ -145,21 +148,32 @@
         "Druido": ["", "Magia Primordiale 1", "Tecnica della Natura", "Aumento Caratteristica", "Sintonia 1", "Aumento Caratteristica", "Sintonia 2", "Rituale 2", "Aumento Caratteristica", "Magia Primordiale 4"]
     };
 
-    window.onload = async () => {
-        if(!charId) return alert("Errore: Nessun Eroe selezionato!");
+    // 1. Gestione Autenticazione (Previene errori di permessi)
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            document.getElementById('auth-status').innerText = "MODALITÀ EDITING";
+            await initPagina();
+        } else {
+            alert("Devi aver effettuato l'accesso per evolvere un eroe.");
+            document.getElementById('auth-status').innerText = "NON LOGGATO";
+        }
+    });
 
-        // Inizializza Zaino
+    async function initPagina() {
+        if(!charId) return alert("Errore: ID Eroe mancante nell'URL.");
+
+        // Inizializza graficamente lo zaino
         const container = document.getElementById('zaino-slots');
         container.innerHTML = "";
         for(let i=0; i<9; i++) container.innerHTML += `<input type="text" id="z-${i}" placeholder="Vuoto">`;
 
         try {
             const doc = await db.collection("characters").doc(charId).get();
-            if(!doc.exists) return alert("Eroe non trovato nel database!");
+            if(!doc.exists) return alert("Eroe non trovato!");
             
             pg = doc.data();
             
-            // Fix per vecchi dati (trasforma classe stringa in oggetto mappaClassi)
+            // Fix per compatibilità classi (se salvate come stringa singola)
             if (typeof pg.classe !== 'object' || pg.classe === null) {
                 const classeAttuale = pg.classe || "Senza Classe";
                 const lvAttuale = parseInt(pg.livello) || 1;
@@ -169,14 +183,16 @@
             }
 
             caricaDatiUI();
+            document.getElementById('btn-save').disabled = false;
+            document.getElementById('btn-save').innerText = "INCIDI PROGRESSI";
         } catch(e) {
             console.error(e);
             alert("Errore nel risveglio dell'eroe: " + e.message);
         }
-    };
+    }
 
     function caricaDatiUI() {
-        document.getElementById('pg-nome').innerText = pg.nome;
+        document.getElementById('pg-nome').innerText = pg.nome || "Eroe Ignoto";
         document.getElementById('display-lv').innerText = "Lv. " + (pg.livello || 1);
         document.getElementById('edit-storia').value = pg.storia || "";
         document.getElementById('edit-arma').value = pg.inventario?.arma || "";
@@ -194,11 +210,10 @@
             pg.inventario.zaino.forEach((item, i) => { if(i<9) document.getElementById(`z-${i}`).value = item; });
         }
 
-        // Popola Menu Classi
+        // Popola il menu a tendina delle classi
         const sel = document.getElementById('sel-class');
         sel.innerHTML = '<option value="">-- Seleziona la Via --</option>';
         
-        // Sezione Classi Attuali
         const gAttuali = document.createElement('optgroup');
         gAttuali.label = "Vie già intraprese";
         for(let c in pg.mappaClassi) {
@@ -206,7 +221,6 @@
         }
         sel.appendChild(gAttuali);
 
-        // Sezione Nuove Classi
         const gNuove = document.createElement('optgroup');
         gNuove.label = "Nuove Vie (Multiclasse)";
         Object.keys(ALBERO_CLASSI).forEach(c => {
@@ -228,9 +242,9 @@
         let deveScegliereStat = false;
 
         for(let i = lvAttualeClasse + 1; i <= lvFuturoClasse; i++) {
-            let abilità = (ALBERO_CLASSI[cls] && ALBERO_CLASSI[cls][i]) ? ALBERO_CLASSI[cls][i] : "Miglioramento Generico";
-            sblocchi.push(`Grado ${i}: ${abilità}`);
-            if(abilità.includes("Aumento")) deveScegliereStat = true;
+            let abilita = (ALBERO_CLASSI[cls] && ALBERO_CLASSI[cls][i]) ? ALBERO_CLASSI[cls][i] : "Miglioramento Generico";
+            sblocchi.push(`Grado ${i}: ${abilita}`);
+            if(abilita.includes("Aumento")) deveScegliereStat = true;
         }
 
         box.innerHTML = `L'eroe diventerà <span class="highlight">${cls} di Grado ${lvFuturoClasse}</span>.<br><br>` + 
@@ -240,13 +254,12 @@
     }
 
     async function confermaEvoluzione() {
-        if(!pg) return alert("Errore: Dati non caricati!");
+        if(!pg) return alert("Attendi il caricamento dei dati!");
         
         const cls = document.getElementById('sel-class').value;
         const qty = parseInt(document.getElementById('lv-qty').value) || 0;
         const boost = document.getElementById('stat-boost').value;
 
-        // Raccolta dati base
         let updateData = {
             storia: document.getElementById('edit-storia').value,
             "inventario.arma": document.getElementById('edit-arma').value,
@@ -256,7 +269,6 @@
             "inventario.zaino": Array.from({length:9}, (_,i) => document.getElementById(`z-${i}`).value)
         };
 
-        // Calcolo evoluzione
         if(cls && qty > 0) {
             let nuovaMappa = {...pg.mappaClassi};
             nuovaMappa[cls] = (nuovaMappa[cls] || 0) + qty;
@@ -264,11 +276,9 @@
             updateData.livello = (parseInt(pg.livello) || 1) + qty;
             updateData.classe = nuovaMappa;
 
-            // Rango estetico
             const ranghi = ["", "Novizio", "Viandante", "Esperto", "Veterano", "Campione", "Eroe", "Leggenda", "Semidio", "Eterno"];
             updateData.rango = ranghi[Math.min(updateData.livello, 9)];
 
-            // Gestione Bonus Statistica
             if(document.getElementById('stat-bonus-panel').style.display === 'block') {
                 if(!boost) return alert("Devi scegliere quale caratteristica aumentare!");
                 let nuoveStats = {...pg.stats};
@@ -282,10 +292,10 @@
             document.getElementById('btn-save').disabled = true;
 
             await db.collection("characters").doc(charId).update(updateData);
-            alert("✨ Il destino è stato segnato! L'eroe si è evoluto.");
+            alert("✨ Destino segnato! L'eroe si è evoluto.");
             window.location.href = `visualizza.html?id=${charId}`;
         } catch(e) { 
-            alert("Errore nell'incisione: " + e.message); 
+            alert("Errore di permessi Firestore. Verifica le regole o il tuo UID."); 
             document.getElementById('btn-save').innerText = "INCIDI PROGRESSI";
             document.getElementById('btn-save').disabled = false;
         }
