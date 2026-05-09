@@ -10,169 +10,54 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { 
-            --gold: #b8860b; 
-            --parchment: #f4e4bc; 
-            --leather: #2c1e11; 
-            --blood: #8b0000; 
-            --ink: #1a110a; 
-        }
-        
+        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; --blood: #8b0000; --ink: #1a110a; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
         body { 
             background: var(--ink) url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
-            color: var(--parchment); 
-            font-family: 'Almendra', serif; 
-            margin: 0; 
-            padding: 15px;
-            min-height: 100vh;
+            color: var(--parchment); font-family: 'Almendra', serif; margin: 0; padding: 15px; 
         }
-
         .container { max-width: 600px; margin: 0 auto; }
-
-        .nav-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 25px;
-        }
-
-        h1 { 
-            font-family: 'Grenze Gotisch'; 
-            color: var(--gold); 
-            text-align: center; 
-            font-size: 2.2rem; 
-            margin: 10px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        /* Lista Conversazioni */
-        .chat-card { 
-            background: rgba(44, 30, 17, 0.7); 
-            border: 1px solid var(--gold); 
-            padding: 18px; 
-            margin-bottom: 12px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            transition: transform 0.2s, background 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .chat-card:active { transform: scale(0.98); background: rgba(184, 134, 11, 0.2); }
-
-        .chat-info h3 { margin: 0; color: var(--gold); font-family: 'MedievalSharp'; font-size: 1.2rem; }
+        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { font-family: 'Grenze Gotisch'; color: var(--gold); text-align: center; font-size: 2.2rem; margin: 10px 0; }
         
-        .expiry-warning { 
-            font-size: 0.8rem; 
-            color: #ffaaaa; 
-            font-style: italic; 
-            margin-top: 5px;
-            display: block;
+        /* Card Conversazione */
+        .chat-card { 
+            background: rgba(44, 30, 17, 0.8); border: 1px solid var(--gold); 
+            padding: 18px; margin-bottom: 12px; border-radius: 12px; cursor: pointer; 
+            display: flex; justify-content: space-between; align-items: center; 
+            transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
+        .chat-card.unread { border-color: #ff4444; background: rgba(139, 0, 0, 0.2); }
+        .chat-info h3 { margin: 0; color: var(--gold); font-family: 'MedievalSharp'; font-size: 1.2rem; }
+        .chat-card.unread h3 { color: #ff4444; }
+        
+        .expiry-warning { font-size: 0.8rem; color: #ffaaaa; font-style: italic; margin-top: 4px; display: block; }
+        .badge-new { background: #ff4444; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-right: 8px; vertical-align: middle; }
 
-        /* Pulsanti */
-        .btn-new { 
-            background: var(--gold); 
-            color: var(--leather); 
-            border: none; 
-            padding: 10px 15px; 
-            border-radius: 8px;
-            cursor: pointer; 
-            font-family: 'MedievalSharp';
-            font-weight: bold;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-        }
-
-        /* Modal Mobile Friendly */
-        #new-msg-modal { 
-            display: none; 
-            position: fixed; 
-            top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.9); 
-            z-index: 1000; 
-            justify-content: center; 
-            align-items: center; 
-        }
-
-        .modal-content { 
-            background: var(--leather); 
-            border: 2px solid var(--gold); 
-            padding: 30px 20px; 
-            width: 90%; 
-            max-width: 400px; 
-            border-radius: 15px; 
-            text-align: center;
-            box-shadow: 0 0 20px var(--gold);
-        }
-
-        select { 
-            width: 100%; 
-            padding: 15px; 
-            background: var(--parchment); 
-            margin: 20px 0; 
-            font-family: 'Almendra'; 
-            font-size: 1.1rem; 
-            border-radius: 8px;
-            border: none;
-        }
-
-        .btn-main { 
-            background: var(--gold); 
-            color: var(--leather); 
-            border: none; 
-            padding: 15px; 
-            font-family: 'MedievalSharp'; 
-            font-size: 1.1rem; 
-            font-weight: bold;
-            cursor: pointer; 
-            width: 100%; 
-            margin-top: 10px; 
-            border-radius: 8px;
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--gold);
-            border: 1px solid var(--gold);
-            padding: 12px;
-            margin-top: 10px;
-            width: 100%;
-            border-radius: 8px;
-            font-family: 'MedievalSharp';
-        }
-
-        .back-link { color: var(--gold); text-decoration: none; font-family: 'MedievalSharp'; font-size: 1.1rem; }
+        .btn-new { background: var(--gold); color: var(--leather); border: none; padding: 10px 18px; border-radius: 8px; font-family: 'MedievalSharp'; font-weight: bold; cursor: pointer; }
+        #new-msg-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center; }
+        .modal-content { background: var(--leather); border: 2px solid var(--gold); padding: 30px; width: 90%; max-width: 400px; border-radius: 15px; text-align: center; }
+        select { width: 100%; padding: 15px; background: var(--parchment); margin: 20px 0; border-radius: 8px; font-family: 'Almendra'; font-size: 1rem; }
+        .btn-main { background: var(--gold); color: var(--leather); border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'MedievalSharp'; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="nav-header">
-        <a href="index.html" class="back-link">« Portale</a>
+        <a href="index.html" style="color: var(--gold); text-decoration: none;">« Portale</a>
         <button class="btn-new" onclick="openModal()">📜 SCRIVI</button>
     </div>
-
     <h1>Missive Attive</h1>
-
-    <div id="inbox-list">
-        <p style="text-align:center; opacity:0.5; margin-top: 50px;">Consultando gli archivi reali...</p>
-    </div>
+    <div id="inbox-list"><p style="text-align:center; opacity:0.5; margin-top:50px;">Consultando gli archivi...</p></div>
 </div>
 
 <div id="new-msg-modal">
     <div class="modal-content">
-        <h2 style="color: var(--gold); font-family: 'Grenze Gotisch'; margin: 0 0 10px 0;">Invia Missiva</h2>
-        <p style="font-size: 0.9rem;">Seleziona un alleato per iniziare una conversazione.</p>
-        <select id="friend-selector">
-            <option value="">-- Seleziona Alleato --</option>
-        </select>
+        <h2 style="color: var(--gold); font-family: 'Grenze Gotisch'; margin:0;">Nuova Missiva</h2>
+        <select id="friend-selector"><option value="">-- Seleziona Alleato --</option></select>
         <button class="btn-main" onclick="startChat()">APRI PERGAMENA</button>
-        <button class="btn-ghost" onclick="closeModal()">ANNULLA</button>
+        <button onclick="closeModal()" style="background:none; border:none; color:var(--gold); margin-top:15px; cursor:pointer;">CHIUDI</button>
     </div>
 </div>
 
@@ -190,75 +75,54 @@
     const auth = firebase.auth();
 
     auth.onAuthStateChanged(user => {
-        if (user) { 
-            loadInbox(user); 
-            loadFriendsList(user); 
-        } else { 
-            window.location.href = 'login.html'; 
-        }
+        if (user) { loadInbox(user); loadFriendsList(user); }
+        else { window.location.href = 'login.html'; }
     });
 
     function loadInbox(user) {
-        // Aggiornamento in tempo reale: ascolta le chat dove l'utente è partecipante
-        db.collection("chats")
-        .where("participants", "array-contains", user.uid)
-        .orderBy("lastUpdate", "desc")
+        db.collection("chats").where("participants", "array-contains", user.uid).orderBy("lastUpdate", "desc")
         .onSnapshot(async snap => {
             const list = document.getElementById('inbox-list');
-            if (snap.empty) { 
-                list.innerHTML = "<p style='text-align:center; opacity:0.5; margin-top: 50px;'>Nessuna missiva attiva trovata.</p>"; 
-                return; 
-            }
+            if (snap.empty) { list.innerHTML = "<p style='text-align:center; opacity:0.5;'>Nessuna missiva attiva.</p>"; return; }
             
             list.innerHTML = "";
-            
-            // Usiamo Promise.all per caricare tutti i nomi contemporaneamente
-            const chatPromises = snap.docs.map(async doc => {
+            for (const doc of snap.docs) {
                 const data = doc.data();
                 const otherId = data.participants.find(id => id !== user.uid);
+                const isUnread = data.lastSenderId && data.lastSenderId !== user.uid;
                 
-                // Prendi dati destinatario
                 const fDoc = await db.collection("users").doc(otherId).get();
-                const name = fDoc.exists ? (fDoc.data().username || "Viandante") : "Viandante";
+                const name = fDoc.exists ? (fDoc.data().username || "Ignoto") : "Ignoto";
                 
-                // Calcolo scadenza (7 giorni dall'ultimo messaggio)
-                const lastUpdate = data.lastUpdate ? data.lastUpdate.toMillis() : Date.now();
-                const expiry = lastUpdate + (7 * 24 * 60 * 60 * 1000);
-                const diff = expiry - Date.now();
-                const giorni = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
-                const ore = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const last = data.lastUpdate ? data.lastUpdate.toMillis() : Date.now();
+                const diff = (last + (7 * 24 * 60 * 60 * 1000)) - Date.now();
+                const g = Math.max(0, Math.floor(diff / (1000*60*60*24)));
+                const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
 
-                return `
-                    <div class="chat-card" onclick="location.href='chat.html?id=${otherId}&name=${encodeURIComponent(name)}'">
+                list.innerHTML += `
+                    <div class="chat-card ${isUnread ? 'unread' : ''}" onclick="location.href='chat.html?id=${otherId}&name=${encodeURIComponent(name)}'">
                         <div class="chat-info">
-                            <h3>✉️ ${name}</h3>
-                            <span class="expiry-warning">Svanirà tra: ${giorni}g ${ore}h</span>
+                            <h3>${isUnread ? '<span class="badge-new">NUOVA</span>' : ''}✉️ ${name}</h3>
+                            <span class="expiry-warning">Svanirà tra: ${g}g ${h}h</span>
                         </div>
                         <span style="color:var(--gold); font-size:1.5rem;">»</span>
                     </div>`;
-            });
-
-            const results = await Promise.all(chatPromises);
-            list.innerHTML = results.join("");
+            }
+        }, err => {
+            console.error(err);
+            document.getElementById('inbox-list').innerHTML = "<p style='text-align:center;'>Errore di caricamento. Verifica indici Firestore.</p>";
         });
     }
 
     async function loadFriendsList(user) {
         const sel = document.getElementById('friend-selector');
-        // Carica amici confermati
-        const snap = await db.collection("friendships")
-            .where("users", "array-contains", user.uid)
-            .where("status", "==", "accepted")
-            .get();
-        
+        const snap = await db.collection("friendships").where("users", "array-contains", user.uid).where("status", "==", "accepted").get();
         snap.forEach(async d => {
             const fId = d.data().users.find(id => id !== user.uid);
             const fDoc = await db.collection("users").doc(fId).get();
             if (fDoc.exists) {
                 const opt = document.createElement('option');
-                opt.value = fId; 
-                opt.innerText = fDoc.data().username; 
-                opt.dataset.name = fDoc.data().username;
+                opt.value = fId; opt.innerText = fDoc.data().username; opt.dataset.name = fDoc.data().username;
                 sel.appendChild(opt);
             }
         });
@@ -266,12 +130,10 @@
 
     function openModal() { document.getElementById('new-msg-modal').style.display = 'flex'; }
     function closeModal() { document.getElementById('new-msg-modal').style.display = 'none'; }
-    
     function startChat() {
         const sel = document.getElementById('friend-selector');
-        if (!sel.value) return;
-        const name = sel.options[sel.selectedIndex].dataset.name;
-        location.href = `chat.html?id=${sel.value}&name=${encodeURIComponent(name)}`;
+        if (!sel.value) return alert("Scegli un alleato!");
+        location.href = `chat.html?id=${sel.value}&name=${encodeURIComponent(sel.options[sel.selectedIndex].dataset.name)}`;
     }
 </script>
 </body>
