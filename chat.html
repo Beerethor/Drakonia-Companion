@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Missiva - Drakonia</title>
+    <link rel="icon" type="image/png" href="icon/icon_192x192.png">
+    <link rel="apple-touch-icon" href="icon/icon_192x192.png">
     <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -33,7 +35,6 @@
             overflow: hidden;
         }
 
-        /* Header e Timer */
         .header { 
             background: var(--leather); 
             padding: 12px 18px; 
@@ -57,7 +58,6 @@
             font-family: 'MedievalSharp';
         }
 
-        /* Finestra Chat */
         #chat-window { 
             flex: 1; 
             overflow-y: auto; 
@@ -69,7 +69,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Bolle Messaggi */
         .msg { 
             max-width: 80%; 
             padding: 12px 16px; 
@@ -108,7 +107,6 @@
             text-align: right;
         }
 
-        /* Area Input */
         .input-area { 
             background: var(--leather); 
             padding: 12px; 
@@ -193,13 +191,23 @@
     const inputField = document.getElementById('msg-input');
     const chatWindow = document.getElementById('chat-window');
 
-    // Invio con tasto Enter
     inputField.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
 
     auth.onAuthStateChanged(user => {
         if (user) {
             chatId = user.uid < friendId ? `${user.uid}_${friendId}` : `${friendId}_${user.uid}`;
             
+            // --- LOGICA SEGNA COME LETTO ---
+            // Se entriamo in chat e l'ultimo mittente non siamo noi, resettiamo lo stato "nuovo"
+            db.collection("chats").doc(chatId).get().then(doc => {
+                if (doc.exists && doc.data().lastSenderId !== user.uid) {
+                    // Aggiorniamo il lastSenderId a noi stessi per "spegnere" il rosso nell'inbox
+                    db.collection("chats").doc(chatId).update({ 
+                        lastSenderId: user.uid 
+                    }).catch(e => console.log("Silent update fail (nuova chat)"));
+                }
+            });
+
             // Listener Messaggi
             db.collection("chats").doc(chatId).collection("messages").orderBy("timestamp", "asc")
             .onSnapshot(snap => {
@@ -245,23 +253,21 @@
         const text = inputField.value.trim();
         if (!text || !chatId) return;
 
-        inputField.value = ""; // Svuota subito per UX fluida
+        inputField.value = ""; 
         inputField.focus();
 
         try {
             const now = firebase.firestore.FieldValue.serverTimestamp();
-            
-            // Usiamo un Batch per garantire che entrambi i documenti vengano aggiornati o nessuno
             const batch = db.batch();
             
-            // Riferimento al documento chat (crea se non esiste)
             const chatRef = db.collection("chats").doc(chatId);
+            // AGGIUNTA: lastSenderId inserito nel batch
             batch.set(chatRef, {
                 lastUpdate: now,
+                lastSenderId: auth.currentUser.uid, // <--- Fondamentale per il rosso nell'inbox
                 participants: [auth.currentUser.uid, friendId]
             }, { merge: true });
 
-            // Aggiunta messaggio
             const msgRef = chatRef.collection("messages").doc();
             batch.set(msgRef, {
                 senderId: auth.currentUser.uid,
