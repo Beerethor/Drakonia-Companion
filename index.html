@@ -50,47 +50,31 @@
             letter-spacing: 3px;
         }
 
-        /* Avatar Rotondo */
         .profile-trigger {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 2px solid var(--gold);
-            cursor: pointer;
-            overflow: hidden;
-            background: var(--ink);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 50px; height: 50px;
+            border-radius: 50%; border: 2px solid var(--gold);
+            cursor: pointer; overflow: hidden; background: var(--ink);
+            display: flex; align-items: center; justify-content: center;
             transition: transform 0.2s;
         }
 
         .profile-trigger:hover { transform: scale(1.1); }
         .profile-trigger img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Card Grid */
         .hub-container {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            flex-grow: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 20px;
         }
 
         .welcome-msg {
-            font-family: 'MedievalSharp';
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            color: var(--gold);
+            font-family: 'MedievalSharp'; font-size: 1.5rem;
+            margin-bottom: 30px; color: var(--gold);
         }
 
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            width: 100%;
-            max-width: 800px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px; width: 100%; max-width: 900px;
         }
 
         .card {
@@ -98,24 +82,30 @@
             color: var(--ink);
             border: 4px double #4a321f;
             border-radius: 8px;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
             cursor: pointer;
             text-decoration: none;
             transition: all 0.3s;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            position: relative;
         }
 
         .card:hover { transform: translateY(-5px); border-color: var(--gold); background: #fff; }
-        .card span { font-size: 3rem; display: block; margin-bottom: 10px; }
-        .card p { margin: 0; font-weight: bold; font-family: 'MedievalSharp'; font-size: 1.3rem; }
+        .card span { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+        .card p { margin: 0; font-weight: bold; font-family: 'MedievalSharp'; font-size: 1.1rem; }
+        
+        .role-badge {
+            position: absolute; top: -10px; right: -10px;
+            background: var(--blood); color: white;
+            font-size: 0.7rem; padding: 2px 8px;
+            border-radius: 4px; border: 1px solid var(--gold);
+            font-family: 'Grenze Gotisch'; display: none;
+        }
 
         footer {
-            background: #1a110a;
-            padding: 15px;
-            text-align: center;
-            font-size: 0.8rem;
-            border-top: 1px solid var(--gold);
+            background: #1a110a; padding: 15px; text-align: center;
+            font-size: 0.8rem; border-top: 1px solid var(--gold);
             opacity: 0.6;
         }
     </style>
@@ -140,9 +130,15 @@
                 <p>Nuovo Eroe</p>
             </a>
             
-            <a href="#" class="card" onclick="alert('Consultando gli annali...')">
+            <a href="archivio-pg.html" class="card">
                 <span>👥</span>
                 <p>Archivio PG</p>
+            </a>
+
+            <a href="campagne.html" class="card">
+                <div id="master-badge" class="role-badge">MASTER</div>
+                <span>🏰</span>
+                <p>Campagne</p>
             </a>
 
             <a href="drakonia-rules-database.html" class="card">
@@ -155,7 +151,6 @@
     <footer>&copy; 2026 Drakonia Companion - Portale dell'Avventuriero</footer>
 
     <script>
-        // Configurazione Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
             authDomain: "drakonia-companion.firebaseapp.com",
@@ -166,21 +161,17 @@
             measurementId: "G-GE42YKVX9G"
         };
 
-        // Inizializzazione sicura
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Monitoraggio dello stato dell'eroe
         auth.onAuthStateChanged(user => {
             const welcomeText = document.getElementById('welcome-text');
             const avatarImg = document.getElementById('user-avatar');
+            const masterBadge = document.getElementById('master-badge');
 
             if (user) {
-                // Ascolta i cambiamenti nel Codex (Firestore)
                 db.collection("users").doc(user.uid).onSnapshot((doc) => {
                     let name = user.displayName || "Eroe";
                     let photo = user.photoURL || "https://img.icons8.com/color/96/fantasy.png";
@@ -189,6 +180,11 @@
                         const data = doc.data();
                         name = data.username || name;
                         photo = data.avatar || photo;
+                        
+                        // Mostra badge se Master o Founder
+                        if (data.role === "Master" || data.role === "Founder") {
+                            masterBadge.style.display = "block";
+                        }
                     }
                     
                     welcomeText.innerText = "Bentornato, " + name;
@@ -197,16 +193,12 @@
             } else {
                 welcomeText.innerText = "Benvenuto, Viandante. Accedi per continuare.";
                 avatarImg.src = "https://img.icons8.com/ios-filled/50/b8860b/user-shield.png";
+                masterBadge.style.display = "none";
             }
         });
 
-        // Navigazione intelligente dell'Avatar
         function handleProfileClick() {
-            if (auth.currentUser) {
-                window.location.href = 'profile.html';
-            } else {
-                window.location.href = 'login.html';
-            }
+            window.location.href = auth.currentUser ? 'profile.html' : 'login.html';
         }
     </script>
 </body>
