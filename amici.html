@@ -96,7 +96,7 @@
         try {
             const doc = await db.collection("users").doc(user.uid).get();
             if (doc.exists) {
-                const code = doc.data().myCode || "Non generato";
+                const code = doc.data().friendCode || "Non generato";
                 document.getElementById('my-display-code').innerText = "Il tuo codice: " + code;
             }
         } catch (e) { console.error("Errore caricamento codice:", e); }
@@ -118,7 +118,7 @@
 
         try {
             // Cerchiamo l'utente con quel codice
-            const userSnap = await db.collection("users").where("myCode", "==", code).get();
+            const userSnap = await db.collection("users").where("friendCode", "==", code).get();
 
             if (userSnap.empty) {
                 alert("Codice errato o inesistente negli Annali!");
