@@ -15,68 +15,68 @@
         :root { --gold: #b8860b; --leather: #2c1e11; --parchment: #f4e4bc; --blood: #8b0000; }
         body { 
             background: #120d08 url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
-            color: var(--leather); font-family: 'Almendra', serif; margin: 0; padding: 20px;
+            color: var(--leather); font-family: 'Almendra', serif; margin: 0; padding: 10px;
             display: flex; justify-content: center;
         }
         .sheet-container {
             background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-            width: 100%; max-width: 900px; padding: 40px;
-            border: 20px solid transparent;
+            width: 100%; max-width: 800px; padding: 25px;
+            border: 15px solid transparent;
             border-image: url('https://www.transparenttextures.com/patterns/dark-leather.png') 30 stretch;
-            box-shadow: 0 0 50px black; position: relative;
+            box-shadow: 0 0 50px black; position: relative; box-sizing: border-box;
         }
         .btn-back {
             position: absolute; top: 10px; left: 10px;
             background: var(--leather); color: var(--gold); border: 1px solid var(--gold);
-            padding: 5px 15px; cursor: pointer; font-family: 'Grenze Gotisch'; text-decoration: none;
+            padding: 5px 15px; cursor: pointer; font-family: 'Grenze Gotisch'; text-decoration: none; font-size: 0.8rem;
         }
-        h1, h2 { font-family: 'Grenze Gotisch'; text-align: center; border-bottom: 2px solid var(--leather); margin-top: 10px; }
-        .section { background: rgba(0,0,0,0.05); padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--leather); }
+        h1, h2 { font-family: 'Grenze Gotisch'; text-align: center; border-bottom: 2px solid var(--leather); margin-top: 25px; }
+        .section { background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--leather); }
         
-        label { display: block; font-weight: bold; font-family: 'Grenze Gotisch'; margin-bottom: 5px; color: var(--leather); }
+        label { display: block; font-weight: bold; font-family: 'Grenze Gotisch'; margin-bottom: 5px; color: var(--blood); }
         input, textarea, select { 
             width: 100%; padding: 10px; border: 1px solid var(--leather);
-            background: rgba(255,255,255,0.6); font-family: 'Almendra'; font-size: 1.1rem; box-sizing: border-box;
+            background: rgba(255,255,255,0.7); font-family: 'Almendra'; font-size: 1rem; box-sizing: border-box;
         }
 
         .stat-display-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
-        .stat-box { text-align: center; border: 2px solid var(--leather); padding: 10px; border-radius: 5px; background: rgba(255,255,255,0.3); }
-        .stat-val { font-size: 1.8rem; font-weight: bold; color: var(--blood); }
+        .stat-box { text-align: center; border: 2px solid var(--leather); padding: 5px; border-radius: 5px; background: rgba(255,255,255,0.3); }
+        .stat-val { font-size: 1.5rem; font-weight: bold; color: var(--blood); }
 
         .ability-gain { background: var(--leather); color: var(--gold); padding: 15px; margin-top: 10px; border-radius: 5px; display: none; border: 1px solid var(--gold); }
-        .inventory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .inventory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
         
         #bonus-stat-selector { 
             display: none; background: #fff3cd; padding: 15px; border-radius: 5px; 
-            border: 2px solid var(--gold); margin-top: 15px; animation: flash 1s infinite alternate;
+            border: 2px solid var(--gold); margin-top: 15px; animation: flash 1.5s infinite alternate;
         }
         @keyframes flash { from { box-shadow: 0 0 5px var(--gold); } to { box-shadow: 0 0 15px var(--gold); } }
 
         .btn-update { 
             background: var(--blood); color: white; border: 2px solid var(--gold); 
-            padding: 20px; width: 100%; font-family: 'Grenze Gotisch'; 
-            font-size: 1.8rem; cursor: pointer; margin-top: 20px; 
+            padding: 15px; width: 100%; font-family: 'Grenze Gotisch'; 
+            font-size: 1.5rem; cursor: pointer; margin-top: 10px; transition: 0.3s;
         }
-        .btn-update:hover { background: #a00000; }
+        .btn-update:hover { background: #600000; transform: scale(1.01); }
     </style>
 </head>
 <body>
 
 <div class="sheet-container">
-    <a href="index.html" class="btn-back">⬅ ANNULLA</a>
+    <a href="archivio-pg.html" class="btn-back">⬅ ANNULLA</a>
     
     <h1>AVANZAMENTO DI LIVELLO</h1>
-    <h2 id="char-name">Caricamento Eroe...</h2>
+    <h2 id="char-name">Invocando l'Eroe...</h2>
 
     <div class="section">
-        <label>COSA DESIDERI FARE?</label>
+        <label>RITUALE DI CRESCITA</label>
         <select id="levelup-choice" onchange="updateLevelingUI()">
-            <option value="aumenta">Aumenta livello classe attuale</option>
-            <option value="multiclasse">Multiclasse (Inizia nuova classe)</option>
+            <option value="aumenta">Migliora classe attuale</option>
+            <option value="multiclasse">Intraprendi nuova via (Multiclasse)</option>
         </select>
 
         <div id="ui-aumenta" style="margin-top:15px;">
-            <label>Quale classe vuoi portare al livello successivo?</label>
+            <label>Quale via vuoi seguire?</label>
             <select id="select-class-to-up" onchange="previewAbility()"></select>
         </div>
 
@@ -107,7 +107,7 @@
         </div>
 
         <div id="bonus-stat-selector">
-            <label>⚡ IL LIVELLO CONCEDE UN AUMENTO! Scegli quale Caratteristica aumentare di +1:</label>
+            <label>⚡ DONO DEGLI DEI! Scegli quale Caratteristica aumentare di +1:</label>
             <select id="chosen-stat-bonus">
                 <option value="">-- Seleziona --</option>
                 <option value="prd">Prodezza (PRD)</option>
@@ -119,11 +119,11 @@
     </div>
 
     <div class="section">
-        <label>AGGIORNA LA TUA STORIA (Nuove gesta...)</label>
-        <textarea id="edit-storia" rows="4"></textarea>
+        <label>AGGIORNA LA STORIA</label>
+        <textarea id="edit-storia" rows="3" placeholder="Scrivi qui le tue recenti gesta..."></textarea>
         
-        <label style="margin-top:15px;">EQUIPAGGIAMENTO PRINCIPALE</label>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+        <label style="margin-top:15px;">EQUIPAGGIAMENTO</label>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
             <input type="text" id="edit-arma" placeholder="Arma">
             <input type="text" id="edit-armatura" placeholder="Armatura">
             <input type="text" id="edit-anello" placeholder="Anello">
@@ -132,15 +132,14 @@
         <label style="margin-top:15px;">ZAINO (9 SLOT)</label>
         <div class="inventory-grid" id="inventory-inputs"></div>
 
-        <label style="margin-top:15px;">ABILITÀ E INCANTESIMI (Aggiungi i nuovi ottenuti)</label>
-        <textarea id="edit-incantesimi" rows="3"></textarea>
+        <label style="margin-top:15px;">POTERI E CONOSCENZE</label>
+        <textarea id="edit-incantesimi" rows="3" placeholder="Aggiungi i nuovi poteri ottenuti..."></textarea>
     </div>
 
-    <button class="btn-update" onclick="salvaAvanzamento()">INCIDI I PROGRESSI NEGLI ANNALI</button>
+    <button class="btn-update" onclick="salvaAvanzamento()">INCIDI I PROGRESSI</button>
 </div>
 
 <script>
-    // Inserisci qui la tua Configurazione Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
         authDomain: "drakonia-companion.firebaseapp.com",
@@ -156,7 +155,6 @@
     let charData = null;
     let canGainStat = false;
 
-    // Database Abilità (Tratte dai tuoi manuali)
     const classAbilities = {
         "Guerriero": ["", "Casta dei Guerrieri", "Armature Pesanti", "Minaccioso", "Aumento Caratteristica / Tecnica Scudo", "Lasciapassare / Ambidestro 1", "Veterano / Ambidestro 2", "Aumento Caratteristica / Addestramento Marziale", "Aumento Caratteristica", "Aumento Caratteristica / Ambidestro 3"],
         "Truffatore": ["", "Furbizia Lesta", "Tecnica dell'Arco", "Virtuoso", "Aggancio / Tecnica del Pugnale", "Aumento Caratteristica / Velocità di Pensiero 1", "Aumento Caratteristica / Intrallazzo", "Aumento Caratteristica / Velocità di Pensiero 2", "Aumento Caratteristica / Velocità di Pensiero 3", "Aumento Caratteristica"],
@@ -166,47 +164,51 @@
     };
 
     window.onload = async () => {
-        if(!charId) return alert("Errore: Nessun ID personaggio!");
+        if(!charId) { alert("Nessun eroe selezionato!"); window.location.href="archivio-pg.html"; return; }
 
-        // Crea slot zaino
         const invContainer = document.getElementById('inventory-inputs');
         for(let i=0; i<9; i++) invContainer.innerHTML += `<input type="text" id="inv-${i}" placeholder="Slot ${i+1}">`;
 
-        // Carica Eroe
-        const doc = await db.collection("characters").doc(charId).get();
-        if(!doc.exists) return alert("Eroe non trovato!");
-        charData = doc.data();
-        
-        initFields();
+        try {
+            const doc = await db.collection("characters").doc(charId).get();
+            if(!doc.exists) { alert("Eroe svanito nel nulla!"); return; }
+            charData = doc.data();
+            initFields();
+        } catch(e) { console.error(e); }
     };
 
     function initFields() {
-        document.getElementById('char-name').innerText = charData.nome;
+        document.getElementById('char-name').innerText = charData.nome || "Senza Nome";
         document.getElementById('edit-storia').value = charData.storia || "";
-        document.getElementById('edit-arma').value = charData.inventario.arma;
-        document.getElementById('edit-armatura').value = charData.inventario.armatura;
-        document.getElementById('edit-anello').value = charData.inventario.anello;
-        document.getElementById('edit-incantesimi').value = charData.inventario.incantesimi;
+        
+        const inv = charData.inventario || {};
+        document.getElementById('edit-arma').value = inv.arma || "";
+        document.getElementById('edit-armatura').value = inv.armatura || "";
+        document.getElementById('edit-anello').value = inv.anello || "";
+        document.getElementById('edit-incantesimi').value = inv.incantesimi || "";
 
-        // Stats Visualizzate
-        document.getElementById('val-prd').innerText = charData.stats.prd;
-        document.getElementById('val-int').innerText = charData.stats.int;
-        document.getElementById('val-rpd').innerText = charData.stats.rpd;
-        document.getElementById('val-pr').innerText = charData.stats.pr;
+        const sts = charData.stats || {prd:0, int:0, rpd:0, pr:0};
+        document.getElementById('val-prd').innerText = sts.prd || 0;
+        document.getElementById('val-int').innerText = sts.int || 0;
+        document.getElementById('val-rpd').innerText = sts.rpd || 0;
+        document.getElementById('val-pr').innerText = sts.pr || 0;
 
-        // Zaino
-        charData.inventario.zaino.forEach((item, i) => {
-            if(document.getElementById(`inv-${i}`)) document.getElementById(`inv-${i}`).value = item;
-        });
+        if(inv.zaino) {
+            inv.zaino.forEach((item, i) => {
+                if(i < 9) document.getElementById(`inv-${i}`).value = item || "";
+            });
+        }
 
-        // Prepariamo le classi
-        let currentClasses = (typeof charData.classe === 'string') ? {[charData.classe]: parseInt(charData.livello)} : charData.classe;
-        charData.classiMappa = currentClasses;
+        let map = {};
+        if(typeof charData.classe === 'object') map = charData.classe;
+        else map[charData.classe || "Viandante"] = parseInt(charData.livello) || 1;
+        
+        charData.classiMappa = map;
 
         const selectUp = document.getElementById('select-class-to-up');
-        selectUp.innerHTML = '<option value="">-- Scegli quale migliorare --</option>';
-        for(let c in currentClasses) {
-            selectUp.innerHTML += `<option value="${c}">${c} (Liv. attuale ${currentClasses[c]})</option>`;
+        selectUp.innerHTML = '<option value="">-- Scegli la classe --</option>';
+        for(let c in map) {
+            selectUp.innerHTML += `<option value="${c}">${c} (Liv. ${map[c]})</option>`;
         }
     }
 
@@ -219,85 +221,74 @@
 
     function previewAbility() {
         const mode = document.getElementById('levelup-choice').value;
-        let targetClass = (mode === 'aumenta') ? document.getElementById('select-class-to-up').value : document.getElementById('select-new-class').value;
+        let target = (mode === 'aumenta') ? document.getElementById('select-class-to-up').value : document.getElementById('select-new-class').value;
         
-        if(!targetClass) {
+        if(!target) {
             document.getElementById('ability-preview').style.display = 'none';
             document.getElementById('bonus-stat-selector').style.display = 'none';
             return;
         }
 
-        let nextLvl = (mode === 'aumenta') ? charData.classiMappa[targetClass] + 1 : 1;
+        let nxt = (mode === 'aumenta') ? (charData.classiMappa[target] || 0) + 1 : 1;
+        let txt = (classAbilities[target] && classAbilities[target][nxt]) ? classAbilities[target][nxt] : "Avanzamento generico Liv. " + nxt;
         
-        const ability = (classAbilities[targetClass] && classAbilities[targetClass][nextLvl]) ? classAbilities[targetClass][nextLvl] : "Abilità generica di livello " + nextLvl;
-        
-        document.getElementById('ability-text').innerText = ability;
+        document.getElementById('ability-text').innerText = txt;
         document.getElementById('ability-preview').style.display = 'block';
 
-        // Controllo automatico aumento caratteristica
-        if(ability.includes("Aumento Caratteristica")) {
-            document.getElementById('bonus-stat-selector').style.display = 'block';
-            canGainStat = true;
-        } else {
-            document.getElementById('bonus-stat-selector').style.display = 'none';
-            canGainStat = false;
-        }
+        canGainStat = txt.includes("Aumento Caratteristica");
+        document.getElementById('bonus-stat-selector').style.display = canGainStat ? 'block' : 'none';
     }
 
     async function salvaAvanzamento() {
+        console.log("Inizio salvataggio...");
         const mode = document.getElementById('levelup-choice').value;
-        const bonusStat = document.getElementById('chosen-stat-bonus').value;
+        const bonus = document.getElementById('chosen-stat-bonus').value;
 
-        if(canGainStat && !bonusStat) return alert("Scegli quale caratteristica aumentare!");
+        if(canGainStat && !bonus) { alert("Devi scegliere quale Caratteristica aumentare!"); return; }
 
-        let nuoveClassi = {...charData.classiMappa};
-        let lvTot = parseInt(charData.livello);
+        let nMap = {...charData.classiMappa};
+        let tLvl = parseInt(charData.livello) || 1;
 
         if(mode === 'aumenta') {
             const c = document.getElementById('select-class-to-up').value;
-            if(!c) return alert("Seleziona la classe!");
-            if(nuoveClassi[c] >= 9) return alert("Classe al massimo!");
-            nuoveClassi[c]++;
+            if(!c) { alert("Seleziona una classe!"); return; }
+            nMap[c]++;
         } else {
             const c = document.getElementById('select-new-class').value;
-            if(!c) return alert("Seleziona la nuova classe!");
-            if(nuoveClassi[c]) return alert("Possiedi già questa classe!");
-            nuoveClassi[c] = 1;
+            if(!c) { alert("Seleziona la nuova classe!"); return; }
+            if(nMap[c]) { alert("Possiedi già questa via!"); return; }
+            nMap[c] = 1;
         }
-        lvTot++;
+        tLvl++;
 
-        // Applica bonus stat
-        let statsFinali = {...charData.stats};
-        if(canGainStat && bonusStat) {
-            statsFinali[bonusStat] = (parseInt(statsFinali[bonusStat]) || 0) + 1;
-        }
+        let nStats = {...charData.stats};
+        if(canGainStat && bonus) nStats[bonus] = (parseInt(nStats[bonus]) || 0) + 1;
 
-        // Rango
-        const rangoTab = {1:"Alle Prime Armi", 2:"Principiante", 3:"Esperto", 4:"Navigato", 5:"Provetto", 6:"Veterano", 7:"Straordinario", 8:"Leggendario", 9:"Epico"};
-        const nuovoRango = rangoTab[lvTot] || "Leggenda";
+        const rTab = {1:"Alle Prime Armi", 2:"Principiante", 3:"Esperto", 4:"Navigato", 5:"Provetto", 6:"Veterano", 7:"Straordinario", 8:"Leggendario", 9:"Epico"};
 
-        const updatePayload = {
-            livello: lvTot,
-            rango: nuovoRango,
-            classe: nuoveClassi,
+        const payload = {
+            livello: tLvl,
+            rango: rTab[tLvl] || "Leggenda",
+            classe: nMap,
             storia: document.getElementById('edit-storia').value,
-            stats: statsFinali,
+            stats: nStats,
             inventario: {
                 arma: document.getElementById('edit-arma').value,
                 armatura: document.getElementById('edit-armatura').value,
                 anello: document.getElementById('edit-anello').value,
                 incantesimi: document.getElementById('edit-incantesimi').value,
                 zaino: Array.from({length:9}, (_,i) => document.getElementById(`inv-${i}`).value),
-                oro: charData.inventario.oro
+                oro: charData.inventario.oro || 0
             }
         };
 
         try {
-            await db.collection("characters").doc(charId).update(updatePayload);
-            alert("✨ L'EROE È ASCESO! I progressi sono stati scritti.");
-            window.location.href = "index.html";
+            await db.collection("characters").doc(charId).update(payload);
+            alert("✨ L'EROE È ASCESO!");
+            window.location.href = "archivio-pg.html";
         } catch(e) {
-            alert("Errore del destino: " + e.message);
+            console.error(e);
+            alert("Errore dei Tomi: " + e.message);
         }
     }
 </script>
