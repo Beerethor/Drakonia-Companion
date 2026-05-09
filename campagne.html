@@ -3,49 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drakonia - Gestione Campagne</title>
-    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
+    <title>Drakonia - Cronache delle Campagne</title>
+    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --gold: #b8860b; --leather: #2c1e11; --parchment: #f4e4bc; --blood: #8b0000; }
-        body { background: #120d08 url('https://www.transparenttextures.com/patterns/dark-leather.png'); color: var(--leather); font-family: 'Almendra', serif; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; background: var(--parchment); padding: 30px; border: 15px solid transparent; border-image: url('https://www.transparenttextures.com/patterns/dark-leather.png') 30 stretch; }
-        h1, h2 { font-family: 'Grenze Gotisch'; text-align: center; border-bottom: 2px solid var(--leather); }
-        .form-creazione { background: rgba(0,0,0,0.05); padding: 20px; border: 2px solid var(--leather); border-radius: 10px; margin-bottom: 30px; }
-        input, textarea { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid var(--leather); background: rgba(255,255,255,0.5); font-family: 'Almendra'; }
-        .btn { background: var(--leather); color: var(--gold); padding: 10px 20px; border: 1px solid var(--gold); cursor: pointer; font-family: 'Grenze Gotisch'; }
-        .btn:disabled { background: #666; cursor: not-allowed; }
-        .campagna-card { border: 2px double var(--leather); padding: 20px; margin-bottom: 20px; border-radius: 8px; position: relative; }
-        .aggiornamenti { background: #fff; padding: 10px; border-left: 4px solid var(--blood); margin-top: 10px; font-style: italic; }
-        .lista-giocatori { margin-top: 10px; font-size: 0.9rem; }
-        .kick-btn { color: var(--blood); cursor: pointer; font-weight: bold; margin-left: 10px; }
+        :root { --gold: #b8860b; --leather: #2c1e11; --parchment: #f4e4bc; --blood: #8b0000; --ink: #1a110a; }
+        
+        body { 
+            background: #120d08 url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
+            color: var(--ink); font-family: 'Almendra', serif; margin: 0; padding: 20px;
+        }
+
+        /* Top Bar */
+        .nav-header {
+            max-width: 1000px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .btn-nav {
+            background: var(--leather); color: var(--gold); border: 1px solid var(--gold);
+            padding: 10px 15px; cursor: pointer; font-family: 'Grenze Gotisch'; text-decoration: none;
+            transition: 0.3s; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-nav:hover { background: var(--blood); color: white; }
+
+        .container { 
+            max-width: 1000px; margin: 0 auto; background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            padding: 30px; border: 10px solid transparent; border-image: url('https://www.transparenttextures.com/patterns/dark-leather.png') 30 stretch;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); min-height: 80vh;
+        }
+
+        h1 { font-family: 'Grenze Gotisch'; text-align: center; font-size: 3rem; color: var(--leather); margin: 0 0 20px 0; border-bottom: 2px double var(--leather); }
+
+        /* Griglia Campagne */
+        .campagne-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+
+        .campagna-card {
+            background: rgba(255,255,255,0.4); border: 1px solid rgba(0,0,0,0.1); padding: 20px;
+            border-radius: 5px; position: relative; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; transition: 0.3s;
+        }
+        .campagna-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); background: #fff; }
+
+        .campagna-card h3 { font-family: 'Grenze Gotisch'; margin: 0 0 10px 0; color: var(--blood); border-bottom: 1px solid var(--leather); }
+
+        .aggiornamenti-box { 
+            background: #e9dcc0; padding: 10px; border-radius: 4px; font-size: 0.9rem; 
+            margin: 10px 0; border-left: 3px solid var(--blood); font-style: italic;
+        }
+
+        .stat-line { display: flex; justify-content: space-between; font-weight: bold; margin: 5px 0; font-size: 0.85rem; }
+
+        /* Modal Popup */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: var(--parchment); margin: 10% auto; padding: 30px; width: 90%; max-width: 500px;
+            border: 5px solid var(--leather); position: relative; box-shadow: 0 0 50px var(--gold);
+        }
+        .close-modal { position: absolute; right: 15px; top: 10px; font-size: 1.5rem; cursor: pointer; color: var(--blood); }
+
+        input, textarea { 
+            width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--leather); 
+            background: rgba(255,255,255,0.7); font-family: 'Almendra'; box-sizing: border-box;
+        }
+
+        .btn-action { 
+            background: var(--leather); color: var(--gold); padding: 10px 15px; border: 1px solid var(--gold);
+            cursor: pointer; font-family: 'Grenze Gotisch'; width: 100%; font-size: 1.1rem;
+        }
+
+        .badge-full { color: var(--blood); font-weight: bold; text-align: center; display: block; margin-top: 10px; }
+        
+        .kick-btn { color: var(--blood); cursor: pointer; font-size: 0.7rem; text-transform: uppercase; margin-left: 5px; }
     </style>
 </head>
 <body>
 
+<div class="nav-header">
+    <a href="index.html" class="btn-nav">🏰 TORNA AL PORTALE</a>
+    <button id="btn-nuova-campagna" class="btn-nav" style="display: none;" onclick="toggleModal(true)">📜 NUOVA CAMPAGNA</button>
+</div>
+
 <div class="container">
-    <h1>CRONACHE DI DRAKONIA</h1>
+    <h1>Cronache di Drakonia</h1>
+    
+    <div id="loader" style="text-align: center; font-family: 'MedievalSharp';">Interrogando le stelle...</div>
+    <div class="campagne-grid" id="campagne-list"></div>
+</div>
 
-    <div id="master-area" style="display: none;">
-        <h2>PUBBLICA NUOVA CAMPAGNA</h2>
-        <div class="form-creazione">
-            <input type="text" id="titolo" placeholder="Titolo della Campagna">
-            <textarea id="descrizione" placeholder="Breve descrizione della trama..."></textarea>
-            <input type="number" id="max-giocatori" placeholder="Numero Max Giocatori (es. 5)">
-            <button class="btn" onclick="creaCampagna()">📜 PROCLAMA CAMPAGNA</button>
-        </div>
+<div id="modalCampagna" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="toggleModal(false)">&times;</span>
+        <h2 style="font-family: 'Grenze Gotisch'; text-align: center;">Proclama una Campagna</h2>
+        <input type="text" id="titolo" placeholder="Titolo della Leggenda">
+        <textarea id="descrizione" rows="4" placeholder="Di cosa narra questa cronaca?"></textarea>
+        <input type="number" id="max-giocatori" placeholder="Numero massimo di eroi (es. 5)">
+        <button class="btn-action" onclick="creaCampagna()">INCIDI NEL CODEX</button>
     </div>
-
-    <h2>CAMPAGNE ATTIVE</h2>
-    <div id="campagne-list"></div>
 </div>
 
 <script>
-    // Inserire qui la tua configurazione Firebase esistente
+    // Configurazione Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
         authDomain: "drakonia-companion.firebaseapp.com",
@@ -64,33 +128,48 @@
         if (user) {
             const userDoc = await db.collection("users").doc(user.uid).get();
             currentUserData = userDoc.data();
+            // Mostra tasto creazione solo a Master o Founder
             if (currentUserData.role === "Master" || currentUserData.role === "Founder") {
-                document.getElementById('master-area').style.display = 'block';
+                document.getElementById('btn-nuova-campagna').style.display = 'flex';
             }
             caricaCampagne();
         } else { window.location.href = 'login.html'; }
     });
 
+    function toggleModal(show) {
+        document.getElementById('modalCampagna').style.display = show ? 'block' : 'none';
+    }
+
     async function creaCampagna() {
+        const titolo = document.getElementById('titolo').value;
+        const max = parseInt(document.getElementById('max-giocatori').value);
+        if(!titolo || !max) return alert("Compila i campi essenziali!");
+
         const campagna = {
-            titolo: document.getElementById('titolo').value,
+            titolo: titolo,
             descrizione: document.getElementById('descrizione').value,
-            maxGiocatori: parseInt(document.getElementById('max-giocatori').value),
+            maxGiocatori: max,
             masterId: auth.currentUser.uid,
-            masterNome: currentUserData.username,
-            giocatori: [], // Lista ID utenti iscritti
-            giocatoriNomi: [], // Lista nomi per visualizzazione
-            tramaAggiornamenti: "La storia ha inizio...",
+            masterNome: currentUserData.username || "Anonimo",
+            giocatori: [],
+            giocatoriNomi: [],
+            tramaAggiornamenti: "Il primo capitolo deve ancora essere scritto...",
             dataCreazione: firebase.firestore.FieldValue.serverTimestamp()
         };
-        await db.collection("campagne").add(campagna);
-        location.reload();
+
+        try {
+            await db.collection("campagne").add(campagna);
+            toggleModal(false);
+            alert("Campagna proclamata con successo!");
+        } catch(e) { alert("Errore: " + e.message); }
     }
 
     function caricaCampagne() {
         db.collection("campagne").orderBy("dataCreazione", "desc").onSnapshot(snapshot => {
             const list = document.getElementById('campagne-list');
+            document.getElementById('loader').style.display = 'none';
             list.innerHTML = "";
+            
             snapshot.forEach(doc => {
                 const c = doc.data();
                 const isFull = c.giocatori.length >= c.maxGiocatori;
@@ -99,22 +178,28 @@
 
                 let card = `
                     <div class="campagna-card">
-                        <h3>${c.titolo} (Master: ${c.masterNome})</h3>
-                        <p>${c.descrizione}</p>
-                        <div class="aggiornamenti"><strong>Ultimo Aggiornamento Trama:</strong><br>${c.tramaAggiornamenti}</div>
-                        <p><strong>Eroi Arruolati:</strong> ${c.giocatori.length} / ${c.maxGiocatori}</p>
+                        <h3>${c.titolo}</h3>
+                        <p style="font-size:0.9rem; flex-grow:1;">${c.descrizione}</p>
                         
-                        <div class="lista-giocatori">
-                            ${c.giocatoriNomi.map((nome, i) => `
-                                <span>• ${nome} ${isOwner ? `<span class="kick-btn" onclick="kickPlayer('${doc.id}', '${c.giocatori[i]}', '${nome}')">[CACCIALO]</span>` : ""}</span>
-                            `).join("<br>")}
+                        <div class="aggiornamenti-box">
+                            <strong>Diario del Master:</strong><br>${c.tramaAggiornamenti}
                         </div>
 
-                        <div style="margin-top:15px;">
-                            ${!isJoined && !isFull && !isOwner ? `<button class="btn" onclick="iscriviti('${doc.id}')">🛡️ ISCRIVITI</button>` : ""}
-                            ${isFull && !isJoined ? "<span>[CAMPAGNA PIENA]</span>" : ""}
-                            ${isOwner ? `<button class="btn" style="background:var(--blood)" onclick="aggiornaTrama('${doc.id}')">✍️ AGGIORNA TRAMA</button>` : ""}
+                        <div class="stat-line">
+                            <span>Master: ${c.masterNome}</span>
+                            <span>Eroi: ${c.giocatori.length}/${c.maxGiocatori}</span>
                         </div>
+
+                        <div style="font-size:0.8rem; margin: 10px 0; border-top: 1px solid rgba(0,0,0,0.1); padding-top:5px;">
+                            ${c.giocatoriNomi.map((n, i) => `
+                                <span>• ${n} ${isOwner ? `<span class="kick-btn" onclick="kickPlayer('${doc.id}', '${c.giocatori[i]}', '${n}')">[Espelli]</span>` : ""}</span>
+                            `).join(" ")}
+                        </div>
+
+                        ${isOwner ? `<button class="btn-action" onclick="aggiornaTrama('${doc.id}')">✍️ AGGIORNA DIARIO</button>` : ""}
+                        ${!isJoined && !isFull && !isOwner ? `<button class="btn-action" style="margin-top:5px;" onclick="iscriviti('${doc.id}')">🛡️ UNISCITI</button>` : ""}
+                        ${isFull && !isJoined ? `<span class="badge-full">Locanda Piena</span>` : ""}
+                        ${isJoined && !isOwner ? `<span class="badge-full" style="color:green">Sei arruolato</span>` : ""}
                     </div>
                 `;
                 list.innerHTML += card;
@@ -123,26 +208,22 @@
     }
 
     async function iscriviti(id) {
-        const ref = db.collection("campagne").doc(id);
-        await ref.update({
+        await db.collection("campagne").doc(id).update({
             giocatori: firebase.firestore.FieldValue.arrayUnion(auth.currentUser.uid),
             giocatoriNomi: firebase.firestore.FieldValue.arrayUnion(currentUserData.username)
         });
     }
 
     async function aggiornaTrama(id) {
-        const nuovaTrama = prompt("Inserisci i nuovi sviluppi della storia:");
-        if (nuovaTrama) {
-            await db.collection("campagne").doc(id).update({ tramaAggiornamenti: nuovaTrama });
-        }
+        const nuova = prompt("Quali nuovi pericoli attendono gli eroi?");
+        if (nuova) await db.collection("campagne").doc(id).update({ tramaAggiornamenti: nuova });
     }
 
-    async function kickPlayer(campagnaId, playerUid, playerNome) {
-        if (confirm(`Vuoi davvero cacciare ${playerNome} dalla campagna?`)) {
-            const ref = db.collection("campagne").doc(campagnaId);
-            await ref.update({
-                giocatori: firebase.firestore.FieldValue.arrayRemove(playerUid),
-                giocatoriNomi: firebase.firestore.FieldValue.arrayRemove(playerNome)
+    async function kickPlayer(campId, pUid, pNome) {
+        if (confirm(`Rimuovere ${pNome} dalla spedizione?`)) {
+            await db.collection("campagne").doc(campId).update({
+                giocatori: firebase.firestore.FieldValue.arrayRemove(pUid),
+                giocatoriNomi: firebase.firestore.FieldValue.arrayRemove(pNome)
             });
         }
     }
