@@ -11,7 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; --glass: rgba(26, 18, 11, 0.95); }
+        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; --glass: rgba(26, 18, 11, 0.95); --blood: #8b0000; }
         body { 
             background: #120d08 url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
             color: var(--parchment); font-family: 'Almendra', serif; margin: 0; padding: 15px;
@@ -33,7 +33,15 @@
             background: var(--leather); overflow: hidden;
         }
         .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
-        .hero-name { font-family: 'Grenze Gotisch'; font-size: 2.5rem; color: var(--gold); margin: 10px 0; }
+        .hero-name { font-family: 'Grenze Gotisch'; font-size: 2.5rem; color: var(--gold); margin: 10px 0 5px 0; }
+        
+        /* Grado Label */
+        .rank-label {
+            display: inline-block; background: var(--gold); color: var(--leather);
+            padding: 2px 15px; font-family: 'Grenze Gotisch'; font-weight: bold;
+            border-radius: 5px; margin-bottom: 15px; letter-spacing: 1px;
+        }
+
         .friends-section {
             width: 100%; max-width: 400px; margin-top: 30px;
             background: rgba(0,0,0,0.4); padding: 20px; border-radius: 10px;
@@ -42,8 +50,13 @@
         .btn-fantasy {
             background: var(--leather); color: var(--gold); border: 1px solid var(--gold);
             padding: 12px; width: 100%; font-family: 'Grenze Gotisch'; cursor: pointer; 
-            margin-top: 10px; font-size: 1.2rem;
+            margin-top: 10px; font-size: 1.2rem; transition: 0.3s;
         }
+        .btn-fantasy:hover { background: var(--gold); color: var(--leather); }
+        
+        /* Tasto Diventa Master */
+        .btn-master { background: var(--blood); color: white; border: 1px solid white; margin-top: 15px; }
+
         #settings-panel {
             display: none; background: var(--parchment); color: var(--leather);
             padding: 20px; border: 5px double var(--leather); margin-top: 15px; width: 100%; max-width: 400px;
@@ -67,8 +80,12 @@
     <div class="hero-card">
         <div class="avatar-frame"><img id="display-avatar" src="https://img.icons8.com/color/96/fantasy.png"></div>
         <h2 id="display-name" class="hero-name">In attesa...</h2>
+        <div id="display-rank" class="rank-label">CARICAMENTO...</div>
         <p>Codice Eroe: <span id="display-code" style="color:var(--gold); font-weight:bold;"></span></p>
+        
         <button class="btn-fantasy" onclick="toggleSettings()">⚙️ GESTISCI PROFILO</button>
+        
+        <button id="master-promotion-btn" class="btn-fantasy btn-master" style="display: none;" onclick="becomeMaster()">📜 DIVENTA MASTER</button>
     </div>
 
     <div id="settings-panel">
@@ -103,18 +120,16 @@
 
         let currentUserData = null;
 
-        // Monitoraggio stato Login e caricamento dati Firestore
         auth.onAuthStateChanged(user => {
             if (user) {
-                // Ascolta i cambiamenti in tempo reale sul documento dell'utente
                 db.collection("users").doc(user.uid).onSnapshot((doc) => {
                     if (doc.exists) {
                         currentUserData = doc.data();
                     } else {
-                        // Se il documento non esiste, creiamone uno base
                         currentUserData = {
                             username: user.displayName || "Nuovo Eroe",
                             avatar: user.photoURL || "",
+                            role: "Giocatore", // Ruolo predefinito
                             friendCode: "DRK-" + user.uid.substring(0,5).toUpperCase(),
                             friends: []
                         };
@@ -131,7 +146,17 @@
             if(!currentUserData) return;
             document.getElementById('display-name').innerText = currentUserData.username;
             document.getElementById('display-code').innerText = currentUserData.friendCode;
+            document.getElementById('display-rank').innerText = currentUserData.role.toUpperCase();
             document.getElementById('display-avatar').src = currentUserData.avatar || "https://img.icons8.com/color/96/fantasy.png";
+            
+            // Logica tasto Master
+            const masterBtn = document.getElementById('master-promotion-btn');
+            if(currentUserData.role === "Giocatore") {
+                masterBtn.style.display = "block";
+            } else {
+                masterBtn.style.display = "none";
+            }
+
             document.getElementById('edit-name').value = currentUserData.username;
             document.getElementById('edit-url').value = currentUserData.avatar;
             
@@ -147,6 +172,17 @@
                 });
             } else {
                 list.innerHTML = "<p style='font-style:italic; opacity:0.5;'>Nessun compagno...</p>";
+            }
+        }
+
+        async function becomeMaster() {
+            if(confirm("Vuoi davvero abbandonare la vita da semplice avventuriero per guidare il destino di Drakonia come Master?")) {
+                try {
+                    await db.collection("users").doc(auth.currentUser.uid).update({
+                        role: "Master"
+                    });
+                    alert("Congratulazioni, Master. Il potere della narrazione è ora nelle tue mani.");
+                } catch(e) { alert("Errore: " + e.message); }
             }
         }
 
