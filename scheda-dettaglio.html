@@ -20,7 +20,6 @@
             color: var(--leather); font-family: 'Almendra', serif; margin: 0; padding: 20px;
         }
 
-        /* Controlli fuori dalla pergamena */
         .nav-controls {
             max-width: 800px; margin: 0 auto 20px; display: flex; justify-content: space-between;
         }
@@ -32,7 +31,6 @@
         }
         .btn:hover { background: var(--blood); color: white; }
 
-        /* La Scheda (Area di stampa) */
         #sheet-to-print {
             background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
             width: 100%; max-width: 800px; margin: 0 auto; padding: 40px;
@@ -43,27 +41,17 @@
         }
 
         h1 { font-family: 'Grenze Gotisch'; text-align: center; font-size: 3rem; margin: 0 0 10px; border-bottom: 2px solid var(--leather); }
-        
         .header-info { display: grid; grid-template-columns: 1fr 150px; gap: 20px; margin-bottom: 20px; }
-        
-        .portrait { 
-            width: 150px; height: 180px; border: 4px double var(--leather); 
-            object-fit: cover; background: rgba(0,0,0,0.1); 
-        }
-
+        .portrait { width: 150px; height: 180px; border: 4px double var(--leather); object-fit: cover; background: rgba(0,0,0,0.1); }
         .info-row { font-size: 1.2rem; margin-bottom: 5px; border-bottom: 1px dashed rgba(0,0,0,0.2); }
         .info-label { font-family: 'Grenze Gotisch'; color: var(--blood); margin-right: 10px; }
 
-        .stats-grid { 
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; 
-            margin: 20px 0; text-align: center; 
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; text-align: center; }
         .stat-box { border: 2px solid var(--leather); border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.03); }
         .stat-val { font-size: 1.8rem; font-weight: bold; display: block; color: var(--blood); }
         .stat-label { font-size: 0.8rem; font-family: 'Grenze Gotisch'; text-transform: uppercase; }
 
         .section-title { font-family: 'Grenze Gotisch'; font-size: 1.8rem; border-bottom: 1px solid var(--gold); margin: 25px 0 10px; color: var(--blood); }
-
         .content-box { white-space: pre-wrap; line-height: 1.4; font-size: 1.1rem; min-height: 50px; }
 
         .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -71,23 +59,16 @@
         .zaino-list li { border-bottom: 1px solid rgba(0,0,0,0.1); padding: 2px 0; }
 
         #loading-overlay { text-align: center; padding: 100px; font-family: 'Grenze Gotisch'; font-size: 2rem; color: var(--gold); }
-
-        /* Fix per la stampa PDF */
-        @media print {
-            .nav-controls { display: none; }
-            body { background: white; padding: 0; }
-            #sheet-to-print { box-shadow: none; border-width: 10px; }
-        }
     </style>
 </head>
 <body>
 
     <div class="nav-controls">
-        <a href="archivio-pg.html" class="btn">⬅ TORNA ALL'ARCHIVIO</a>
+        <a href="archivio.html" class="btn">⬅ TORNA ALL'ARCHIVIO</a>
         <button class="btn" onclick="scaricaPDF()">📜 SALVA COME PDF</button>
     </div>
 
-    <div id="loading-overlay">Le cronache stanno prendendo forma...</div>
+    <div id="loading-overlay">Interrogando gli Annali di Drakonia...</div>
 
     <div id="sheet-to-print" style="display: none;">
         <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
@@ -123,11 +104,10 @@
         <div class="inv-grid">
             <div>
                 <div class="section-title">Zaino (Slot)</div>
-                <ul class="zaino-list" id="val-zaino">
-                    </ul>
+                <ul class="zaino-list" id="val-zaino"></ul>
             </div>
             <div>
-                <div class="section-title">Incantesimi</div>
+                <div class="section-title">Incantesimi / Poteri</div>
                 <div class="content-box" id="val-incantesimi">...</div>
             </div>
         </div>
@@ -147,88 +127,104 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
-        // 1. Recupera ID dalla URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const characterId = urlParams.get('id');
+        // GESTIONE AUTENTICAZIONE E CARICAMENTO
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                console.log("Utente riconosciuto. Avvio recupero scheda...");
+                caricaScheda();
+            } else {
+                console.warn("Accesso negato: utente non loggato.");
+                window.location.href = 'login.html';
+            }
+        });
 
-        if (!characterId) {
-            alert("Nessun eroe selezionato!");
-            window.location.href = "archivio-pg.html";
-        }
-
-        // 2. Carica dati da Firestore
         async function caricaScheda() {
             try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const characterId = urlParams.get('id');
+
+                if (!characterId) {
+                    alert("Errore: ID Eroe non trovato.");
+                    window.location.href = "archivio.html";
+                    return;
+                }
+
+                // RECUPERO DATI DA FIRESTORE
                 const doc = await db.collection("characters").doc(characterId).get();
+                
                 if (!doc.exists) {
-                    alert("Eroe scomparso nelle nebbie del tempo...");
-                    window.location.href = "archivio-pg.html";
+                    alert("Questo eroe non esiste negli Annali.");
+                    window.location.href = "archivio.html";
                     return;
                 }
 
                 const data = doc.data();
 
-                // Mappatura Dati
-                document.getElementById('val-owner').innerText = data.userName || "Anonimo";
+                // MAPPATURA DEI CAMPI
+                document.getElementById('val-nome').innerText = data.nome || "Eroe Senza Nome";
+                document.getElementById('val-owner').innerText = data.userName || "Ignoto";
                 document.getElementById('val-campagna').innerText = data.campagna || "Nessuna";
-                document.getElementById('val-nome').innerText = data.nome;
-                document.getElementById('val-classe').innerText = data.classe;
-                document.getElementById('val-livello').innerText = data.livello;
-                document.getElementById('val-rango').innerText = data.rango;
-                document.getElementById('val-pe').innerText = data.stats.pe;
+                document.getElementById('val-classe').innerText = data.classe || "Avventuriero";
+                document.getElementById('val-livello').innerText = data.livello || "1";
+                document.getElementById('val-rango').innerText = data.rango || "-";
                 
-                document.getElementById('val-prd').innerText = data.stats.prd;
-                document.getElementById('val-int').innerText = data.stats.int;
-                document.getElementById('val-rpd').innerText = data.stats.rpd;
-                document.getElementById('val-pr').innerText = data.stats.pr;
-
-                document.getElementById('val-arma').innerText = data.inventario.arma || "Mani nude";
-                document.getElementById('val-armatura').innerText = data.inventario.armatura || "Abiti comuni";
-                document.getElementById('val-anello').innerText = data.inventario.anello || "Nessuno";
-                document.getElementById('val-oro').innerText = data.inventario.oro || 0;
-                document.getElementById('val-incantesimi').innerText = data.inventario.incantesimi || "Nessun potere magico.";
-                document.getElementById('val-storia').innerText = data.biografia || data.storia || "Nessuna storia registrata.";
-                
-                if(data.ritratto) document.getElementById('val-ritratto').src = data.ritratto;
-                else document.getElementById('val-ritratto').style.display = 'none';
-
-                // Zaino
-                const zainoUl = document.getElementById('val-zaino');
-                zainoUl.innerHTML = "";
-                if(data.inventario.zaino) {
-                    data.inventario.zaino.forEach(item => {
-                        if(item) zainoUl.innerHTML += `<li>${item}</li>`;
-                    });
+                if(data.stats) {
+                    document.getElementById('val-prd').innerText = data.stats.prd || 0;
+                    document.getElementById('val-int').innerText = data.stats.int || 0;
+                    document.getElementById('val-rpd').innerText = data.stats.rpd || 0;
+                    document.getElementById('val-pr').innerText = data.stats.pr || 0;
+                    document.getElementById('val-pe').innerText = data.stats.pe || 0;
                 }
 
-                // Mostra la scheda e nascondi il loader
+                if(data.inventario) {
+                    document.getElementById('val-arma').innerText = data.inventario.arma || "Mani nude";
+                    document.getElementById('val-armatura').innerText = data.inventario.armatura || "Nessuna";
+                    document.getElementById('val-anello').innerText = data.inventario.anello || "Nessuno";
+                    document.getElementById('val-oro').innerText = data.inventario.oro || 0;
+                    document.getElementById('val-incantesimi').innerText = data.inventario.incantesimi || "Nessun potere arcano.";
+                    
+                    const zainoUl = document.getElementById('val-zaino');
+                    zainoUl.innerHTML = "";
+                    if(data.inventario.zaino) {
+                        data.inventario.zaino.forEach(item => {
+                            if(item) zainoUl.innerHTML += `<li>${item}</li>`;
+                        });
+                    }
+                }
+
+                document.getElementById('val-storia').innerText = data.storia || "Le sue gesta devono ancora essere scritte.";
+                
+                if(data.ritratto) {
+                    document.getElementById('val-ritratto').src = data.ritratto;
+                    document.getElementById('val-ritratto').style.display = 'block';
+                } else {
+                    document.getElementById('val-ritratto').style.display = 'none';
+                }
+
+                // FINE CARICAMENTO
                 document.getElementById('loading-overlay').style.display = 'none';
                 document.getElementById('sheet-to-print').style.display = 'block';
 
-            } catch (e) {
-                console.error(e);
-                alert("Errore nel recupero dati.");
+            } catch (error) {
+                console.error("Errore Firestore:", error);
+                alert("Permessi insufficienti o errore di rete. Controlla le regole di Firebase.");
             }
         }
 
-        // 3. Funzione PDF
         function scaricaPDF() {
             const element = document.getElementById('sheet-to-print');
             const nomeEroe = document.getElementById('val-nome').innerText;
-            
             const opt = {
-                margin: 0.5,
-                filename: `Scheda_${nomeEroe}.pdf`,
+                margin: 0.3,
+                filename: `Drakonia_${nomeEroe}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
-
             html2pdf().set(opt).from(element).save();
         }
-
-        caricaScheda();
     </script>
 </body>
 </html>
