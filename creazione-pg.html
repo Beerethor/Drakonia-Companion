@@ -24,39 +24,42 @@
             color: var(--gold); padding: 8px 15px; font-family: 'Grenze Gotisch';
             cursor: pointer; text-decoration: none; margin-bottom: 20px; transition: 0.3s;
         }
-        .btn-back:hover { background: var(--blood); color: white; }
 
         .container { 
-            max-width: 700px; width: 100%; background: var(--parchment); 
-            padding: 30px; border: 8px solid transparent; 
+            max-width: 850px; width: 100%; background: var(--parchment); 
+            padding: 40px; border: 8px solid transparent; 
             border-image: url('https://www.transparenttextures.com/patterns/dark-leather.png') 30 stretch;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); box-sizing: border-box;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.9); box-sizing: border-box;
         }
 
-        h1 { font-family: 'Grenze Gotisch'; text-align: center; font-size: 2.5rem; color: var(--leather); margin-top: 0; border-bottom: 2px double var(--leather); }
+        h1 { font-family: 'Grenze Gotisch'; text-align: center; font-size: 3rem; color: var(--leather); margin: 0 0 30px 0; border-bottom: 2px double var(--leather); }
+        
+        h2 { font-family: 'Grenze Gotisch'; color: var(--blood); border-bottom: 1px solid var(--gold); margin-top: 30px; }
+
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 20px; }
 
         .form-group { margin-bottom: 20px; }
-        label { display: block; font-family: 'MedievalSharp'; font-weight: bold; margin-bottom: 5px; color: var(--blood); }
+        label { display: block; font-family: 'MedievalSharp'; font-weight: bold; margin-bottom: 5px; color: var(--leather); }
 
         input, select, textarea { 
-            width: 100%; padding: 10px; border: 1px solid var(--leather); 
-            background: rgba(255,255,255,0.5); font-family: 'Almendra'; font-size: 1.1rem;
+            width: 100%; padding: 12px; border: 1px solid var(--leather); 
+            background: rgba(255,255,255,0.6); font-family: 'Almendra'; font-size: 1.1rem;
             box-sizing: border-box;
         }
 
+        .stat-input { text-align: center; font-size: 1.5rem; font-weight: bold; color: var(--blood); }
+
         .manual-box { 
-            margin-top: 10px; padding: 15px; background: rgba(0,0,0,0.05); 
-            border-left: 4px solid var(--gold); display: none; 
+            margin-top: 10px; padding: 15px; background: rgba(184, 134, 11, 0.1); 
+            border: 1px dashed var(--gold); display: none; 
         }
 
         .btn-save { 
-            background: var(--leather); color: var(--gold); padding: 15px; 
+            background: var(--leather); color: var(--gold); padding: 20px; 
             border: 2px solid var(--gold); width: 100%; font-family: 'Grenze Gotisch'; 
-            font-size: 1.5rem; cursor: pointer; transition: 0.3s; margin-top: 20px;
+            font-size: 1.8rem; cursor: pointer; transition: 0.3s; margin-top: 40px;
         }
-        .btn-save:hover { background: var(--blood); color: white; box-shadow: 0 0 15px var(--gold); }
-
-        .helper-text { font-size: 0.85rem; color: #555; font-style: italic; }
+        .btn-save:hover { background: var(--blood); color: white; box-shadow: 0 0 20px var(--gold); }
     </style>
 </head>
 <body>
@@ -64,37 +67,86 @@
     <a href="index.html" class="btn-back">« TORNA AL PORTALE</a>
 
     <div class="container">
-        <h1>Incidi il tuo Nome</h1>
-        
+        <h1>Nuovo Eroe</h1>
+
+        <h2>Identità</h2>
         <div class="form-group">
-            <label>Nome dell'Eroe</label>
-            <input type="text" id="pg-name" placeholder="Es: Valerius il Temerario">
+            <label>Nome del Personaggio</label>
+            <input type="text" id="pg-name" placeholder="Es: Grog lo Spacca-Crani">
         </div>
 
         <div class="form-group">
-            <label>Assegna a una Campagna</label>
+            <label>Campagna di Appartenenza</label>
             <select id="campaign-select" onchange="toggleManualCampaign(this.value)">
                 <option value="">Caricamento cronache...</option>
             </select>
-            <p class="helper-text">Appaiono solo le campagne a cui il Master ti ha iscritto.</p>
-            
             <div id="manual-campaign-box" class="manual-box">
-                <label>Nome Campagna Manuale</label>
-                <input type="text" id="campaign-manual" placeholder="Inserisci il nome manualmente">
+                <label>Inserimento Manuale Campagna</label>
+                <input type="text" id="campaign-manual" placeholder="Nome della campagna non in lista">
             </div>
         </div>
 
+        <div class="grid-stats">
+            <div class="form-group">
+                <label>Razza</label>
+                <input type="text" id="pg-race" placeholder="Umano, Nano...">
+            </div>
+            <div class="form-group">
+                <label>Classe</label>
+                <input type="text" id="pg-class" placeholder="Guerriero, Mago...">
+            </div>
+            <div class="form-group">
+                <label>Livello</label>
+                <input type="number" id="pg-lvl" value="1">
+            </div>
+        </div>
+
+        <h2>Attributi</h2>
+        <div class="grid-stats">
+            <div class="form-group">
+                <label>FOR</label>
+                <input type="number" id="st-for" class="stat-input" value="10">
+            </div>
+            <div class="form-group">
+                <label>DES</label>
+                <input type="number" id="st-des" class="stat-input" value="10">
+            </div>
+            <div class="form-group">
+                <label>COS</label>
+                <input type="number" id="st-cos" class="stat-input" value="10">
+            </div>
+            <div class="form-group">
+                <label>INT</label>
+                <input type="number" id="st-int" class="stat-input" value="10">
+            </div>
+            <div class="form-group">
+                <label>SAG</label>
+                <input type="number" id="st-sag" class="stat-input" value="10">
+            </div>
+            <div class="form-group">
+                <label>CAR</label>
+                <input type="number" id="st-car" class="stat-input" value="10">
+            </div>
+        </div>
+
+        <h2>Equipaggiamento e Poteri</h2>
         <div class="form-group">
-            <label>Classe / Archetipo</label>
-            <input type="text" id="pg-class" placeholder="Es: Paladino, Ladro, Mago dell'Accademia...">
+            <label>Abilità Speciali / Incantesimi</label>
+            <textarea id="pg-skills" rows="4" placeholder="Elenca qui le tue doti uniche..."></textarea>
         </div>
 
         <div class="form-group">
-            <label>Storia e Background</label>
-            <textarea id="pg-bio" rows="5" placeholder="Racconta brevemente le origini del tuo eroe..."></textarea>
+            <label>Zaino ed Equipaggiamento</label>
+            <textarea id="pg-items" rows="4" placeholder="Cosa porti con te?"></textarea>
         </div>
 
-        <button class="btn-save" onclick="salvaPersonaggio()">📜 SIGILLA IL DESTINO</button>
+        <h2>La tua Storia</h2>
+        <div class="form-group">
+            <label>Biografia</label>
+            <textarea id="pg-bio" rows="6" placeholder="Il passato dell'eroe..."></textarea>
+        </div>
+
+        <button class="btn-save" onclick="salvaPersonaggio()">📜 INCIDI NEGLI ANNALI</button>
     </div>
 
     <script>
@@ -106,86 +158,68 @@
             messagingSenderId: "803844500713",
             appId: "1:803844500713:web:c902b67f4e395bd20c9478"
         };
-
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
         auth.onAuthStateChanged(user => {
-            if (user) {
-                caricaCampagneIscritto(user.uid);
-            } else {
-                window.location.href = 'login.html';
-            }
+            if (user) { caricaCampagneIscritto(user.uid); }
+            else { window.location.href = 'login.html'; }
         });
 
-        // 1. Carica le campagne dal database
         async function caricaCampagneIscritto(userId) {
             const select = document.getElementById('campaign-select');
             try {
-                // Cerchiamo campagne dove l'utente è nell'array giocatori
-                const snapshot = await db.collection("campagne")
-                                         .where("giocatori", "array-contains", userId)
-                                         .get();
-
-                select.innerHTML = '<option value="">-- Seleziona una Campagna --</option>';
-
+                const snapshot = await db.collection("campagne").where("giocatori", "array-contains", userId).get();
+                select.innerHTML = '<option value="">-- Seleziona --</option>';
                 if (snapshot.empty) {
-                    select.innerHTML += '<option value="manual">Nessuna iscrizione trovata (Scrivi manualmente)</option>';
+                    select.innerHTML += '<option value="manual">Nessuna iscrizione (Scrivi manuale)</option>';
                 } else {
                     snapshot.forEach(doc => {
-                        const data = doc.data();
-                        select.innerHTML += `<option value="${data.titolo}">${data.titolo}</option>`;
+                        select.innerHTML += `<option value="${doc.data().titolo}">${doc.data().titolo}</option>`;
                     });
-                    select.innerHTML += '<option value="manual">-- Altra (Scrivi manualmente) --</option>';
+                    select.innerHTML += '<option value="manual">-- Altra (Manuale) --</option>';
                 }
-            } catch (e) {
-                console.error(e);
-                select.innerHTML = '<option value="manual">Errore caricamento (Scrivi manualmente)</option>';
-            }
+            } catch (e) { select.innerHTML = '<option value="manual">Errore (Scrivi manuale)</option>'; }
         }
 
-        // 2. Gestione visualizzazione campo manuale
-        function toggleManualCampaign(value) {
-            const box = document.getElementById('manual-campaign-box');
-            box.style.display = (value === 'manual') ? 'block' : 'none';
+        function toggleManualCampaign(val) {
+            document.getElementById('manual-campaign-box').style.display = (val === 'manual') ? 'block' : 'none';
         }
 
-        // 3. Funzione di salvataggio finale
         async function salvaPersonaggio() {
             const user = auth.currentUser;
-            const nome = document.getElementById('pg-name').value;
-            const classe = document.getElementById('pg-class').value;
-            const bio = document.getElementById('pg-bio').value;
-            
-            // Logica per determinare il nome della campagna
             const selectVal = document.getElementById('campaign-select').value;
-            const campagnaFinale = (selectVal === 'manual') ? 
-                                    document.getElementById('campaign-manual').value : 
-                                    selectVal;
+            const campagna = (selectVal === 'manual') ? document.getElementById('campaign-manual').value : selectVal;
 
-            if (!nome || !campagnaFinale) {
-                alert("Un eroe deve avere almeno un nome e una campagna!");
-                return;
-            }
+            if (!document.getElementById('pg-name').value || !campagna) return alert("Inserisci Nome e Campagna!");
 
-            const nuovoPG = {
+            const pg = {
                 ownerId: user.uid,
-                ownerNome: user.displayName || "Anonimo",
-                nome: nome,
-                campagna: campagnaFinale,
-                classe: classe,
-                biografia: bio,
+                nome: document.getElementById('pg-name').value,
+                campagna: campagna,
+                razza: document.getElementById('pg-race').value,
+                classe: document.getElementById('pg-class').value,
+                livello: document.getElementById('pg-lvl').value,
+                stats: {
+                    for: document.getElementById('st-for').value,
+                    des: document.getElementById('st-des').value,
+                    cos: document.getElementById('st-cos').value,
+                    int: document.getElementById('st-int').value,
+                    sag: document.getElementById('st-sag').value,
+                    car: document.getElementById('st-car').value
+                },
+                abilita: document.getElementById('pg-skills').value,
+                oggetti: document.getElementById('pg-items').value,
+                biografia: document.getElementById('pg-bio').value,
                 dataCreazione: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
-                await db.collection("characters").add(nuovoPG);
-                alert("Il tuo eroe è stato iscritto negli annali di Drakonia!");
+                await db.collection("characters").add(pg);
+                alert("Personaggio creato con successo!");
                 window.location.href = 'index.html';
-            } catch (e) {
-                alert("Errore durante il salvataggio: " + e.message);
-            }
+            } catch (e) { alert("Errore: " + e.message); }
         }
     </script>
 </body>
