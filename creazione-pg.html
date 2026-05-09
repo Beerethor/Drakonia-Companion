@@ -45,9 +45,29 @@
         .inventory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 10px; }
         .btn-save { background: var(--leather); color: var(--gold); border: 2px solid var(--gold); padding: 15px; width: 100%; font-family: 'Grenze Gotisch'; font-size: 1.8rem; cursor: pointer; margin-top: 20px; }
         
-        /* Box manuale ora più evidente */
-        #manual-campagna-box { 
-            margin-top: 10px; padding: 10px; border: 1px dashed var(--blood); background: rgba(139, 0, 0, 0.05); display: none;
+        /* Area Ritratto */
+        .portrait-upload {
+            border: 2px dashed var(--leather);
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: rgba(0,0,0,0.02);
+            transition: 0.3s;
+        }
+        .portrait-upload:hover { background: rgba(0,0,0,0.05); }
+        #img-preview { 
+            position: absolute; top:0; left:0; width:100%; height:100%; 
+            object-fit: cover; display: none; 
+        }
+        .loading-overlay {
+            display: none; position: absolute; background: rgba(0,0,0,0.6);
+            color: white; width: 100%; height: 100%; align-items: center; justify-content: center;
+            font-size: 0.8rem; z-index: 5;
         }
     </style>
 </head>
@@ -62,8 +82,7 @@
             <select id="campagna-select" onchange="toggleCampagnaManuale(this.value)">
                 <option value="">Caricamento cronache...</option>
             </select>
-            <div id="manual-campagna-box">
-                <label style="font-size: 0.8rem; color: var(--blood);">SCRIVI NOME MANUALE:</label>
+            <div id="manual-campagna-box" style="display:none; margin-top: 5px; border: 1px dashed var(--blood); padding: 5px;">
                 <input type="text" id="campagna-manuale" placeholder="Inserisci il titolo della campagna...">
             </div>
         </div>
@@ -86,17 +105,20 @@
             <label>Rango</label><input type="text" id="rango" readonly>
         </div>
         <div class="stat-box">
-            <label>Ritratto (URL)</label><input type="text" id="ritratto" placeholder="Link immagine...">
-            <div id="preview-container" style="height: 120px; border: 1px dashed var(--leather); margin-top: 10px; display: flex; align-items: center; justify-content: center;">
-                <img id="img-preview" src="" style="max-height: 100%; display: none;">
-            </div>
+            <label>RITRATTO</label>
+            <div class="portrait-upload" onclick="document.getElementById('file-input').click()">
+                <div id="loading-txt" class="loading-overlay">✨ INCANTESIMO IN CORSO...</div>
+                <span id="placeholder-txt">📸 TOCCA PER CARICARE</span>
+                <img id="img-preview" src="">
+                <input type="file" id="file-input" accept="image/*" style="display:none" onchange="uploadToImgur(this)">
+                <input type="hidden" id="ritratto"> </div>
         </div>
     </div>
 
     <div class="roll-section">
         <label>MODALITÀ DI LANCIO</label>
         <select id="roll-method">
-            <option value="normale">Normale (Max Classe)</option>
+            <option value="normale">Normale (Punteggio Fisso)</option>
             <option value="difficile">Difficile (Migliore 2d6 + Bonus)</option>
             <option value="estrema">Estrema (1d6 + Bonus)</option>
         </select>
@@ -111,7 +133,7 @@
             <div class="stat-box"><label>Resistenza (PR)</label><input type="number" id="pr"></div>
             <div class="stat-box" style="grid-column: span 2;"><label>Esperienza (PE)</label><input type="number" id="pe" readonly></div>
         </div>
-        <div><label>Storia</label><textarea id="storia" rows="8"></textarea></div>
+        <div><label>Storia</label><textarea id="storia" rows="8" placeholder="Scrivi le tue origini..."></textarea></div>
     </div>
 
     <div style="border: 2px solid var(--leather); padding: 15px; border-radius: 10px;">
@@ -131,7 +153,7 @@
                 </div>
             </div>
         </div>
-        <label>Incantesimi Memorizzati</label><input type="text" id="incantesimi">
+        <label>Incantesimi / Abilità Speciali</label><input type="text" id="incantesimi">
     </div>
 
     <button class="btn-save" onclick="salvaEroe()">INCIDI NEGLI ANNALI</button>
@@ -157,6 +179,7 @@
         "Chierico": { bonus: 2, max: 8, equip: "Mazza, Tunica Pesante", oro: 5, zaino: ["Simbolo Sacro"] }
     };
 
+    // --- LOGICA AUTENTICAZIONE E CARICAMENTO ---
     auth.onAuthStateChanged(user => {
         if (user) {
             db.collection("users").doc(user.uid).get().then(doc => {
@@ -170,44 +193,57 @@
     async function caricaCampagne(userId) {
         const select = document.getElementById('campagna-select');
         try {
-            const snapshot = await db.collection("campagne")
-                .where("giocatori", "array-contains", userId)
-                .get();
-
+            const snapshot = await db.collection("campagne").where("giocatori", "array-contains", userId).get();
             select.innerHTML = '<option value="">-- Seleziona --</option>';
-            let trovate = 0;
-
             snapshot.forEach(doc => {
                 const c = doc.data();
-                if(c.stato !== "Conclusa" && c.stato !== "Abbandonata") {
-                    select.innerHTML += `<option value="${c.titolo}">${c.titolo}</option>`;
-                    trovate++;
-                }
+                if(c.stato !== "Conclusa") select.innerHTML += `<option value="${c.titolo}">${c.titolo}</option>`;
             });
-
-            // Opzione manuale sempre presente alla fine
             select.innerHTML += '<option value="manuale">-- Altra (Scrivi Manuale) --</option>';
-        } catch (e) {
-            select.innerHTML = '<option value="manuale">Errore (Usa manuale)</option>';
-        }
+        } catch (e) { select.innerHTML = '<option value="manuale">Errore (Usa manuale)</option>'; }
     }
 
     function toggleCampagnaManuale(val) {
-        const box = document.getElementById('manual-campagna-box');
-        if (val === 'manuale') {
-            box.style.display = 'block';
-            document.getElementById('campagna-manuale').focus();
-        } else {
-            box.style.display = 'none';
-        }
+        document.getElementById('manual-campagna-box').style.display = (val === 'manuale') ? 'block' : 'none';
     }
 
-    // FUNZIONI LOGICA GIOCO (Dado, Rango, Classe)
+    // --- LOGICA UPLOAD IMGUR ---
+    async function uploadToImgur(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const loading = document.getElementById('loading-txt');
+        const preview = document.getElementById('img-preview');
+        const placeholder = document.getElementById('placeholder-txt');
+        const ritrattoInput = document.getElementById('ritratto');
+
+        loading.style.display = 'flex';
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch('https://api.imgur.com/3/image', {
+                method: 'POST',
+                headers: { Authorization: 'Client-ID 12936798031d683' },
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                ritrattoInput.value = data.data.link;
+                preview.src = data.data.link;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+            }
+        } catch (e) { alert("La pergamena dell'immagine è bruciata. Riprova."); }
+        finally { loading.style.display = 'none'; }
+    }
+
+    // --- MECCANICHE DI GIOCO ---
     function aggiornaLivelloERango() {
         const liv = parseInt(document.getElementById('livello').value) || 1;
-        let rango = "", pe = 0;
         const tabella = { 1: ["Alle Prime Armi", 0], 2: ["Principiante", 250], 3: ["Esperto", 500], 4: ["Navigato", 750], 5: ["Provetto", 1250], 6: ["Veterano", 1750], 7: ["Straordinario", 2750], 8: ["Leggendario", 3750], 9: ["Epico", 5000] };
-        [rango, pe] = tabella[liv] || ["Leggenda", 5000];
+        const [rango, pe] = tabella[liv] || ["Leggenda", 5000];
         document.getElementById('rango').value = rango;
         document.getElementById('pe').value = pe;
     }
@@ -228,15 +264,13 @@
         if (!cl) return alert("Scegli una classe prima del tiro!");
         const data = classiData[cl];
         const r = () => Math.floor(Math.random() * 6) + 1;
+        
         const getVal = (isPR) => {
             if (method === 'normale') return data.max;
-            if (method === 'difficile') {
-                const b = Math.max(r(), r());
-                return isPR ? Math.max(1, b) : b + data.bonus;
-            }
-            const roll = r();
-            return isPR ? Math.max(1, roll) : roll + data.bonus;
+            if (method === 'difficile') return isPR ? Math.max(1, Math.max(r(), r())) : Math.max(r(), r()) + data.bonus;
+            return isPR ? r() : r() + data.bonus;
         };
+
         document.getElementById('prd').value = getVal(false);
         document.getElementById('int').value = getVal(false);
         document.getElementById('rpd').value = getVal(false);
@@ -248,8 +282,7 @@
         const sVal = document.getElementById('campagna-select').value;
         const campagna = (sVal === 'manuale' || sVal === "") ? document.getElementById('campagna-manuale').value : sVal;
 
-        if(!campagna) return alert("Indica una campagna (selezionala o scrivila manuale)!");
-        if(!document.getElementById('nome').value) return alert("Inserisci il nome dell'eroe!");
+        if(!campagna || !document.getElementById('nome').value) return alert("Dati mancanti!");
 
         const data = {
             userId: user.uid,
@@ -259,7 +292,8 @@
             classe: document.getElementById('classe-select').value,
             livello: document.getElementById('livello').value,
             rango: document.getElementById('rango').value,
-            ritratto: document.getElementById('ritratto').value,
+            ritratto: document.getElementById('ritratto').value || "https://i.imgur.com/8K9v67k.png",
+            storia: document.getElementById('storia').value,
             stats: { 
                 prd: document.getElementById('prd').value, int: document.getElementById('int').value, 
                 rpd: document.getElementById('rpd').value, pr: document.getElementById('pr').value, pe: document.getElementById('pe').value 
@@ -275,7 +309,7 @@
 
         try { 
             await db.collection("characters").add(data); 
-            alert("Eroe salvato!"); 
+            alert("Eroe inciso negli annali!"); 
             window.location.href="index.html"; 
         } catch (e) { alert("Errore: " + e.message); }
     }
