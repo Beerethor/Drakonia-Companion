@@ -262,7 +262,7 @@
             await db.collection("characters").doc(charId).update(updateData);
             
             // Reindirizzamento immediato all'archivio
-            window.location.href = `archivio-pg.html?id=${charId}`;
+            window.location.href = `archivio-pg.html`;
         } catch(e) { 
             alert("Errore salvataggio!"); 
             document.getElementById('btn-save').innerText = "INCIDI PROGRESSI";
