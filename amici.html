@@ -2,9 +2,10 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Drakonia - Compagni d'Arme</title>
     <link rel="icon" type="image/png" href="icon/icon_192x192.png">
+    <link rel="apple-touch-icon" href="icon/icon_192x192.png">
     <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -12,73 +13,125 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --gold: #b8860b; --leather: #2c1e11; --parchment: #f4e4bc; --blood: #8b0000; }
-        body { 
-            background: #1a110a url('https://www.transparenttextures.com/patterns/dark-leather.png');
-            color: var(--parchment); font-family: 'Almendra', serif; margin: 0; padding: 20px;
-        }
-        .container { max-width: 600px; margin: 0 auto; }
-        h1 { font-family: 'Grenze Gotisch'; color: var(--gold); text-align: center; font-size: 2.5rem; }
+        :root { --gold: #b8860b; --leather: #2c1e11; --parchment: #f4e4bc; --blood: #8b0000; --ink: #1a110a; }
         
+        body { 
+            background: var(--ink) url('https://www.transparenttextures.com/patterns/dark-leather.png');
+            color: var(--parchment); font-family: 'Almendra', serif; margin: 0; padding: 15px;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 600px; margin: 0 auto; }
+        
+        h1 { font-family: 'Grenze Gotisch'; color: var(--gold); text-align: center; font-size: 2.5rem; margin-bottom: 10px; }
+
         .section { 
-            background: rgba(244, 228, 188, 0.1); border: 2px solid var(--gold); 
+            background: rgba(244, 228, 188, 0.05); border: 1px solid rgba(184, 134, 11, 0.3); 
             padding: 20px; border-radius: 8px; margin-bottom: 20px; 
         }
 
+        /* Input e Bottoni */
         input { 
-            background: var(--parchment); border: 1px solid var(--gold); padding: 10px; 
-            font-family: 'MedievalSharp'; width: calc(100% - 24px); margin-bottom: 10px;
+            background: var(--parchment); border: 2px solid var(--gold); padding: 12px; 
+            font-family: 'MedievalSharp'; width: 100%; box-sizing: border-box;
+            margin-bottom: 15px; font-size: 1.1rem; color: var(--ink);
         }
 
         .btn { 
             background: var(--leather); color: var(--gold); border: 1px solid var(--gold);
-            padding: 10px 20px; cursor: pointer; font-family: 'Grenze Gotisch'; width: 100%;
+            padding: 12px 20px; cursor: pointer; font-family: 'Grenze Gotisch'; 
+            width: 100%; font-size: 1.2rem; transition: 0.3s;
         }
         .btn:hover { background: var(--blood); color: white; }
 
-        .friend-list { list-style: none; padding: 0; }
-        .friend-card { 
-            background: var(--parchment); color: var(--leather); padding: 15px; 
-            margin-bottom: 10px; border-radius: 5px; display: flex; 
-            justify-content: space-between; align-items: center;
-            border-left: 5px solid var(--gold);
+        /* Tasto Richieste e Badge */
+        .requests-toggle {
+            background: var(--leather); color: var(--gold); border: 2px solid var(--gold);
+            padding: 12px; border-radius: 50px; cursor: pointer; font-family: 'Grenze Gotisch';
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin-bottom: 20px; position: relative;
         }
-        .status-pending { font-style: italic; font-size: 0.8rem; color: #666; }
-        .btn-accept { background: #2ecc71; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+
+        #request-count {
+            background: var(--blood); color: white; border-radius: 50%;
+            padding: 2px 8px; font-weight: bold; font-size: 0.9rem;
+            display: none; border: 1px solid var(--gold);
+        }
+
+        /* Pannello Richieste */
+        #pending-panel {
+            display: none; background: rgba(0,0,0,0.6); border: 2px double var(--gold);
+            padding: 15px; border-radius: 8px; margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Liste */
+        .friend-list { list-style: none; padding: 0; margin: 0; }
+        .card-item { 
+            background: var(--parchment); color: var(--ink); padding: 15px; 
+            margin-bottom: 10px; border-radius: 6px; display: flex; 
+            justify-content: space-between; align-items: center;
+            border-left: 6px solid var(--gold); box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .action-btns { display: flex; gap: 8px; }
+        .btn-sm { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-family: 'MedievalSharp'; font-size: 0.85rem; }
+        .btn-acc { background: #27ae60; color: white; }
+        .btn-rej { background: var(--blood); color: white; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <a href="hub.html" style="color: var(--gold); text-decoration: none;">⬅ Torna al Portale</a>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <a href="hub.html" style="color: var(--gold); text-decoration: none; font-family: 'MedievalSharp';">⬅ Portale</a>
+        <span id="my-display-code" style="font-size: 0.8rem; opacity: 0.7;"></span>
+    </div>
+
     <h1>Compagni d'Arme</h1>
 
+    <div id="btn-toggle-requests" class="requests-toggle" onclick="toggleRequests()">
+        <span>📜 MISSIVE IN SOSPESO</span>
+        <span id="request-count">0</span>
+    </div>
+
+    <div id="pending-panel">
+        <ul id="pending-list" class="friend-list">
+            </ul>
+    </div>
+
     <div class="section">
-        <h3>Aggiungi Amico</h3>
-        <p style="font-size: 0.8rem;">Inserisci il codice unico del tuo compagno:</p>
-        <input type="text" id="friend-code" placeholder="Es: DRK-123456">
+        <h3 style="margin-top:0; font-family:'Grenze Gotisch'; color:var(--gold);">Cerca Alleato</h3>
+        <input type="text" id="friend-code-input" placeholder="Codice (es: DRK-12345)">
         <button class="btn" onclick="sendFriendRequest()">INVIA RICHIESTA</button>
     </div>
 
-    <div id="pending-section" class="section" style="display:none;">
-        <h3>Richieste In Sospeso</h3>
-        <ul id="pending-list" class="friend-list"></ul>
-    </div>
-
     <div class="section">
-        <h3>I Tuoi Compagni</h3>
-        <ul id="friends-list" class="friend-list"></ul>
+        <h3 style="margin-top:0; font-family:'Grenze Gotisch'; color:var(--gold);">I Tuoi Fedeli Compagni</h3>
+        <ul id="friends-list" class="friend-list">
+            </ul>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = { /* ... la tua config ... */ };
+    const firebaseConfig = {
+        apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
+        authDomain: "drakonia-companion.firebaseapp.com",
+        projectId: "drakonia-companion",
+        storageBucket: "drakonia-companion.firebasestorage.app",
+        messagingSenderId: "803844500713",
+        appId: "1:803844500713:web:c902b67f4e395bd20c9478"
+    };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
 
     auth.onAuthStateChanged(user => {
         if (user) {
+            setupMyCodeDisplay(user);
             loadFriends(user);
             loadPendingRequests(user);
         } else {
@@ -86,54 +139,81 @@
         }
     });
 
-    async function sendFriendRequest() {
-        const code = document.getElementById('friend-code').value.trim().toUpperCase();
-        const user = auth.currentUser;
-
-        if (!code) return;
-
-        try {
-            // Cerchiamo l'utente che ha quel codice
-            const userSnap = await db.collection("users").where("myCode", "==", code).get();
-            
-            if (userSnap.empty) {
-                alert("Codice non trovato negli Annali!");
-                return;
-            }
-
-            const friendData = userSnap.docs[0].data();
-            const friendId = userSnap.docs[0].id;
-
-            if (friendId === user.uid) {
-                alert("Non puoi essere amico di te stesso, viandante!");
-                return;
-            }
-
-            // Calcolo scadenza (1 settimana)
-            const oneWeek = 7 * 24 * 60 * 60 * 1000;
-            const expiresAt = Date.now() + oneWeek;
-
-            await db.collection("friendships").add({
-                senderId: user.uid,
-                senderName: user.displayName || "Un ignoto",
-                receiverId: friendId,
-                receiverCode: code,
-                status: "pending",
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                expiresAt: firebase.firestore.Timestamp.fromMillis(expiresAt),
-                users: [user.uid, friendId]
-            });
-
-            alert("Richiesta inviata! L'amico ha 7 giorni per accettare.");
-            document.getElementById('friend-code').value = "";
-
-        } catch (e) {
-            console.error(e);
+    // 1. Mostra il proprio codice per comodità
+    async function setupMyCodeDisplay(user) {
+        const doc = await db.collection("users").doc(user.uid).get();
+        if (doc.exists && doc.data().myCode) {
+            document.getElementById('my-display-code').innerText = "Il tuo codice: " + doc.data().myCode;
         }
     }
 
+    // 2. Invia Richiesta con scadenza 7 giorni
+    async function sendFriendRequest() {
+        const code = document.getElementById('friend-code-input').value.trim().toUpperCase();
+        const user = auth.currentUser;
+        if (!code) return;
+
+        try {
+            const userSnap = await db.collection("users").where("myCode", "==", code).get();
+            if (userSnap.empty) { alert("Codice errato o inesistente!"); return; }
+
+            const targetUser = userSnap.docs[0];
+            const targetId = targetUser.id;
+
+            if (targetId === user.uid) { alert("Non puoi inviare una richiesta a te stesso!"); return; }
+
+            // Calcolo scadenza: ora + 7 giorni
+            const expiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000);
+
+            await db.collection("friendships").add({
+                senderId: user.uid,
+                senderName: user.displayName || "Un Viandante",
+                receiverId: targetId,
+                receiverCode: code,
+                status: "pending",
+                expiresAt: firebase.firestore.Timestamp.fromMillis(expiresAt),
+                users: [user.uid, targetId]
+            });
+
+            alert("Richiesta inviata! Scadrà tra 7 giorni.");
+            document.getElementById('friend-code-input').value = "";
+        } catch (e) { console.error(e); }
+    }
+
+    // 3. Carica Richieste Pendenti e gestisce Scadenza
+    function loadPendingRequests(user) {
+        db.collection("friendships")
+            .where("receiverId", "==", user.uid)
+            .where("status", "==", "pending")
+            .onSnapshot(snap => {
+                const list = document.getElementById('pending-list');
+                const badge = document.getElementById('request-count');
+                list.innerHTML = "";
+                let count = 0;
+
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.expiresAt.toMillis() < Date.now()) {
+                        db.collection("friendships").doc(doc.id).delete();
+                    } else {
+                        count++;
+                        list.innerHTML += `
+                            <li class="card-item">
+                                <div><b>${data.senderName}</b></div>
+                                <div class="action-btns">
+                                    <button class="btn-sm btn-acc" onclick="updateFriend('${doc.id}', 'accepted')">SI</button>
+                                    <button class="btn-sm btn-rej" onclick="updateFriend('${doc.id}', 'rejected')">NO</button>
+                                </div>
+                            </li>`;
+                    }
+                });
+                badge.innerText = count;
+                badge.style.display = count > 0 ? "inline-block" : "none";
+            });
+    }
+
+    // 4. Carica Amici (Sostituendo Codice con Nome Reale)
     function loadFriends(user) {
-        // Mostra solo le amicizie accettate
         db.collection("friendships")
             .where("users", "array-contains", user.uid)
             .where("status", "==", "accepted")
@@ -141,65 +221,34 @@
                 const list = document.getElementById('friends-list');
                 list.innerHTML = "";
 
-                for (let doc of snap.docs) {
-                    const data = doc.data();
+                for (const d of snap.docs) {
+                    const data = d.data();
                     const friendId = data.users.find(id => id !== user.uid);
                     
-                    // Recuperiamo il vero nome dell'amico invece del codice
-                    const friendSnap = await db.collection("users").doc(friendId).get();
-                    const name = friendSnap.exists ? (friendSnap.data().username || "Guerriero") : "Ignoto";
+                    // Recupero nome reale dell'utente
+                    const fDoc = await db.collection("users").doc(friendId).get();
+                    const name = fDoc.exists ? (fDoc.data().username || "Compagno") : "Ignoto";
 
                     list.innerHTML += `
-                        <li class="friend-card">
+                        <li class="card-item">
                             <span>🛡️ ${name}</span>
-                            <span style="font-size: 0.7rem; color: var(--gold)">Amici Storici</span>
-                        </li>
-                    `;
+                            <span style="font-size:0.8rem; color:var(--gold);">ALLEATO</span>
+                        </li>`;
                 }
             });
     }
 
-    function loadPendingRequests(user) {
-        const now = firebase.firestore.Timestamp.now();
-
-        db.collection("friendships")
-            .where("receiverId", "==", user.uid)
-            .where("status", "==", "pending")
-            .onSnapshot(snap => {
-                const list = document.getElementById('pending-list');
-                const section = document.getElementById('pending-section');
-                list.innerHTML = "";
-
-                let count = 0;
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    
-                    // Verifica se la richiesta è scaduta
-                    if (data.expiresAt.toMillis() < Date.now()) {
-                        // Eliminiamo la richiesta scaduta silenziosamente
-                        db.collection("friendships").doc(doc.id).delete();
-                    } else {
-                        count++;
-                        list.innerHTML += `
-                            <li class="friend-card">
-                                <div>
-                                    <b>${data.senderName}</b> vorrebbe allearsi<br>
-                                    <small>Scade tra: ${Math.round((data.expiresAt.toMillis() - Date.now()) / (1000*60*60*24))} giorni</small>
-                                </div>
-                                <button class="btn-accept" onclick="acceptFriend('${doc.id}')">ACCETTA</button>
-                            </li>
-                        `;
-                    }
-                });
-                section.style.display = count > 0 ? "block" : "none";
-            });
+    async function updateFriend(docId, status) {
+        if (status === 'accepted') {
+            await db.collection("friendships").doc(docId).update({ status: 'accepted' });
+        } else {
+            await db.collection("friendships").doc(docId).delete();
+        }
     }
 
-    async function acceptFriend(docId) {
-        await db.collection("friendships").doc(docId).update({
-            status: "accepted"
-        });
-        alert("Alleanza stretta!");
+    function toggleRequests() {
+        const panel = document.getElementById('pending-panel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
     }
 </script>
 </body>
