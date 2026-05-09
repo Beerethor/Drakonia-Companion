@@ -45,7 +45,6 @@
         .inventory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 10px; }
         .btn-save { background: var(--leather); color: var(--gold); border: 2px solid var(--gold); padding: 15px; width: 100%; font-family: 'Grenze Gotisch'; font-size: 1.8rem; cursor: pointer; margin-top: 20px; }
         
-        /* Area Ritratto */
         .portrait-upload {
             border: 2px dashed var(--leather);
             height: 180px;
@@ -111,7 +110,8 @@
                 <span id="placeholder-txt">📸 TOCCA PER CARICARE</span>
                 <img id="img-preview" src="">
                 <input type="file" id="file-input" accept="image/*" style="display:none" onchange="uploadToImgur(this)">
-                <input type="hidden" id="ritratto"> </div>
+                <input type="hidden" id="ritratto"> 
+            </div>
         </div>
     </div>
 
@@ -179,7 +179,6 @@
         "Chierico": { bonus: 2, max: 8, equip: "Mazza, Tunica Pesante", oro: 5, zaino: ["Simbolo Sacro"] }
     };
 
-    // --- LOGICA AUTENTICAZIONE E CARICAMENTO ---
     auth.onAuthStateChanged(user => {
         if (user) {
             db.collection("users").doc(user.uid).get().then(doc => {
@@ -207,7 +206,7 @@
         document.getElementById('manual-campagna-box').style.display = (val === 'manuale') ? 'block' : 'none';
     }
 
-    // --- LOGICA UPLOAD IMGUR ---
+    // --- LOGICA UPLOAD IMGUR CORRETTA ---
     async function uploadToImgur(input) {
         const file = input.files[0];
         if (!file) return;
@@ -229,17 +228,26 @@
                 body: formData
             });
             const data = await response.json();
+            
             if (data.success) {
-                ritrattoInput.value = data.data.link;
-                preview.src = data.data.link;
+                // Prendi il link e assicurati che sia il link diretto i.imgur.com
+                let directLink = data.data.link;
+                
+                ritrattoInput.value = directLink;
+                preview.src = directLink;
                 preview.style.display = 'block';
                 placeholder.style.display = 'none';
+            } else {
+                throw new Error(data.data.error);
             }
-        } catch (e) { alert("La pergamena dell'immagine è bruciata. Riprova."); }
-        finally { loading.style.display = 'none'; }
+        } catch (e) { 
+            console.error("Errore upload:", e);
+            alert("La pergamena dell'immagine si è bruciata. Riprova."); 
+        } finally { 
+            loading.style.display = 'none'; 
+        }
     }
 
-    // --- MECCANICHE DI GIOCO ---
     function aggiornaLivelloERango() {
         const liv = parseInt(document.getElementById('livello').value) || 1;
         const tabella = { 1: ["Alle Prime Armi", 0], 2: ["Principiante", 250], 3: ["Esperto", 500], 4: ["Navigato", 750], 5: ["Provetto", 1250], 6: ["Veterano", 1750], 7: ["Straordinario", 2750], 8: ["Leggendario", 3750], 9: ["Epico", 5000] };
@@ -284,6 +292,11 @@
 
         if(!campagna || !document.getElementById('nome').value) return alert("Dati mancanti!");
 
+        const ritrattoUrl = document.getElementById('ritratto').value;
+        
+        // Se non è stata caricata un'immagine, usiamo un placeholder GENERICO e funzionante
+        const finalRitratto = ritrattoUrl || "https://via.placeholder.com/300x400.png?text=Eroe+Senza+Volto";
+
         const data = {
             userId: user.uid,
             userName: document.getElementById('owner-name').innerText,
@@ -292,7 +305,7 @@
             classe: document.getElementById('classe-select').value,
             livello: document.getElementById('livello').value,
             rango: document.getElementById('rango').value,
-            ritratto: document.getElementById('ritratto').value || "https://i.imgur.com/8K9v67k.png",
+            ritratto: finalRitratto,
             storia: document.getElementById('storia').value,
             stats: { 
                 prd: document.getElementById('prd').value, int: document.getElementById('int').value, 
