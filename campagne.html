@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drakonia - Gestione Campagne</title>
+    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root { --gold: #b8860b; --leather: #2c1e11; --parchment: #f4e4bc; --blood: #8b0000; }
+        body { background: #120d08 url('https://www.transparenttextures.com/patterns/dark-leather.png'); color: var(--leather); font-family: 'Almendra', serif; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: var(--parchment); padding: 30px; border: 15px solid transparent; border-image: url('https://www.transparenttextures.com/patterns/dark-leather.png') 30 stretch; }
+        h1, h2 { font-family: 'Grenze Gotisch'; text-align: center; border-bottom: 2px solid var(--leather); }
+        .form-creazione { background: rgba(0,0,0,0.05); padding: 20px; border: 2px solid var(--leather); border-radius: 10px; margin-bottom: 30px; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid var(--leather); background: rgba(255,255,255,0.5); font-family: 'Almendra'; }
+        .btn { background: var(--leather); color: var(--gold); padding: 10px 20px; border: 1px solid var(--gold); cursor: pointer; font-family: 'Grenze Gotisch'; }
+        .btn:disabled { background: #666; cursor: not-allowed; }
+        .campagna-card { border: 2px double var(--leather); padding: 20px; margin-bottom: 20px; border-radius: 8px; position: relative; }
+        .aggiornamenti { background: #fff; padding: 10px; border-left: 4px solid var(--blood); margin-top: 10px; font-style: italic; }
+        .lista-giocatori { margin-top: 10px; font-size: 0.9rem; }
+        .kick-btn { color: var(--blood); cursor: pointer; font-weight: bold; margin-left: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>CRONACHE DI DRAKONIA</h1>
+
+    <div id="master-area" style="display: none;">
+        <h2>PUBBLICA NUOVA CAMPAGNA</h2>
+        <div class="form-creazione">
+            <input type="text" id="titolo" placeholder="Titolo della Campagna">
+            <textarea id="descrizione" placeholder="Breve descrizione della trama..."></textarea>
+            <input type="number" id="max-giocatori" placeholder="Numero Max Giocatori (es. 5)">
+            <button class="btn" onclick="creaCampagna()">📜 PROCLAMA CAMPAGNA</button>
+        </div>
+    </div>
+
+    <h2>CAMPAGNE ATTIVE</h2>
+    <div id="campagne-list"></div>
+</div>
+
+<script>
+    // Inserire qui la tua configurazione Firebase esistente
+    const firebaseConfig = {
+        apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
+        authDomain: "drakonia-companion.firebaseapp.com",
+        projectId: "drakonia-companion",
+        storageBucket: "drakonia-companion.firebasestorage.app",
+        messagingSenderId: "803844500713",
+        appId: "1:803844500713:web:c902b67f4e395bd20c9478"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    let currentUserData = null;
+
+    auth.onAuthStateChanged(async user => {
+        if (user) {
+            const userDoc = await db.collection("users").doc(user.uid).get();
+            currentUserData = userDoc.data();
+            if (currentUserData.role === "Master" || currentUserData.role === "Founder") {
+                document.getElementById('master-area').style.display = 'block';
+            }
+            caricaCampagne();
+        } else { window.location.href = 'login.html'; }
+    });
+
+    async function creaCampagna() {
+        const campagna = {
+            titolo: document.getElementById('titolo').value,
+            descrizione: document.getElementById('descrizione').value,
+            maxGiocatori: parseInt(document.getElementById('max-giocatori').value),
+            masterId: auth.currentUser.uid,
+            masterNome: currentUserData.username,
+            giocatori: [], // Lista ID utenti iscritti
+            giocatoriNomi: [], // Lista nomi per visualizzazione
+            tramaAggiornamenti: "La storia ha inizio...",
+            dataCreazione: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        await db.collection("campagne").add(campagna);
+        location.reload();
+    }
+
+    function caricaCampagne() {
+        db.collection("campagne").orderBy("dataCreazione", "desc").onSnapshot(snapshot => {
+            const list = document.getElementById('campagne-list');
+            list.innerHTML = "";
+            snapshot.forEach(doc => {
+                const c = doc.data();
+                const isFull = c.giocatori.length >= c.maxGiocatori;
+                const isJoined = c.giocatori.includes(auth.currentUser.uid);
+                const isOwner = c.masterId === auth.currentUser.uid;
+
+                let card = `
+                    <div class="campagna-card">
+                        <h3>${c.titolo} (Master: ${c.masterNome})</h3>
+                        <p>${c.descrizione}</p>
+                        <div class="aggiornamenti"><strong>Ultimo Aggiornamento Trama:</strong><br>${c.tramaAggiornamenti}</div>
+                        <p><strong>Eroi Arruolati:</strong> ${c.giocatori.length} / ${c.maxGiocatori}</p>
+                        
+                        <div class="lista-giocatori">
+                            ${c.giocatoriNomi.map((nome, i) => `
+                                <span>• ${nome} ${isOwner ? `<span class="kick-btn" onclick="kickPlayer('${doc.id}', '${c.giocatori[i]}', '${nome}')">[CACCIALO]</span>` : ""}</span>
+                            `).join("<br>")}
+                        </div>
+
+                        <div style="margin-top:15px;">
+                            ${!isJoined && !isFull && !isOwner ? `<button class="btn" onclick="iscriviti('${doc.id}')">🛡️ ISCRIVITI</button>` : ""}
+                            ${isFull && !isJoined ? "<span>[CAMPAGNA PIENA]</span>" : ""}
+                            ${isOwner ? `<button class="btn" style="background:var(--blood)" onclick="aggiornaTrama('${doc.id}')">✍️ AGGIORNA TRAMA</button>` : ""}
+                        </div>
+                    </div>
+                `;
+                list.innerHTML += card;
+            });
+        });
+    }
+
+    async function iscriviti(id) {
+        const ref = db.collection("campagne").doc(id);
+        await ref.update({
+            giocatori: firebase.firestore.FieldValue.arrayUnion(auth.currentUser.uid),
+            giocatoriNomi: firebase.firestore.FieldValue.arrayUnion(currentUserData.username)
+        });
+    }
+
+    async function aggiornaTrama(id) {
+        const nuovaTrama = prompt("Inserisci i nuovi sviluppi della storia:");
+        if (nuovaTrama) {
+            await db.collection("campagne").doc(id).update({ tramaAggiornamenti: nuovaTrama });
+        }
+    }
+
+    async function kickPlayer(campagnaId, playerUid, playerNome) {
+        if (confirm(`Vuoi davvero cacciare ${playerNome} dalla campagna?`)) {
+            const ref = db.collection("campagne").doc(campagnaId);
+            await ref.update({
+                giocatori: firebase.firestore.FieldValue.arrayRemove(playerUid),
+                giocatoriNomi: firebase.firestore.FieldValue.arrayRemove(playerNome)
+            });
+        }
+    }
+</script>
+</body>
+</html>
