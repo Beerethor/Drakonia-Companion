@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Missiva - Drakonia</title>
     <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -11,29 +11,133 @@
 
     <style>
         :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; --blood: #8b0000; --ink: #1a110a; }
-        body { background: var(--ink) url('https://www.transparenttextures.com/patterns/dark-leather.png'); color: var(--parchment); font-family: 'Almendra', serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        .header { background: var(--leather); padding: 15px; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; }
-        #expiry-timer { font-size: 0.85rem; text-align: center; padding: 5px; background: rgba(139, 0, 0, 0.2); color: #ff6666; font-weight: bold; }
-        #chat-window { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: url('https://www.transparenttextures.com/patterns/paper-fibers.png'); }
-        .msg { max-width: 80%; padding: 10px; border-radius: 8px; line-height: 1.4; position: relative; }
-        .msg.sent { align-self: flex-end; background: var(--gold); color: var(--leather); border-bottom-right-radius: 2px; }
-        .msg.received { align-self: flex-start; background: var(--leather); color: var(--parchment); border: 1px solid var(--gold); border-bottom-left-radius: 2px; }
-        .input-area { background: var(--leather); padding: 15px; display: flex; gap: 10px; border-top: 2px solid var(--gold); }
-        input { flex: 1; background: var(--parchment); border: none; padding: 12px; font-family: 'Almendra'; border-radius: 4px; }
-        .send-btn { background: var(--gold); border: none; padding: 0 20px; font-family: 'MedievalSharp'; cursor: pointer; }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background: var(--ink) url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
+            color: var(--parchment); 
+            font-family: 'Almendra', serif; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            height: -webkit-fill-available; /* Fix per browser mobile */
+            overflow: hidden;
+        }
+
+        html { height: -webkit-fill-available; }
+
+        .header { 
+            background: var(--leather); 
+            padding: 10px 15px; 
+            border-bottom: 2px solid var(--gold); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        #expiry-timer { 
+            font-size: 0.75rem; 
+            text-align: center; 
+            padding: 4px; 
+            background: rgba(139, 0, 0, 0.3); 
+            color: #ffaaaa; 
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        #chat-window { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            background: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            /* Scroll fluido su iOS */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .msg { 
+            max-width: 85%; 
+            padding: 10px 14px; 
+            border-radius: 12px; 
+            line-height: 1.4; 
+            position: relative; 
+            word-wrap: break-word;
+            font-size: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .msg.sent { 
+            align-self: flex-end; 
+            background: var(--gold); 
+            color: var(--leather); 
+            border-bottom-right-radius: 2px; 
+        }
+
+        .msg.received { 
+            align-self: flex-start; 
+            background: var(--leather); 
+            color: var(--parchment); 
+            border: 1px solid var(--gold); 
+            border-bottom-left-radius: 2px; 
+        }
+
+        .input-area { 
+            background: var(--leather); 
+            padding: 10px; 
+            display: flex; 
+            gap: 8px; 
+            border-top: 2px solid var(--gold);
+            flex-shrink: 0;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* Supporto iPhone Notch */
+        }
+
+        input { 
+            flex: 1; 
+            background: var(--parchment); 
+            border: 2px solid transparent; 
+            padding: 12px; 
+            font-family: 'Almendra'; 
+            border-radius: 8px; 
+            font-size: 16px; /* Evita lo zoom automatico su iOS */
+            color: var(--ink);
+        }
+
+        input:focus { outline: none; border-color: var(--gold); }
+
+        .send-btn { 
+            background: var(--gold); 
+            border: none; 
+            padding: 0 15px; 
+            font-family: 'MedievalSharp'; 
+            cursor: pointer; 
+            border-radius: 8px;
+            color: var(--leather);
+            font-weight: bold;
+        }
+
+        .back-link { color: var(--gold); text-decoration: none; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <a href="messaggi.html" style="color: var(--gold); text-decoration: none;">⬅ Inbox</a>
-        <h3 id="chat-with-name" style="margin:0; color:var(--gold);">Missiva</h3>
-        <div style="width:40px;"></div>
+        <a href="messaggi.html" class="back-link">«</a>
+        <h3 id="chat-with-name" style="margin:0; color:var(--gold); font-size: 1.1rem;">Missiva</h3>
+        <div style="width:24px;"></div>
     </div>
-    <div id="expiry-timer">Calcolo tempo rimasto...</div>
+    
+    <div id="expiry-timer">Caricamento sigilli...</div>
+    
     <div id="chat-window"></div>
+    
     <div class="input-area">
-        <input type="text" id="msg-input" placeholder="Scrivi una missiva..." autocomplete="off">
+        <input type="text" id="msg-input" placeholder="Scrivi una missiva..." autocomplete="off" enterkeyhint="send">
         <button class="send-btn" onclick="sendMessage()">INVIA</button>
     </div>
 
@@ -56,44 +160,91 @@
     let chatId = null;
 
     if (!friendId) location.href = 'messaggi.html';
-    document.getElementById('chat-with-name').innerText = friendName;
+    document.getElementById('chat-with-name').innerText = friendName || "Alleato";
+
+    const inputField = document.getElementById('msg-input');
+    const chatWindow = document.getElementById('chat-window');
+
+    // Gestione tasto Invio dalla tastiera
+    inputField.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+    });
 
     auth.onAuthStateChanged(user => {
         if (user) {
             chatId = user.uid < friendId ? `${user.uid}_${friendId}` : `${friendId}_${user.uid}`;
+            
+            // Caricamento Messaggi
             db.collection("chats").doc(chatId).collection("messages").orderBy("timestamp", "asc")
             .onSnapshot(snap => {
-                const win = document.getElementById('chat-window');
-                win.innerHTML = "";
+                chatWindow.innerHTML = "";
                 snap.forEach(doc => {
                     const m = doc.data();
                     const isSent = m.senderId === user.uid;
-                    win.innerHTML += `<div class="msg ${isSent ? 'sent' : 'received'}">${m.text}</div>`;
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `msg ${isSent ? 'sent' : 'received'}`;
+                    msgDiv.textContent = m.text;
+                    chatWindow.appendChild(msgDiv);
                 });
-                win.scrollTop = win.scrollHeight;
+                chatWindow.scrollTop = chatWindow.scrollHeight;
             });
+
+            // Timer Scadenza
             db.collection("chats").doc(chatId).onSnapshot(doc => {
                 if (doc.exists) {
                     const last = doc.data().lastUpdate?.toMillis() || Date.now();
                     const expiry = last + (7 * 24 * 60 * 60 * 1000);
-                    const diff = expiry - Date.now();
-                    const d = Math.floor(diff / (1000*60*60*24));
-                    const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-                    document.getElementById('expiry-timer').innerText = diff > 0 ? 
-                        `📜 I messaggi svaniranno tra: ${d}g ${h}ore` : "MISSIVA SCADUTA.";
+                    updateTimer(expiry);
                 }
             });
         } else { location.href = 'login.html'; }
     });
 
+    function updateTimer(expiry) {
+        const now = Date.now();
+        const diff = expiry - now;
+        if (diff <= 0) {
+            document.getElementById('expiry-timer').innerText = "MISSIVA SCADUTA";
+            return;
+        }
+        const d = Math.floor(diff / (1000*60*60*24));
+        const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+        document.getElementById('expiry-timer').innerText = `📜 Svanirà tra: ${d}g ${h}ore`;
+    }
+
     async function sendMessage() {
-        const input = document.getElementById('msg-input');
-        const text = input.value.trim();
+        const text = inputField.value.trim();
         if (!text) return;
-        const now = firebase.firestore.FieldValue.serverTimestamp();
-        await db.collection("chats").doc(chatId).collection("messages").add({ senderId: auth.currentUser.uid, text: text, timestamp: now });
-        await db.collection("chats").doc(chatId).set({ lastUpdate: now, participants: [auth.currentUser.uid, friendId] }, { merge: true });
-        input.value = "";
+
+        // 1. Pulisci subito l'interfaccia (Feedback immediato)
+        inputField.value = "";
+        inputField.focus();
+
+        try {
+            const now = firebase.firestore.FieldValue.serverTimestamp();
+            const batch = db.batch();
+            
+            const msgRef = db.collection("chats").doc(chatId).collection("messages").doc();
+            batch.set(msgRef, {
+                senderId: auth.currentUser.uid,
+                text: text,
+                timestamp: now
+            });
+
+            const chatRef = db.collection("chats").doc(chatId);
+            batch.set(chatRef, {
+                lastUpdate: now,
+                participants: [auth.currentUser.uid, friendId]
+            }, { merge: true });
+
+            await batch.commit();
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        } catch (e) {
+            console.error("Errore invio:", e);
+            alert("Errore nell'invio della pergamena.");
+        }
     }
 </script>
 </body>
