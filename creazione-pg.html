@@ -43,9 +43,9 @@
         .inventory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 10px; }
         .btn-save { background: var(--leather); color: var(--gold); border: 2px solid var(--gold); padding: 15px; width: 100%; font-family: 'Grenze Gotisch'; font-size: 1.8rem; cursor: pointer; margin-top: 20px; }
         
-        /* Stile per input manuale campagna */
+        /* Box manuale ora più evidente */
         #manual-campagna-box { 
-            margin-top: 10px; padding: 10px; border-left: 3px solid var(--blood); background: rgba(0,0,0,0.05); display: none;
+            margin-top: 10px; padding: 10px; border: 1px dashed var(--blood); background: rgba(139, 0, 0, 0.05); display: none;
         }
     </style>
 </head>
@@ -55,13 +55,14 @@
     <a href="index.html" class="btn-back">⬅ INDIETRO</a>
     <div style="display:flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px;">
         <span>Avventuriero: <strong id="owner-name">Caricamento...</strong></span>
-        <div style="width: 50%;">
+        <div style="width: 55%;">
             <label>CAMPAGNA</label>
             <select id="campagna-select" onchange="toggleCampagnaManuale(this.value)">
                 <option value="">Caricamento cronache...</option>
             </select>
             <div id="manual-campagna-box">
-                <input type="text" id="campagna-manuale" placeholder="Scrivi nome campagna...">
+                <label style="font-size: 0.8rem; color: var(--blood);">SCRIVI NOME MANUALE:</label>
+                <input type="text" id="campagna-manuale" placeholder="Inserisci il titolo della campagna...">
             </div>
         </div>
     </div>
@@ -164,49 +165,46 @@
         } else { window.location.href = 'login.html'; }
     });
 
-    // --- NUOVA LOGICA CAMPAGNE ---
     async function caricaCampagne(userId) {
         const select = document.getElementById('campagna-select');
         try {
-            // Filtriamo: l'utente deve essere nell'array giocatori E lo stato non deve essere Concluso/Abbandonato
             const snapshot = await db.collection("campagne")
                 .where("giocatori", "array-contains", userId)
                 .get();
 
             select.innerHTML = '<option value="">-- Seleziona --</option>';
-            
             let trovate = 0;
+
             snapshot.forEach(doc => {
                 const c = doc.data();
-                // Filtro manuale per lo stato (Firestore non permette query != multiple facilmente qui)
                 if(c.stato !== "Conclusa" && c.stato !== "Abbandonata") {
-                    select.innerHTML += `<option value="${c.titolo}">${c.titolo} (${c.stato})</option>`;
+                    select.innerHTML += `<option value="${c.titolo}">${c.titolo}</option>`;
                     trovate++;
                 }
             });
 
-            if(trovate === 0) select.innerHTML = '<option value="manuale">Nessuna campagna attiva (Scrivi manuale)</option>';
-            else select.innerHTML += '<option value="manuale">-- Altra (Scrivi Manuale) --</option>';
-
+            // Opzione manuale sempre presente alla fine
+            select.innerHTML += '<option value="manuale">-- Altra (Scrivi Manuale) --</option>';
         } catch (e) {
-            console.error(e);
             select.innerHTML = '<option value="manuale">Errore (Usa manuale)</option>';
         }
     }
 
     function toggleCampagnaManuale(val) {
-        document.getElementById('manual-campagna-box').style.display = (val === 'manuale') ? 'block' : 'none';
+        const box = document.getElementById('manual-campagna-box');
+        if (val === 'manuale') {
+            box.style.display = 'block';
+            document.getElementById('campagna-manuale').focus();
+        } else {
+            box.style.display = 'none';
+        }
     }
-    // ----------------------------
 
+    // FUNZIONI LOGICA GIOCO (Dado, Rango, Classe)
     function aggiornaLivelloERango() {
         const liv = parseInt(document.getElementById('livello').value) || 1;
         let rango = "", pe = 0;
-        const tabella = { 
-            1: ["Alle Prime Armi", 0], 2: ["Principiante", 250], 3: ["Esperto", 500], 
-            4: ["Navigato", 750], 5: ["Provetto", 1250], 6: ["Veterano", 1750], 
-            7: ["Straordinario", 2750], 8: ["Leggendario", 3750], 9: ["Epico", 5000] 
-        };
+        const tabella = { 1: ["Alle Prime Armi", 0], 2: ["Principiante", 250], 3: ["Esperto", 500], 4: ["Navigato", 750], 5: ["Provetto", 1250], 6: ["Veterano", 1750], 7: ["Straordinario", 2750], 8: ["Leggendario", 3750], 9: ["Epico", 5000] };
         [rango, pe] = tabella[liv] || ["Leggenda", 5000];
         document.getElementById('rango').value = rango;
         document.getElementById('pe').value = pe;
@@ -214,33 +212,29 @@
 
     function applicaClasse() {
         const cl = document.getElementById('classe-select').value;
-        const data = classiData[cl];
-        if (!data) return;
-        document.getElementById('arma').value = data.equip.split(', ')[0];
-        document.getElementById('armatura').value = data.equip.split(', ')[1] || "";
-        document.getElementById('oro').value = data.oro;
-        for(let i=1; i<=9; i++) document.getElementById('inv'+i).value = data.zaino[i-1] || "";
+        if (!classiData[cl]) return;
+        const d = classiData[cl];
+        document.getElementById('arma').value = d.equip.split(', ')[0];
+        document.getElementById('armatura').value = d.equip.split(', ')[1] || "";
+        document.getElementById('oro').value = d.oro;
+        for(let i=1; i<=9; i++) document.getElementById('inv'+i).value = d.zaino[i-1] || "";
     }
 
     function rollStats() {
         const cl = document.getElementById('classe-select').value;
         const method = document.getElementById('roll-method').value;
-        if (!cl) return alert("Seleziona una classe!");
+        if (!cl) return alert("Scegli una classe prima del tiro!");
         const data = classiData[cl];
         const r = () => Math.floor(Math.random() * 6) + 1;
-
         const getVal = (isPR) => {
             if (method === 'normale') return data.max;
             if (method === 'difficile') {
-                const best = Math.max(r(), r());
-                return isPR ? Math.max(1, best) : best + data.bonus;
+                const b = Math.max(r(), r());
+                return isPR ? Math.max(1, b) : b + data.bonus;
             }
-            if (method === 'estrema') {
-                const roll = r();
-                return isPR ? Math.max(1, roll) : roll + data.bonus;
-            }
+            const roll = r();
+            return isPR ? Math.max(1, roll) : roll + data.bonus;
         };
-
         document.getElementById('prd').value = getVal(false);
         document.getElementById('int').value = getVal(false);
         document.getElementById('rpd').value = getVal(false);
@@ -249,36 +243,28 @@
 
     async function salvaEroe() {
         const user = auth.currentUser;
-        if (!user) return alert("Utente non autenticato.");
+        const sVal = document.getElementById('campagna-select').value;
+        const campagna = (sVal === 'manuale' || sVal === "") ? document.getElementById('campagna-manuale').value : sVal;
 
-        // Recupero nome campagna corretto
-        const selectVal = document.getElementById('campagna-select').value;
-        const campagnaFinale = (selectVal === 'manuale') ? document.getElementById('campagna-manuale').value : selectVal;
-
-        if(!campagnaFinale) return alert("Devi indicare una Campagna!");
-        if(!document.getElementById('nome').value) return alert("Il tuo eroe ha bisogno di un nome!");
+        if(!campagna) return alert("Indica una campagna (selezionala o scrivila manuale)!");
+        if(!document.getElementById('nome').value) return alert("Inserisci il nome dell'eroe!");
 
         const data = {
             userId: user.uid,
             userName: document.getElementById('owner-name').innerText,
             nome: document.getElementById('nome').value,
-            campagna: campagnaFinale,
+            campagna: campagna,
             classe: document.getElementById('classe-select').value,
             livello: document.getElementById('livello').value,
             rango: document.getElementById('rango').value,
             ritratto: document.getElementById('ritratto').value,
             stats: { 
-                prd: document.getElementById('prd').value, 
-                int: document.getElementById('int').value, 
-                rpd: document.getElementById('rpd').value, 
-                pr: document.getElementById('pr').value, 
-                pe: document.getElementById('pe').value 
+                prd: document.getElementById('prd').value, int: document.getElementById('int').value, 
+                rpd: document.getElementById('rpd').value, pr: document.getElementById('pr').value, pe: document.getElementById('pe').value 
             },
             inventario: { 
-                oro: document.getElementById('oro').value, 
-                arma: document.getElementById('arma').value, 
-                armatura: document.getElementById('armatura').value, 
-                anello: document.getElementById('anello').value,
+                oro: document.getElementById('oro').value, arma: document.getElementById('arma').value, 
+                armatura: document.getElementById('armatura').value, anello: document.getElementById('anello').value,
                 zaino: Array.from({length:9}, (_,i)=>document.getElementById('inv'+(i+1)).value),
                 incantesimi: document.getElementById('incantesimi').value
             },
@@ -287,12 +273,9 @@
 
         try { 
             await db.collection("characters").add(data); 
-            alert("Eroe inciso negli annali!"); 
+            alert("Eroe salvato!"); 
             window.location.href="profile.html"; 
-        } catch (e) { 
-            console.error(e);
-            alert("Errore salvataggio: " + e.message);
-        }
+        } catch (e) { alert("Errore: " + e.message); }
     }
 </script>
 </body>
