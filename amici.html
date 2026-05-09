@@ -81,12 +81,12 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // Stato globale per il nome utente corrente (evita "Un Viandante")
     let currentUserName = "Un Viandante";
+    let currentUserData = null;
 
     auth.onAuthStateChanged(user => {
         if (user) {
-            setupMyCodeDisplay(user);
+            setupUserSession(user);
             loadFriends(user);
             loadPendingRequests(user);
         } else {
@@ -94,78 +94,48 @@
         }
     });
 
-    async function setupMyCodeDisplay(user) {
+    async function setupUserSession(user) {
         try {
             const doc = await db.collection("users").doc(user.uid).get();
             if (doc.exists) {
-                const data = doc.data();
-                currentUserName = data.username || user.displayName || "Un Viandante";
-                const code = data.friendCode || "Non generato";
-                document.getElementById('my-display-code').innerText = "Il tuo codice: " + code;
+                currentUserData = doc.data();
+                currentUserName = currentUserData.username || "Un Viandante";
+                document.getElementById('my-display-code').innerText = "Il tuo codice: " + (currentUserData.friendCode || "---");
             }
-        } catch (e) { console.error("Errore caricamento codice:", e); }
+        } catch (e) { console.error("Errore sessione:", e); }
     }
 
     async function sendFriendRequest() {
         const inputField = document.getElementById('friend-code-input');
-        const btn = document.getElementById('submit-request-btn');
         const code = inputField.value.trim().toUpperCase();
         const user = auth.currentUser;
 
-        if (!code) { alert("Inserisci un codice!"); return; }
-
-        btn.disabled = true;
-        btn.innerText = "VERIFICA IN CORSO...";
+        if (!code) return alert("Inserisci un codice!");
 
         try {
-            // Cerchiamo l'utente con quel codice
             const userSnap = await db.collection("users").where("friendCode", "==", code).get();
-
-            if (userSnap.empty) {
-                alert("Codice errato o inesistente negli Annali!");
-                return;
-            }
+            if (userSnap.empty) return alert("Codice inesistente!");
 
             const targetId = userSnap.docs[0].id;
+            if (targetId === user.uid) return alert("Non puoi auto-invitarti!");
 
-            if (targetId === user.uid) {
-                alert("Non puoi essere amico di te stesso!");
-                return;
+            const existing = await db.collection("friendships").where("users", "array-contains", user.uid).get();
+            if (existing.docs.some(d => d.data().users.includes(targetId))) {
+                return alert("Legame già esistente o pendente.");
             }
-
-            // Controllo se esiste già una richiesta tra i due
-            const existing = await db.collection("friendships")
-                .where("users", "array-contains", user.uid)
-                .get();
-            
-            const giapresente = existing.docs.some(d => d.data().users.includes(targetId));
-            if (giapresente) {
-                alert("Esiste già un legame o una richiesta pendente con questo guerriero.");
-                return;
-            }
-
-            const expiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000);
 
             await db.collection("friendships").add({
                 senderId: user.uid,
-                senderName: currentUserName, // Usa il nome reale preso dal database
+                senderName: currentUserName,
                 receiverId: targetId,
-                receiverCode: code,
                 status: "pending",
-                expiresAt: firebase.firestore.Timestamp.fromMillis(expiresAt),
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                expiresAt: firebase.firestore.Timestamp.fromMillis(Date.now() + 604800000),
                 users: [user.uid, targetId]
             });
 
-            alert("Missiva inviata! L'alleato ha 7 giorni per accettare.");
+            alert("Missiva inviata!");
             inputField.value = "";
-        } catch (e) {
-            console.error(e);
-            alert("Errore del server.");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "INVIA RICHIESTA";
-        }
+        } catch (e) { alert("Errore: " + e.message); }
     }
 
     function loadPendingRequests(user) {
@@ -180,25 +150,44 @@
 
                 snap.forEach(doc => {
                     const data = doc.data();
-                    // Controllo scadenza
-                    if (data.expiresAt && data.expiresAt.toMillis() < Date.now()) {
-                        db.collection("friendships").doc(doc.id).delete();
-                    } else {
-                        count++;
-                        list.innerHTML += `
-                            <li class="card-item">
-                                <div><b>${data.senderName}</b></div>
-                                <div class="action-btns">
-                                    <button class="btn-sm btn-acc" onclick="updateFriend('${doc.id}', 'accepted')">SÌ</button>
-                                    <button class="btn-sm btn-rej" onclick="updateFriend('${doc.id}', 'no')">NO</button>
-                                </div>
-                            </li>`;
-                    }
+                    count++;
+                    list.innerHTML += `
+                        <li class="card-item">
+                            <div><b>${data.senderName}</b></div>
+                            <div class="action-btns">
+                                <button class="btn-sm btn-acc" onclick="updateFriend('${doc.id}', 'accepted')">ACCETTA</button>
+                                <button class="btn-sm btn-rej" onclick="updateFriend('${doc.id}', 'rejected')">RIFIUTA</button>
+                            </div>
+                        </li>`;
                 });
                 badge.innerText = count;
                 badge.style.display = count > 0 ? "inline-block" : "none";
-                if (count === 0) document.getElementById('pending-panel').style.display = 'none';
             });
+    }
+
+    async function updateFriend(docId, status) {
+        try {
+            const friendshipDoc = await db.collection("friendships").doc(docId).get();
+            const data = friendshipDoc.data();
+
+            if (status === 'accepted') {
+                const batch = db.batch();
+                batch.update(db.collection("friendships").doc(docId), { status: 'accepted' });
+                
+                // Aggiornamento array permanente in USERS
+                batch.update(db.collection("users").doc(data.users[0]), {
+                    friends: firebase.firestore.FieldValue.arrayUnion(data.users[1])
+                });
+                batch.update(db.collection("users").doc(data.users[1]), {
+                    friends: firebase.firestore.FieldValue.arrayUnion(data.users[0])
+                });
+
+                await batch.commit();
+                alert("Alleanza suggellata!");
+            } else {
+                await db.collection("friendships").doc(docId).delete();
+            }
+        } catch (e) { alert("Errore: " + e.message); }
     }
 
     function loadFriends(user) {
@@ -209,33 +198,40 @@
                 const list = document.getElementById('friends-list');
                 list.innerHTML = "";
 
-                // Usiamo Promise.all per caricare i nomi in parallelo
-                const friendPromises = snap.docs.map(async d => {
+                for (const d of snap.docs) {
                     const data = d.data();
                     const friendId = data.users.find(id => id !== user.uid);
+                    
+                    // CHECK COERENZA ARRAY: Se l'amicizia è accettata ma manca l'ID nell'array dell'utente corrente
+                    if (!currentUserData?.friends?.includes(friendId)) {
+                         syncArrays(user.uid, friendId);
+                    }
+
                     const fDoc = await db.collection("users").doc(friendId).get();
-                    const name = fDoc.exists ? (fDoc.data().username || "Compagno") : "Ignoto";
-                    return `
+                    const name = fDoc.exists ? (fDoc.data().username || "Alleato") : "Ignoto";
+                    
+                    list.innerHTML += `
                         <li class="card-item">
                             <span>🛡️ ${name}</span>
-                            <span style="font-size:0.8rem; color:var(--gold);">ALLEATO</span>
+                            <span style="font-size:0.8rem; color:var(--gold);">FEDELE</span>
                         </li>`;
-                });
-
-                const results = await Promise.all(friendPromises);
-                list.innerHTML = results.join("");
+                }
             });
     }
 
-    async function updateFriend(docId, status) {
+    // Funzione di controllo e riparazione array
+    async function syncArrays(myId, friendId) {
         try {
-            if (status === 'accepted') {
-                await db.collection("friendships").doc(docId).update({ status: 'accepted' });
-                // Il pannello si chiuderà o aggiornerà tramite snapshot
-            } else {
-                await db.collection("friendships").doc(docId).delete();
-            }
-        } catch (e) { console.error(e); }
+            const batch = db.batch();
+            batch.update(db.collection("users").doc(myId), {
+                friends: firebase.firestore.FieldValue.arrayUnion(friendId)
+            });
+            batch.update(db.collection("users").doc(friendId), {
+                friends: firebase.firestore.FieldValue.arrayUnion(myId)
+            });
+            await batch.commit();
+            console.log("Sincronizzazione array eseguita per:", friendId);
+        } catch(e) { console.error("Errore sync:", e); }
     }
 
     function toggleRequests() {
