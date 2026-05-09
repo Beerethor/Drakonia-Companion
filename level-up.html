@@ -37,13 +37,11 @@
             background: white; font-family: 'Almendra'; font-size: 1rem; border-radius: 4px; box-sizing: border-box;
         }
 
-        /* Stats Row */
         .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 10px 0; }
         .stat-item { text-align: center; background: white; border: 1px solid var(--leather); padding: 5px; border-radius: 4px; }
         .stat-label { font-size: 0.7rem; font-weight: bold; color: var(--blood); }
         .stat-val { font-size: 1.3rem; font-weight: bold; }
 
-        /* Inventory Grid */
         .inv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .inv-grid input { padding: 8px; font-size: 0.8rem; text-align: center; }
 
@@ -53,7 +51,6 @@
             font-size: 1.4rem; cursor: pointer; margin-top: 30px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5); transition: 0.3s;
         }
-        .btn-evolve:active { transform: scale(0.98); box-shadow: none; }
 
         .preview-box { background: var(--leather); color: var(--gold); padding: 15px; border-radius: 4px; margin-top: 15px; display: none; font-size: 0.95rem; line-height: 1.4; border: 1px solid var(--gold); }
         .highlight { color: #fff; font-weight: bold; border-bottom: 1px dashed var(--gold); }
@@ -63,11 +60,12 @@
 
 <div class="sheet-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <button onclick="window.location.href='index.html'" style="background: var(--leather); color: var(--gold); border: 1px solid var(--gold); padding: 5px 10px; font-family: 'Grenze Gotisch'; cursor: pointer; border-radius: 4px;">
+        <button onclick="window.history.back()" style="background: var(--leather); color: var(--gold); border: 1px solid var(--gold); padding: 5px 10px; font-family: 'Grenze Gotisch'; cursor: pointer; border-radius: 4px;">
             ← Indietro
         </button>
         <span style="font-family: 'Grenze Gotisch'; color: var(--blood); font-size: 0.8rem;">MODALITÀ EDITING</span>
     </div>
+    
     <h1>EVOLUZIONE</h1>
     <div id="pg-nome" class="hero-name">Caricamento...</div>
 
@@ -76,7 +74,9 @@
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
             <div>
                 <label>VIA DA SEGUIRE</label>
-                <select id="sel-class" onchange="previewUpdate()"></select>
+                <select id="sel-class" onchange="previewUpdate()">
+                    <option value="">-- Seleziona --</option>
+                </select>
             </div>
             <div>
                 <label>LIVELLI</label>
@@ -87,7 +87,7 @@
         <div id="preview-area" class="preview-box"></div>
 
         <div id="stat-bonus-panel" style="display:none; background:#fff3cd; padding:10px; margin-top:10px; border:1px solid var(--gold); border-radius:4px;">
-            <label>✨ SELEZIONA AUMENTO CARATTERISTICA</label>
+            <label>✨ AUMENTO CARATTERISTICA</label>
             <select id="stat-boost">
                 <option value="">-- Scegli quale migliorare --</option>
                 <option value="prd">Prodezza (PRD)</option>
@@ -98,33 +98,30 @@
         </div>
     </div>
 
-    <div class="section-title"><span>CARATTERISTICHE & CRONACA</span></div>
+    <div class="section-title"><span>STATISTICHE & STORIA</span></div>
     <div class="stat-row">
         <div class="stat-item"><div class="stat-label">PRD</div><div id="cur-prd" class="stat-val">0</div></div>
         <div class="stat-item"><div class="stat-label">INT</div><div id="cur-int" class="stat-val">0</div></div>
         <div class="stat-item"><div class="stat-label">RPD</div><div id="cur-rpd" class="stat-val">0</div></div>
         <div class="stat-item"><div class="stat-label">PR</div><div id="cur-pr" class="stat-val">0</div></div>
     </div>
-    <textarea id="edit-storia" placeholder="Aggiorna la tua storia o aggiungi note di viaggio..." rows="3"></textarea>
+    <textarea id="edit-storia" placeholder="Note sulla storia..." rows="3"></textarea>
 
-    <div class="section-title"><span>BACCAGLIO & POTERI</span></div>
+    <div class="section-title"><span>EQUIPAGGIAMENTO</span></div>
     <div class="card">
         <input type="text" id="edit-arma" placeholder="Arma principale">
         <input type="text" id="edit-armatura" placeholder="Armatura">
-        <input type="text" id="edit-anello" placeholder="Accessorio Magico">
-        
-        <label>ZAINO (MAX 9 OGGETTI)</label>
+        <input type="text" id="edit-anello" placeholder="Accessorio">
+        <label>ZAINO</label>
         <div class="inv-grid" id="zaino-slots"></div>
-        
-        <label>POTERI E INCANTESIMI</label>
-        <textarea id="edit-poteri" placeholder="Descrivi nuovi incantesimi o abilità acquisite..." rows="3"></textarea>
+        <label>INCANTESIMI / ABILITÀ</label>
+        <textarea id="edit-poteri" placeholder="Lista poteri..." rows="3"></textarea>
     </div>
 
     <button class="btn-evolve" onclick="confermaEvoluzione()">INCIDI PROGRESSI</button>
 </div>
 
 <script>
-    // Configurazione Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
         authDomain: "drakonia-companion.firebaseapp.com",
@@ -139,7 +136,6 @@
     const charId = new URLSearchParams(window.location.search).get('id');
     let pg = null;
 
-    // Database Abilità
     const ALBERO_CLASSI = {
         "Guerriero": ["", "Casta dei Guerrieri", "Armature Pesanti", "Minaccioso", "Aumento Caratteristica", "Ambidestro 1", "Aumento Caratteristica", "Addestramento Marziale", "Aumento Caratteristica", "Ambidestro 3"],
         "Truffatore": ["", "Furbizia Lesto", "Tecnica dell'Arco", "Virtuoso", "Tecnica del Pugnale", "Aumento Caratteristica", "Intrallazzo", "Aumento Caratteristica", "Aumento Caratteristica", "Velocità di Pensiero 3"],
@@ -149,21 +145,17 @@
     };
 
     window.onload = async () => {
-        if(!charId) return alert("Eroe non identificato!");
-        
-        // Genera zaino
+        if(!charId) return alert("ID mancante!");
         const container = document.getElementById('zaino-slots');
-        for(let i=0; i<9; i++) container.innerHTML += `<input type="text" id="z-${i}" placeholder="Vuoto">`;
+        for(let i=0; i<9; i++) container.innerHTML += `<input type="text" id="z-${i}" placeholder="Slot ${i+1}">`;
 
-        try {
-            const doc = await db.collection("characters").doc(charId).get();
-            if(!doc.exists) return alert("Eroe svanito nel nulla!");
-            pg = doc.data();
-            caricaDatiUI();
-        } catch(e) { console.error(e); }
+        const doc = await db.collection("characters").doc(charId).get();
+        if(!doc.exists) return alert("Personaggio non trovato!");
+        pg = doc.data();
+        initUI();
     };
 
-    function caricaDatiUI() {
+    function initUI() {
         document.getElementById('pg-nome').innerText = pg.nome;
         document.getElementById('display-lv').innerText = "Lv. " + (pg.livello || 1);
         document.getElementById('edit-storia').value = pg.storia || "";
@@ -178,25 +170,30 @@
         document.getElementById('cur-rpd').innerText = s.rpd;
         document.getElementById('cur-pr').innerText = s.pr;
 
-        // Riempimento zaino
         if(pg.inventario?.zaino) {
             pg.inventario.zaino.forEach((item, i) => { if(i<9) document.getElementById(`z-${i}`).value = item; });
         }
 
-        // Setup Classi (Esistenti + Multiclasse)
-        const map = (typeof pg.classe === 'object') ? pg.classe : {[pg.classe]: pg.livello};
-        pg.mappaClassi = map;
+        // Fix Mappa Classi
+        let currentMap = pg.classe;
+        if (typeof currentMap !== 'object' || currentMap === null) {
+            currentMap = { [pg.classe]: pg.livello || 1 };
+        }
+        pg.mappaClassi = currentMap;
 
+        // Popola tendina
         const sel = document.getElementById('sel-class');
         sel.innerHTML = '<option value="">-- Seleziona la Via --</option>';
         
-        // Prima le classi che già possiede
-        for(let c in map) sel.innerHTML += `<option value="${c}" style="font-weight:bold;">Migliora ${c} (Liv. ${map[c]})</option>`;
-        
-        // Poi le opzioni multiclasse
-        sel.innerHTML += '<optgroup label="Nuova Multiclasse">';
+        sel.innerHTML += '<optgroup label="Classi Attuali">';
+        for(let c in pg.mappaClassi) {
+            sel.innerHTML += `<option value="${c}">${c} (Liv. ${pg.mappaClassi[c]})</option>`;
+        }
+        sel.innerHTML += '</optgroup>';
+
+        sel.innerHTML += '<optgroup label="Nuove Vie (Multiclasse)">';
         Object.keys(ALBERO_CLASSI).forEach(c => {
-            if(!map[c]) sel.innerHTML += `<option value="${c}">${c} (Nuova)</option>`;
+            if(!pg.mappaClassi[c]) sel.innerHTML += `<option value="${c}">${c} (Nuova)</option>`;
         });
         sel.innerHTML += '</optgroup>';
     }
@@ -210,20 +207,19 @@
 
         let currentLv = pg.mappaClassi[cls] || 0;
         let futureLv = currentLv + qty;
-        let nuoveAbilita = [];
-        let hasStatBonus = false;
+        let sblocchi = [];
+        let needsStat = false;
 
         for(let i = currentLv + 1; i <= futureLv; i++) {
-            let a = ALBERO_CLASSI[cls][i] || "Miglioramento Statistiche";
-            nuoveAbilita.push(`Liv.${i}: ${a}`);
-            if(a.includes("Aumento")) hasStatBonus = true;
+            let abil = (ALBERO_CLASSI[cls] && ALBERO_CLASSI[cls][i]) ? ALBERO_CLASSI[cls][i] : "Potenziamento generico";
+            sblocchi.push(`Liv. ${i}: ${abil}`);
+            if(abil.includes("Aumento")) needsStat = true;
         }
 
-        box.innerHTML = `L'eroe raggiungerà il <span class="highlight">Livello ${futureLv}</span> come ${cls}.<br><br>` + 
-                        `<strong>Sbloccherai:</strong><br>• ` + nuoveAbilita.join('<br>• ');
+        box.innerHTML = `Evoluzione in <span class="highlight">${cls}</span> fino al <span class="highlight">Grado ${futureLv}</span>.<br><br>` + 
+                        `<strong>Ricompense:</strong><br>• ` + sblocchi.join('<br>• ');
         box.style.display = 'block';
-
-        document.getElementById('stat-bonus-panel').style.display = hasStatBonus ? 'block' : 'none';
+        document.getElementById('stat-bonus-panel').style.display = needsStat ? 'block' : 'none';
     }
 
     async function confermaEvoluzione() {
@@ -231,7 +227,7 @@
         const qty = parseInt(document.getElementById('lv-qty').value) || 0;
         const boost = document.getElementById('stat-boost').value;
 
-        let finalData = {
+        let upd = {
             storia: document.getElementById('edit-storia').value,
             "inventario.arma": document.getElementById('edit-arma').value,
             "inventario.armatura": document.getElementById('edit-armatura').value,
@@ -241,31 +237,29 @@
         };
 
         if(cls && qty > 0) {
-            let nMap = {...pg.mappaClassi};
-            nMap[cls] = (nMap[cls] || 0) + qty;
+            let newMap = {...pg.mappaClassi};
+            newMap[cls] = (newMap[cls] || 0) + qty;
             
-            finalData.livello = (parseInt(pg.livello) || 1) + qty;
-            finalData.classe = nMap;
+            upd.livello = (parseInt(pg.livello) || 1) + qty;
+            upd.classe = newMap;
 
-            // Calcolo rango automatico
-            const ranghi = ["", "Novizio", "Viandante", "Esperto", "Veterano", "Campione", "Eroe", "Leggenda", "Semidio", "Eterno"];
-            finalData.rango = ranghi[Math.min(finalData.livello, 9)];
+            // Rango
+            const r = ["", "Novizio", "Viandante", "Esperto", "Veterano", "Campione", "Eroe", "Leggenda", "Semidio", "Eterno"];
+            upd.rango = r[Math.min(upd.livello, 9)];
 
             if(document.getElementById('stat-bonus-panel').style.display === 'block') {
-                if(!boost) return alert("Devi scegliere quale statistica aumentare!");
-                let nStats = {...pg.stats};
-                nStats[boost] = (parseInt(nStats[boost]) || 0) + 1;
-                finalData.stats = nStats;
+                if(!boost) return alert("Seleziona la statistica da aumentare!");
+                let ns = {...pg.stats};
+                ns[boost] = (parseInt(ns[boost]) || 0) + 1;
+                upd.stats = ns;
             }
         }
 
         try {
-            await db.collection("characters").doc(charId).update(finalData);
-            alert("✨ Il destino è stato segnato! L'eroe si è evoluto.");
-            window.location.href = "index.html";
-        } catch(e) { 
-            alert("Errore durante l'incisione: " + e.message); 
-        }
+            await db.collection("characters").doc(charId).update(upd);
+            alert("Evoluzione completata!");
+            window.location.href = `visualizza.html?id=${charId}`;
+        } catch(e) { alert("Errore: " + e.message); }
     }
 </script>
 
