@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Missive Segrete - Drakonia</title>
-    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
+    <title>Inbox Missive - Drakonia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -15,65 +15,71 @@
         
         body { 
             background: var(--ink) url('https://www.transparenttextures.com/patterns/dark-leather.png');
-            color: var(--parchment); font-family: 'Almendra', serif; margin: 0; display: flex; flex-direction: column; height: 100vh;
+            color: var(--parchment); font-family: 'Almendra', serif; margin: 0; padding: 20px;
         }
 
-        /* Header */
-        .chat-header { 
-            background: var(--leather); padding: 15px; border-bottom: 2px solid var(--gold);
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .back-btn { color: var(--gold); text-decoration: none; font-family: 'MedievalSharp'; }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { font-family: 'Grenze Gotisch'; color: var(--gold); text-align: center; }
 
-        /* Timer Scadenza */
-        #expiry-timer { 
-            font-size: 0.85rem; text-align: center; padding: 5px; 
-            background: rgba(139, 0, 0, 0.2); color: #ff6666; font-weight: bold;
+        /* Lista Chat */
+        .chat-card { 
+            background: rgba(244, 228, 188, 0.05); border: 1px solid var(--gold); 
+            padding: 15px; margin-bottom: 10px; border-radius: 8px; cursor: pointer;
+            transition: 0.3s; display: flex; justify-content: space-between; align-items: center;
+        }
+        .chat-card:hover { background: rgba(184, 134, 11, 0.15); }
+        .expiry-warning { font-size: 0.75rem; color: #ff6666; font-style: italic; }
+
+        /* Modal */
+        #new-msg-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: var(--leather); border: 2px solid var(--gold); padding: 25px;
+            width: 90%; max-width: 400px; border-radius: 10px; text-align: center;
         }
 
-        /* Area Messaggi */
-        #chat-window { 
-            flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px;
-            background: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+        .btn-main {
+            background: var(--gold); color: var(--leather); border: none; padding: 12px 20px;
+            font-family: 'Grenze Gotisch'; font-size: 1.1rem; cursor: pointer; width: 100%;
+            margin-top: 10px; border-radius: 4px;
         }
 
-        .msg { max-width: 80%; padding: 10px 15px; border-radius: 8px; position: relative; line-height: 1.4; }
-        .msg.sent { align-self: flex-end; background: var(--gold); color: var(--leather); border-bottom-right-radius: 2px; }
-        .msg.received { align-self: flex-start; background: var(--leather); color: var(--parchment); border: 1px solid var(--gold); border-bottom-left-radius: 2px; }
-        
-        .msg-time { font-size: 0.7rem; opacity: 0.7; display: block; margin-top: 5px; text-align: right; }
+        select {
+            width: 100%; padding: 12px; background: var(--parchment); color: var(--ink);
+            font-family: 'Almendra'; margin: 15px 0; border-radius: 4px; font-size: 1rem;
+        }
 
-        /* Input Area */
-        .input-area { 
-            background: var(--leather); padding: 15px; display: flex; gap: 10px; border-top: 2px solid var(--gold);
-        }
-        input { 
-            flex: 1; background: var(--parchment); border: none; padding: 12px; 
-            font-family: 'Almendra'; border-radius: 4px; font-size: 1rem;
-        }
-        .send-btn { 
-            background: var(--gold); border: none; padding: 0 20px; 
-            font-family: 'MedievalSharp'; font-weight: bold; cursor: pointer;
-        }
+        .empty-state { text-align: center; opacity: 0.6; margin-top: 40px; }
     </style>
 </head>
 <body>
 
-    <div class="chat-header">
-        <a href="amici-pg.html" class="back-btn">⬅ Alleati</a>
-        <h3 id="chat-with-name" style="margin:0; color:var(--gold);">Missiva</h3>
-        <div style="width: 50px;"></div>
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <a href="index.html" style="color: var(--gold); text-decoration: none; font-family: 'MedievalSharp';">« Portale</a>
+        <button onclick="openModal()" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 15px; cursor: pointer; font-family: 'Grenze Gotisch';">📜 Nuova Missiva</button>
     </div>
 
-    <div id="expiry-timer">Calcolo tempo rimasto...</div>
+    <h1>Inbox Missive</h1>
 
-    <div id="chat-window">
-        </div>
-
-    <div class="input-area">
-        <input type="text" id="msg-input" placeholder="Scrivi una missiva..." autocomplete="off">
-        <button class="send-btn" onclick="sendMessage()">INVIA</button>
+    <div id="inbox-list">
+        <p class="empty-state">Consultando gli archivi...</p>
     </div>
+</div>
+
+<div id="new-msg-modal">
+    <div class="modal-content">
+        <h2 style="color: var(--gold); margin-top: 0; font-family: 'Grenze Gotisch';">Invia Missiva</h2>
+        <p>Scegli il destinatario tra i tuoi alleati:</p>
+        <select id="friend-selector">
+            <option value="">-- Seleziona Alleato --</option>
+        </select>
+        <button class="btn-main" onclick="startChat()">APRI PERGAMENA</button>
+        <button class="btn-main" onclick="closeModal()" style="background:none; color:var(--gold); border: 1px solid var(--gold);">CHIUDI</button>
+    </div>
+</div>
 
 <script>
     const firebaseConfig = {
@@ -89,96 +95,88 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // Ottieni parametri dall'URL (amici-pg.html dovrà passare l'ID amico)
-    const urlParams = new URLSearchParams(window.location.search);
-    const friendId = urlParams.get('id');
-    const friendName = urlParams.get('name');
-    let chatId = null;
-
-    if (!friendId) window.location.href = 'amici-pg.html';
-    document.getElementById('chat-with-name').innerText = friendName;
-
     auth.onAuthStateChanged(user => {
         if (user) {
-            setupChat(user);
+            loadInbox(user);
+            loadFriendsList(user);
         } else {
             window.location.href = 'login.html';
         }
     });
 
-    async function setupChat(user) {
-        // Genera un ID chat unico basato sui due UID (sempre nello stesso ordine)
-        chatId = user.uid < friendId ? `${user.uid}_${friendId}` : `${friendId}_${user.uid}`;
+    function loadInbox(user) {
+        db.collection("chats")
+            .where("participants", "array-contains", user.uid)
+            .orderBy("lastUpdate", "desc")
+            .onSnapshot(async snap => {
+                const list = document.getElementById('inbox-list');
+                if (snap.empty) {
+                    list.innerHTML = "<p class='empty-state'>Nessun messaggio trovato. Inizia una nuova conversazione!</p>";
+                    return;
+                }
 
-        // Ascolta i messaggi
-        db.collection("chats").doc(chatId).collection("messages")
-            .orderBy("timestamp", "asc")
-            .onSnapshot(snap => {
-                const win = document.getElementById('chat-window');
-                win.innerHTML = "";
-                snap.forEach(doc => {
-                    const m = doc.data();
-                    const isSent = m.senderId === user.uid;
-                    win.innerHTML += `
-                        <div class="msg ${isSent ? 'sent' : 'received'}">
-                            ${m.text}
-                            <span class="msg-time">${m.timestamp ? new Date(m.timestamp.toMillis()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
+                list.innerHTML = "";
+                for (const doc of snap.docs) {
+                    const data = doc.data();
+                    const otherId = data.participants.find(id => id !== user.uid);
+                    
+                    const friendDoc = await db.collection("users").doc(otherId).get();
+                    const friendName = friendDoc.exists ? (friendDoc.data().username || "Ignoto") : "Ignoto";
+
+                    const lastUpdate = data.lastUpdate ? data.lastUpdate.toMillis() : Date.now();
+                    const diff = (lastUpdate + (7 * 24 * 60 * 60 * 1000)) - Date.now();
+                    const giorni = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+
+                    list.innerHTML += `
+                        <div class="chat-card" onclick="goToChat('${otherId}', '${friendName}')">
+                            <div>
+                                <div style="font-size: 1.2rem; font-weight: bold; color: var(--gold);">✉️ ${friendName}</div>
+                                <div class="expiry-warning">Cancellazione tra ${giorni} giorni</div>
+                            </div>
+                            <span style="color: var(--gold); font-size: 1.5rem;">»</span>
                         </div>`;
-                });
-                win.scrollTop = win.scrollHeight;
+                }
+            }, err => {
+                console.error("Errore snapshot:", err);
+                document.getElementById('inbox-list').innerHTML = "Errore nel caricamento dei messaggi.";
             });
+    }
 
-        // Ascolta i dati della chat per il timer
-        db.collection("chats").doc(chatId).onSnapshot(doc => {
-            if (doc.exists) {
-                updateExpiryTimer(doc.data().lastUpdate);
+    async function loadFriendsList(user) {
+        const selector = document.getElementById('friend-selector');
+        const snap = await db.collection("friendships")
+            .where("users", "array-contains", user.uid)
+            .where("status", "==", "accepted")
+            .get();
+
+        for (const d of snap.docs) {
+            const friendId = d.data().users.find(id => id !== user.uid);
+            const fDoc = await db.collection("users").doc(friendId).get();
+            if (fDoc.exists) {
+                const opt = document.createElement('option');
+                opt.value = friendId;
+                const name = fDoc.data().username || "Compagno";
+                opt.dataset.name = name;
+                opt.innerText = name;
+                selector.appendChild(opt);
             }
-        });
-    }
-
-    function updateExpiryTimer(lastUpdate) {
-        if (!lastUpdate) return;
-        const lastTs = lastUpdate.toMillis();
-        const expiryTs = lastTs + (7 * 24 * 60 * 60 * 1000);
-        
-        const now = Date.now();
-        const diff = expiryTs - now;
-
-        if (diff <= 0) {
-            document.getElementById('expiry-timer').innerText = "QUESTA MISSIVA È SCADUTA E VERRÀ CANCELLATA.";
-            return;
         }
-
-        const giorni = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const ore = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        
-        document.getElementById('expiry-timer').innerText = 
-            `📜 La polvere del tempo spazzerà via questi messaggi tra: ${giorni}g ${ore}ore`;
     }
 
-    async function sendMessage() {
-        const input = document.getElementById('msg-input');
-        const text = input.value.trim();
-        const user = auth.currentUser;
+    function openModal() { document.getElementById('new-msg-modal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('new-msg-modal').style.display = 'none'; }
 
-        if (!text || !chatId) return;
+    function startChat() {
+        const sel = document.getElementById('friend-selector');
+        const id = sel.value;
+        const name = sel.options[sel.selectedIndex].dataset.name;
+        if (!id) return alert("Scegli un alleato!");
+        goToChat(id, name);
+    }
 
-        const now = firebase.firestore.FieldValue.serverTimestamp();
-
-        // 1. Aggiungi il messaggio
-        await db.collection("chats").doc(chatId).collection("messages").add({
-            senderId: user.uid,
-            text: text,
-            timestamp: now
-        });
-
-        // 2. Aggiorna il timestamp della chat (resetta i 7 giorni)
-        await db.collection("chats").doc(chatId).set({
-            lastUpdate: now,
-            participants: [user.uid, friendId]
-        }, { merge: true });
-
-        input.value = "";
+    function goToChat(id, name) {
+        // PUNTIAMO ALLA PAGINA DELLA CHAT SINGOLA
+        window.location.href = `chat.html?id=${id}&name=${encodeURIComponent(name)}`;
     }
 </script>
 </body>
