@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Drakonia RPG - Portale dell'Avventuriero</title>
+    <title>Drakonia RPG - Portale</title>
     <link rel="icon" type="image/png" href="icon/icon_192x192.png">
     <link rel="apple-touch-icon" href="icon/icon_192x192.png">
     <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
@@ -13,289 +13,168 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root {
-            --parchment: #f4e4bc;
-            --ink: #2c1e11;
-            --gold: #b8860b;
-            --blood: #8b0000;
-            --leather: #1a110a;
-            --sky: #2196F3;
-        }
-
+        :root { --parchment: #f4e4bc; --ink: #2c1e11; --gold: #b8860b; --blood: #8b0000; --sky: #2196F3; }
+        
         body {
             background: radial-gradient(circle, #2c1e11 0%, #1a110a 100%);
-            color: var(--parchment);
-            font-family: 'Almendra', serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
+            color: var(--parchment); font-family: 'Almendra', serif; margin: 0;
+            display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden;
         }
 
         header {
             background: url('https://www.transparenttextures.com/patterns/dark-leather.png'), #1a110a;
-            border-bottom: 3px double var(--gold);
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-bottom: 3px double var(--gold); padding: 15px 25px;
+            display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.7);
         }
 
-        header h1 {
-            font-family: 'Grenze Gotisch', cursive;
-            font-size: 2.5rem;
-            margin: 0;
-            color: var(--gold);
-            text-shadow: 2px 2px 4px #000;
-            letter-spacing: 3px;
-        }
+        header h1 { font-family: 'Grenze Gotisch'; font-size: 2.2rem; margin: 0; color: var(--gold); letter-spacing: 3px; }
 
         .profile-trigger {
-            width: 50px; height: 50px;
-            border-radius: 50%; border: 2px solid var(--gold);
-            cursor: pointer; overflow: hidden; background: var(--ink);
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.2s;
+            width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--gold);
+            cursor: pointer; overflow: hidden; background: var(--ink); transition: 0.2s;
         }
-
         .profile-trigger:hover { transform: scale(1.1); }
         .profile-trigger img { width: 100%; height: 100%; object-fit: cover; }
 
-        .hub-container {
-            flex-grow: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; padding: 20px;
-        }
-
-        .welcome-msg {
-            font-family: 'MedievalSharp'; font-size: 1.5rem;
-            margin-bottom: 30px; color: var(--gold);
-            text-align: center;
-        }
+        .hub-container { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .welcome-msg { font-family: 'MedievalSharp'; font-size: 1.4rem; margin-bottom: 30px; color: var(--gold); text-align: center; }
 
         .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px; width: 100%; max-width: 900px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 15px; width: 100%; max-width: 800px;
         }
 
         .card {
-            background: var(--parchment);
-            color: var(--ink);
-            border: 4px double #4a321f;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-            position: relative;
+            background: var(--parchment); color: var(--ink); border: 3px double #4a321f;
+            border-radius: 8px; padding: 18px; text-align: center; text-decoration: none;
+            transition: 0.3s; box-shadow: 0 8px 16px rgba(0,0,0,0.5); position: relative;
         }
-
-        .card:hover { transform: translateY(-5px); border-color: var(--gold); background: #fff; }
-        .card span { font-size: 2.2rem; display: block; margin-bottom: 8px; }
-        .card p { margin: 0; font-weight: bold; font-family: 'MedievalSharp'; font-size: 1rem; }
+        .card:hover { transform: translateY(-3px); border-color: var(--gold); background: #fff; }
+        .card span { font-size: 2rem; display: block; margin-bottom: 5px; }
+        .card p { margin: 0; font-weight: bold; font-family: 'MedievalSharp'; font-size: 0.95rem; }
         
-        .role-badge {
-            position: absolute; top: -10px; right: -10px;
-            background: var(--blood); color: white;
-            font-size: 0.7rem; padding: 2px 8px;
-            border-radius: 4px; border: 1px solid var(--gold);
-            font-family: 'Grenze Gotisch'; display: none;
-            z-index: 10;
+        .badge {
+            position: absolute; top: -8px; right: -8px; background: var(--blood); color: white;
+            min-width: 20px; height: 20px; border-radius: 10px; border: 1.5px solid var(--gold);
+            font-family: 'Grenze Gotisch'; font-size: 0.8rem; display: none; align-items: center; justify-content: center; z-index: 5;
         }
 
-        .notification-badge {
-            position: absolute; top: -8px; right: -8px;
-            background: var(--blood); color: white;
-            min-width: 22px; height: 22px;
-            border-radius: 50%; border: 2px solid var(--gold);
-            font-family: 'Grenze Gotisch'; font-size: 0.85rem;
-            display: none; align-items: center; justify-content: center;
-            box-shadow: 0 0 10px rgba(139, 0, 0, 0.8);
-            z-index: 10;
+        .role-tag {
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            background: var(--blood); color: white; font-size: 0.65rem; padding: 1px 8px;
+            border-radius: 3px; border: 1px solid var(--gold); font-family: 'Grenze Gotisch'; display: none;
         }
 
-        footer {
-            background: #1a110a; padding: 15px; text-align: center;
-            font-size: 0.8rem; border-top: 1px solid var(--gold);
-            opacity: 0.6;
+        footer { padding: 15px; text-align: center; font-size: 0.75rem; opacity: 0.5; border-top: 1px solid rgba(184, 134, 11, 0.2); }
+
+        #pwa-tip {
+            display: none; position: fixed; bottom: 20px; left: 15px; right: 15px;
+            background: var(--parchment); color: var(--ink); border: 2px solid var(--gold);
+            border-radius: 10px; padding: 12px; z-index: 100; box-shadow: 0 5px 20px #000;
         }
-
-        /* Banner PWA */
-        #mobile-install-tip {
-            display: none; position: fixed; bottom: 20px; left: 10px; right: 10px;
-            background: var(--parchment); color: var(--ink); border: 3px double var(--gold);
-            border-radius: 12px; padding: 15px; z-index: 1000; box-shadow: 0 -5px 25px rgba(0,0,0,0.8);
-            animation: slideUp 0.5s ease-out;
-        }
-
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        .tip-content { display: flex; align-items: center; gap: 15px; }
-        .tip-text { flex-grow: 1; font-size: 0.9rem; line-height: 1.2; }
-        .tip-text b { color: var(--blood); font-family: 'Grenze Gotisch'; }
-        .close-tip { background: var(--ink); color: var(--gold); border: 1px solid var(--gold); border-radius: 4px; padding: 5px 10px; cursor: pointer; }
-
-        @media (max-width: 768px) { #mobile-install-tip.active { display: block; } }
+        #pwa-tip.active { display: block; animation: fadeInUp 0.4s; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <header>
         <h1>DRAKONIA</h1>
-        <div id="profile-btn" class="profile-trigger" onclick="handleProfileClick()">
-            <img id="user-avatar" src="https://img.icons8.com/color/96/fantasy.png" alt="Profilo">
+        <div class="profile-trigger" onclick="location.href=auth.currentUser?'profile.html':'login.html'">
+            <img id="u-avatar" src="https://img.icons8.com/color/96/fantasy.png" alt="PG">
         </div>
     </header>
 
     <main class="hub-container">
-        <div class="welcome-msg">
-            <span id="welcome-text">In attesa dell'eroe...</span>
-        </div>
+        <div class="welcome-msg" id="w-msg">In cammino...</div>
 
         <div class="card-grid">
-            <a href="creazione-pg.html" class="card">
-                <span>✨</span>
-                <p>Nuovo Eroe</p>
-            </a>
-            
-            <a href="archivio-pg.html" class="card">
-                <span>📂</span>
-                <p>Archivio PG</p>
-            </a>
-
+            <a href="creazione-pg.html" class="card"><span>✨</span><p>Nuovo Eroe</p></a>
+            <a href="archivio-pg.html" class="card"><span>📂</span><p>Archivio PG</p></a>
             <a href="campagne.html" class="card">
-                <div id="master-badge" class="role-badge">MASTER</div>
-                <span>🏰</span>
-                <p>Campagne</p>
+                <div id="tag-master" class="role-tag">MASTER</div>
+                <span>🏰</span><p>Campagne</p>
             </a>
-
             <a href="amici.html" class="card">
-                <div id="friend-badge" class="notification-badge" style="background: var(--sky);">0</div>
-                <span>👥</span>
-                <p>Compagni</p>
+                <div id="b-friend" class="badge" style="background:var(--sky)">0</div>
+                <span>👥</span><p>Compagni</p>
             </a>
-
-            <a href="messaggi.html" id="msg-card" class="card">
-                <div id="msg-badge" class="notification-badge">!</div>
-                <span>✉️</span>
-                <p>Messaggi</p>
+            <a href="messaggi.html" id="m-card" class="card">
+                <div id="b-msg" class="badge">!</div>
+                <span>✉️</span><p>Messaggi</p>
             </a>
-
-            <a href="drakonia-rules-database.html" class="card">
-                <span>📜</span>
-                <p>Codex</p>
-            </a>
+            <a href="drakonia-rules-database.html" class="card"><span>📜</span><p>Codex</p></a>
         </div>
     </main>
 
-    <footer>&copy; 2026 Drakonia Companion - Portale dell'Avventuriero</footer>
+    <footer>&copy; 2026 Drakonia Companion</footer>
 
-    <div id="mobile-install-tip">
-        <div class="tip-content">
-            <div class="tip-icon">📱</div>
-            <div class="tip-text">
-                <b>Drakonia Web-App</b><br>
-                Tocca l'icona di condivisione o i tre puntini e seleziona <b>"Aggiungi alla schermata Home"</b>.
-            </div>
-            <button class="close-tip" onclick="closeTip()">CHIUDI</button>
+    <div id="pwa-tip">
+        <div style="display:flex; align-items:center; gap:12px; font-size:0.85rem;">
+            <span>📱</span>
+            <div style="flex-grow:1"><b>Drakonia Web-App</b>: aggiungi alla <b>Schermata Home</b> per l'esperienza completa.</div>
+            <button onclick="this.parentElement.parentElement.classList.remove('active'); localStorage.setItem('pwa_off', '1')" 
+                    style="background:var(--ink); color:var(--gold); border:1px solid; border-radius:4px; padding:4px 8px; cursor:pointer;">X</button>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = {
+        const config = {
             apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
             authDomain: "drakonia-companion.firebaseapp.com",
             projectId: "drakonia-companion",
             storageBucket: "drakonia-companion.firebasestorage.app",
             messagingSenderId: "803844500713",
-            appId: "1:803844500713:web:c902b67f4e395bd20c9478",
-            measurementId: "G-GE42YKVX9G"
+            appId: "1:803844500713:web:c902b67f4e395bd20c9478"
         };
 
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        firebase.initializeApp(config);
+        const auth = firebase.auth(), db = firebase.firestore();
+
+        const UI = {
+            welcome: document.getElementById('w-msg'),
+            avatar: document.getElementById('u-avatar'),
+            master: document.getElementById('tag-master'),
+            msgBadge: document.getElementById('b-msg'),
+            friendBadge: document.getElementById('b-friend')
+        };
 
         auth.onAuthStateChanged(user => {
-            const welcomeText = document.getElementById('welcome-text');
-            const avatarImg = document.getElementById('user-avatar');
-            const masterBadge = document.getElementById('master-badge');
-            const msgBadge = document.getElementById('msg-badge');
-            const friendBadge = document.getElementById('friend-badge');
-
             if (user) {
-                // 1. Snapshot Dati Utente
-                db.collection("users").doc(user.uid).onSnapshot((doc) => {
+                // Sincronizzazione profilo
+                db.collection("users").doc(user.uid).onSnapshot(doc => {
                     if (doc.exists) {
-                        const data = doc.data();
-                        welcomeText.innerText = "Bentornato, " + (data.username || "Eroe");
-                        avatarImg.src = data.avatar || "https://img.icons8.com/color/96/fantasy.png";
-                        masterBadge.style.display = (data.role === "Master" || data.role === "Founder") ? "block" : "none";
+                        const d = doc.data();
+                        UI.welcome.innerText = `Bentornato, ${d.username || 'Eroe'}`;
+                        UI.avatar.src = d.avatar || "https://img.icons8.com/color/96/fantasy.png";
+                        UI.master.style.display = (['Master', 'Founder'].includes(d.role)) ? 'block' : 'none';
                     }
                 });
 
-                // 2. Snapshot Notifiche Messaggi
-                db.collection("chats")
-                    .where("participants", "array-contains", user.uid)
-                    .onSnapshot(snap => {
-                        if (!snap.empty && !sessionStorage.getItem('messagesViewed')) {
-                            msgBadge.style.display = "flex";
-                        } else {
-                            msgBadge.style.display = "none";
-                        }
-                    });
+                // Notifiche Messaggi
+                db.collection("chats").where("participants", "array-contains", user.uid).onSnapshot(snap => {
+                    UI.msgBadge.style.display = (!snap.empty && !sessionStorage.getItem('m_read')) ? 'flex' : 'none';
+                });
 
-                // 3. Snapshot Richieste Amicizia (Pending)
-                db.collection("friendships")
-                    .where("receiverId", "==", user.uid)
-                    .where("status", "==", "pending")
-                    .onSnapshot(snap => {
-                        if (!snap.empty) {
-                            friendBadge.innerText = snap.size;
-                            friendBadge.style.display = "flex";
-                        } else {
-                            friendBadge.style.display = "none";
-                        }
-                    });
-
+                // Richieste Amicizia
+                db.collection("friendships").where("receiverId", "==", user.uid).where("status", "==", "pending").onSnapshot(snap => {
+                    if (!snap.empty) {
+                        UI.friendBadge.innerText = snap.size;
+                        UI.friendBadge.style.display = 'flex';
+                    } else UI.friendBadge.style.display = 'none';
+                });
             } else {
-                // Utente non loggato
-                welcomeText.innerText = "Benvenuto, Viandante. Accedi per continuare.";
-                avatarImg.src = "https://img.icons8.com/ios-filled/50/b8860b/user-shield.png";
-                masterBadge.style.display = "none";
-                msgBadge.style.display = "none";
-                friendBadge.style.display = "none";
+                UI.welcome.innerText = "Benvenuto, Viandante. Accedi.";
             }
         });
 
-        function handleProfileClick() {
-            window.location.href = auth.currentUser ? 'profile.html' : 'login.html';
+        document.getElementById('m-card').onclick = () => sessionStorage.setItem('m_read', '1');
+
+        // PWA Prompt
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && !localStorage.getItem('pwa_off')) {
+            window.onload = () => setTimeout(() => document.getElementById('pwa-tip').classList.add('active'), 2000);
         }
-
-        // Spegni pallino messaggi al click per la sessione
-        document.getElementById('msg-card').addEventListener('click', () => {
-            sessionStorage.setItem('messagesViewed', 'true');
-        });
-
-        // Gestione Tip PWA
-        function checkMobileTip() {
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            const tipClosed = localStorage.getItem('drakoniaTipClosed');
-            if (isMobile && !tipClosed) {
-                document.getElementById('mobile-install-tip').classList.add('active');
-            }
-        }
-
-        function closeTip() {
-            document.getElementById('mobile-install-tip').classList.remove('active');
-            localStorage.setItem('drakoniaTipClosed', 'true');
-        }
-
-        window.addEventListener('load', checkMobileTip);
     </script>
 </body>
 </html>
