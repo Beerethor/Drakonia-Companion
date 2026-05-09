@@ -25,9 +25,11 @@
         input { background: var(--parchment); border: 2px solid var(--gold); padding: 12px; font-family: 'MedievalSharp'; width: 100%; box-sizing: border-box; margin-bottom: 15px; font-size: 1.1rem; color: var(--ink); }
         .btn { background: var(--leather); color: var(--gold); border: 1px solid var(--gold); padding: 12px 20px; cursor: pointer; font-family: 'Grenze Gotisch'; width: 100%; font-size: 1.2rem; transition: 0.3s; }
         .btn:hover { background: var(--blood); color: white; }
-        .requests-toggle { background: var(--leather); color: var(--gold); border: 2px solid var(--gold); padding: 12px; border-radius: 50px; cursor: pointer; font-family: 'Grenze Gotisch'; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; position: relative; }
+        
+        .requests-toggle { background: var(--leather); color: var(--gold); border: 2px solid var(--gold); padding: 12px; border-radius: 50px; cursor: pointer; font-family: 'Grenze Gotisch'; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
         #request-count { background: var(--blood); color: white; border-radius: 50%; padding: 2px 8px; font-weight: bold; font-size: 0.9rem; display: none; border: 1px solid var(--gold); }
         #pending-panel { display: none; background: rgba(0,0,0,0.6); border: 2px double var(--gold); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        
         .friend-list { list-style: none; padding: 0; margin: 0; }
         .card-item { background: var(--parchment); color: var(--ink); padding: 15px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--gold); }
         .action-btns { display: flex; gap: 8px; }
@@ -87,7 +89,6 @@
     auth.onAuthStateChanged(user => {
         if (user) {
             setupUserSession(user);
-            loadFriends(user);
             loadPendingRequests(user);
         } else {
             window.location.href = 'login.html';
@@ -95,27 +96,26 @@
     });
 
     async function setupUserSession(user) {
-        try {
-            const doc = await db.collection("users").doc(user.uid).get();
+        // Monitora il profilo utente in tempo reale
+        db.collection("users").doc(user.uid).onSnapshot(doc => {
             if (doc.exists) {
                 currentUserData = doc.data();
                 currentUserName = currentUserData.username || "Un Viandante";
                 document.getElementById('my-display-code').innerText = "Il tuo codice: " + (currentUserData.friendCode || "---");
+                loadFriends(user);
             }
-        } catch (e) { console.error("Errore sessione:", e); }
+        });
     }
 
     async function sendFriendRequest() {
         const inputField = document.getElementById('friend-code-input');
         const code = inputField.value.trim().toUpperCase();
         const user = auth.currentUser;
-
         if (!code) return alert("Inserisci un codice!");
 
         try {
             const userSnap = await db.collection("users").where("friendCode", "==", code).get();
             if (userSnap.empty) return alert("Codice inesistente!");
-
             const targetId = userSnap.docs[0].id;
             if (targetId === user.uid) return alert("Non puoi auto-invitarti!");
 
@@ -132,7 +132,6 @@
                 expiresAt: firebase.firestore.Timestamp.fromMillis(Date.now() + 604800000),
                 users: [user.uid, targetId]
             });
-
             alert("Missiva inviata!");
             inputField.value = "";
         } catch (e) { alert("Errore: " + e.message); }
@@ -147,7 +146,6 @@
                 const badge = document.getElementById('request-count');
                 list.innerHTML = "";
                 let count = 0;
-
                 snap.forEach(doc => {
                     const data = doc.data();
                     count++;
@@ -155,8 +153,8 @@
                         <li class="card-item">
                             <div><b>${data.senderName}</b></div>
                             <div class="action-btns">
-                                <button class="btn-sm btn-acc" onclick="updateFriend('${doc.id}', 'accepted')">ACCETTA</button>
-                                <button class="btn-sm btn-rej" onclick="updateFriend('${doc.id}', 'rejected')">RIFIUTA</button>
+                                <button class="btn-sm btn-acc" onclick="updateFriend('${doc.id}', 'accepted')">SÌ</button>
+                                <button class="btn-sm btn-rej" onclick="updateFriend('${doc.id}', 'rejected')">NO</button>
                             </div>
                         </li>`;
                 });
@@ -169,19 +167,15 @@
         try {
             const friendshipDoc = await db.collection("friendships").doc(docId).get();
             const data = friendshipDoc.data();
-
             if (status === 'accepted') {
                 const batch = db.batch();
                 batch.update(db.collection("friendships").doc(docId), { status: 'accepted' });
-                
-                // Aggiornamento array permanente in USERS
                 batch.update(db.collection("users").doc(data.users[0]), {
                     friends: firebase.firestore.FieldValue.arrayUnion(data.users[1])
                 });
                 batch.update(db.collection("users").doc(data.users[1]), {
                     friends: firebase.firestore.FieldValue.arrayUnion(data.users[0])
                 });
-
                 await batch.commit();
                 alert("Alleanza suggellata!");
             } else {
@@ -197,19 +191,17 @@
             .onSnapshot(async snap => {
                 const list = document.getElementById('friends-list');
                 list.innerHTML = "";
-
                 for (const d of snap.docs) {
                     const data = d.data();
                     const friendId = data.users.find(id => id !== user.uid);
                     
-                    // CHECK COERENZA ARRAY: Se l'amicizia è accettata ma manca l'ID nell'array dell'utente corrente
-                    if (!currentUserData?.friends?.includes(friendId)) {
-                         syncArrays(user.uid, friendId);
+                    // CHECK AUTORIPARANTE
+                    if (!currentUserData?.friends || !currentUserData.friends.includes(friendId)) {
+                        syncArrays(user.uid, friendId);
                     }
 
                     const fDoc = await db.collection("users").doc(friendId).get();
                     const name = fDoc.exists ? (fDoc.data().username || "Alleato") : "Ignoto";
-                    
                     list.innerHTML += `
                         <li class="card-item">
                             <span>🛡️ ${name}</span>
@@ -219,7 +211,6 @@
             });
     }
 
-    // Funzione di controllo e riparazione array
     async function syncArrays(myId, friendId) {
         try {
             const batch = db.batch();
@@ -230,13 +221,32 @@
                 friends: firebase.firestore.FieldValue.arrayUnion(myId)
             });
             await batch.commit();
-            console.log("Sincronizzazione array eseguita per:", friendId);
-        } catch(e) { console.error("Errore sync:", e); }
+        } catch(e) { console.error("Sync error:", e); }
     }
 
     function toggleRequests() {
         const panel = document.getElementById('pending-panel');
         panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+</script>
+</body>
+</html>
+    }
+
+    async function syncArrays(myId, friendId) {
+        try {
+            const batch = db.batch();
+            // Inserisce gli ID negli array di entrambi gli utenti se mancano
+            batch.update(db.collection("users").doc(myId), {
+                friends: firebase.firestore.FieldValue.arrayUnion(friendId)
+            });
+            batch.update(db.collection("users").doc(friendId), {
+                friends: firebase.firestore.FieldValue.arrayUnion(myId)
+            });
+            await batch.commit();
+        } catch(e) { 
+            console.error("Errore durante la riparazione automatica:", e); 
+        }
     }
 </script>
 </body>
