@@ -20,22 +20,29 @@
             min-height: 100vh;
         }
         .container { max-width: 600px; margin: 0 auto; }
-        h1 { font-family: 'Grenze Gotisch'; color: var(--gold); text-align: center; font-size: 2.5rem; margin-bottom: 10px; }
+        h1 { font-family: 'Grenze Gotisch'; color: var(--gold); text-align: center; font-size: 2.5rem; margin: 10px 0; }
+        
         .section { background: rgba(244, 228, 188, 0.05); border: 1px solid rgba(184, 134, 11, 0.3); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        
         input { background: var(--parchment); border: 2px solid var(--gold); padding: 12px; font-family: 'MedievalSharp'; width: 100%; box-sizing: border-box; margin-bottom: 15px; font-size: 1.1rem; color: var(--ink); }
+        
         .btn { background: var(--leather); color: var(--gold); border: 1px solid var(--gold); padding: 12px 20px; cursor: pointer; font-family: 'Grenze Gotisch'; width: 100%; font-size: 1.2rem; transition: 0.3s; }
         .btn:hover { background: var(--blood); color: white; }
         
         .requests-toggle { background: var(--leather); color: var(--gold); border: 2px solid var(--gold); padding: 12px; border-radius: 50px; cursor: pointer; font-family: 'Grenze Gotisch'; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
         #request-count { background: var(--blood); color: white; border-radius: 50%; padding: 2px 8px; font-weight: bold; font-size: 0.9rem; display: none; border: 1px solid var(--gold); }
-        #pending-panel { display: none; background: rgba(0,0,0,0.6); border: 2px double var(--gold); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        
+        #pending-panel { display: none; background: rgba(0,0,0,0.6); border: 2px double var(--gold); padding: 15px; border-radius: 8px; margin-bottom: 20px; animation: fadeIn 0.3s; }
         
         .friend-list { list-style: none; padding: 0; margin: 0; }
-        .card-item { background: var(--parchment); color: var(--ink); padding: 15px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--gold); }
+        .card-item { background: var(--parchment); color: var(--ink); padding: 15px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--gold); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        
         .action-btns { display: flex; gap: 8px; }
-        .btn-sm { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-family: 'MedievalSharp'; }
+        .btn-sm { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-family: 'MedievalSharp'; font-weight: bold; }
         .btn-acc { background: #27ae60; color: white; }
         .btn-rej { background: var(--blood); color: white; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -43,7 +50,7 @@
 <div class="container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <a href="index.html" style="color: var(--gold); text-decoration: none; font-family: 'MedievalSharp';">⬅ Portale</a>
-        <span id="my-display-code" style="font-size: 0.8rem; opacity: 0.7;">Caricamento codice...</span>
+        <span id="my-display-code" style="font-size: 0.9rem; color: var(--gold); font-weight: bold;">DRK-XXXXX</span>
     </div>
 
     <h1>Compagni d'Arme</h1>
@@ -59,7 +66,7 @@
 
     <div class="section">
         <h3 style="margin-top:0; font-family:'Grenze Gotisch'; color:var(--gold);">Cerca Alleato</h3>
-        <input type="text" id="friend-code-input" placeholder="Codice (es: DRK-12345)">
+        <input type="text" id="friend-code-input" placeholder="Inserisci Codice Amico">
         <button id="submit-request-btn" class="btn" onclick="sendFriendRequest()">INVIA RICHIESTA</button>
     </div>
 
@@ -96,43 +103,45 @@
     });
 
     async function setupUserSession(user) {
-        try {
-            const doc = await db.collection("users").doc(user.uid).get();
-            if (doc.exists) {
-                const data = doc.data();
-                currentUserName = data.username || "Un Viandante";
-                document.getElementById('my-display-code').innerText = "Il tuo codice: " + (data.friendCode || "---");
-            }
-        } catch (e) { console.error("Errore sessione:", e); }
+        const doc = await db.collection("users").doc(user.uid).get();
+        if (doc.exists) {
+            const data = doc.data();
+            currentUserName = data.username || "Eroe";
+            document.getElementById('my-display-code').innerText = "Il tuo codice: " + (data.friendCode || "---");
+        }
     }
 
     async function sendFriendRequest() {
-        const inputField = document.getElementById('friend-code-input');
-        const code = inputField.value.trim().toUpperCase();
-        const user = auth.currentUser;
+        const input = document.getElementById('friend-code-input');
+        const code = input.value.trim().toUpperCase();
         if (!code) return alert("Inserisci un codice!");
 
         try {
-            const userSnap = await db.collection("users").where("friendCode", "==", code).get();
-            if (userSnap.empty) return alert("Codice inesistente!");
-            const targetId = userSnap.docs[0].id;
-            if (targetId === user.uid) return alert("Non puoi auto-invitarti!");
+            const snap = await db.collection("users").where("friendCode", "==", code).get();
+            if (snap.empty) return alert("Nessun eroe trovato con questo codice.");
+            
+            const targetId = snap.docs[0].id;
+            if (targetId === auth.currentUser.uid) return alert("Non puoi inviare una richiesta a te stesso.");
 
-            const existing = await db.collection("friendships").where("users", "array-contains", user.uid).get();
-            if (existing.docs.some(d => d.data().users.includes(targetId))) {
-                return alert("Legame già esistente o pendente.");
-            }
+            // Controllo se esiste già un legame
+            const existing = await db.collection("friendships")
+                .where("users", "array-contains", auth.currentUser.uid)
+                .get();
+            
+            const alreadyLinked = existing.docs.some(d => d.data().users.includes(targetId));
+            if (alreadyLinked) return alert("Siete già alleati o c'è una missiva pendente.");
 
             await db.collection("friendships").add({
-                senderId: user.uid,
+                senderId: auth.currentUser.uid,
                 senderName: currentUserName,
                 receiverId: targetId,
                 status: "pending",
-                expiresAt: firebase.firestore.Timestamp.fromMillis(Date.now() + 604800000),
-                users: [user.uid, targetId]
+                users: [auth.currentUser.uid, targetId],
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
-            alert("Missiva inviata!");
-            inputField.value = "";
+
+            alert("Missiva inviata con successo!");
+            input.value = "";
         } catch (e) { alert("Errore: " + e.message); }
     }
 
@@ -143,44 +152,40 @@
             .onSnapshot(snap => {
                 const list = document.getElementById('pending-list');
                 const badge = document.getElementById('request-count');
-                list.innerHTML = "";
-                let count = 0;
+                list.innerHTML = snap.empty ? "<li style='color:white; text-align:center;'>Nessuna missiva in arrivo.</li>" : "";
+                
+                badge.innerText = snap.size;
+                badge.style.display = snap.size > 0 ? "inline-block" : "none";
+
                 snap.forEach(doc => {
                     const data = doc.data();
-                    count++;
                     list.innerHTML += `
                         <li class="card-item">
-                            <div><b>${data.senderName}</b></div>
+                            <b>${data.senderName}</b>
                             <div class="action-btns">
-                                <button class="btn-sm btn-acc" onclick="updateFriend('${doc.id}', 'accepted')">SÌ</button>
-                                <button class="btn-sm btn-rej" onclick="updateFriend('${doc.id}', 'rejected')">NO</button>
+                                <button class="btn-sm btn-acc" onclick="updateFriend('${doc.id}', 'accepted')">ACCETTA</button>
+                                <button class="btn-sm btn-rej" onclick="updateFriend('${doc.id}', 'rejected')">RIFIUTA</button>
                             </div>
                         </li>`;
                 });
-                badge.innerText = count;
-                badge.style.display = count > 0 ? "inline-block" : "none";
             });
     }
 
     async function updateFriend(docId, status) {
         try {
-            const friendshipDoc = await db.collection("friendships").doc(docId).get();
-            const data = friendshipDoc.data();
             if (status === 'accepted') {
-                const batch = db.batch();
-                batch.update(db.collection("friendships").doc(docId), { status: 'accepted' });
-                batch.update(db.collection("users").doc(data.users[0]), {
-                    friends: firebase.firestore.FieldValue.arrayUnion(data.users[1])
+                // AGGIORNAMENTO SICURO: Modifichiamo solo il documento della friendship
+                await db.collection("friendships").doc(docId).update({ 
+                    status: 'accepted' 
                 });
-                batch.update(db.collection("users").doc(data.users[1]), {
-                    friends: firebase.firestore.FieldValue.arrayUnion(data.users[0])
-                });
-                await batch.commit();
                 alert("Alleanza suggellata!");
             } else {
                 await db.collection("friendships").doc(docId).delete();
             }
-        } catch (e) { alert("Errore: " + e.message); }
+        } catch (e) { 
+            console.error(e);
+            alert("Errore di permessi. Verifica le regole del database."); 
+        }
     }
 
     function loadFriends(user) {
@@ -189,16 +194,17 @@
             .where("status", "==", "accepted")
             .onSnapshot(async snap => {
                 const list = document.getElementById('friends-list');
-                list.innerHTML = "";
+                list.innerHTML = snap.empty ? "<li style='opacity:0.6; color:white;'>Non hai ancora alleati.</li>" : "";
+                
                 for (const d of snap.docs) {
-                    const data = d.data();
-                    const friendId = data.users.find(id => id !== user.uid);
+                    const friendId = d.data().users.find(id => id !== user.uid);
                     const fDoc = await db.collection("users").doc(friendId).get();
                     const name = fDoc.exists ? (fDoc.data().username || "Alleato") : "Ignoto";
+                    
                     list.innerHTML += `
                         <li class="card-item">
-                            <span>🛡️ ${name}</span>
-                            <span style="font-size:0.8rem; color:var(--gold);">FEDELE</span>
+                            <span>🛡️ <b>${name}</b></span>
+                            <button class="btn-sm btn-rej" onclick="updateFriend('${d.id}', 'remove')">ELIMINA</button>
                         </li>`;
                 }
             });
