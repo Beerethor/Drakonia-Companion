@@ -4,29 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drakonia - Accesso</title>
+    <link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;700&family=Almendra&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="icon/icon_192x192.png">
     <link rel="apple-touch-icon" href="icon/icon_192x192.png">
-    <link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;700&family=Almendra&display=swap" rel="stylesheet">
-    
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; }
+        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; --blood: #8b0000; }
         body { 
-            background: #1a1a1a; 
+            background: #1a1a1a url('https://www.transparenttextures.com/patterns/dark-leather.png');
             display: flex; justify-content: center; align-items: center; 
             min-height: 100vh; margin: 0; font-family: 'Almendra', serif; padding: 20px;
         }
         .login-card {
             background: var(--parchment);
             padding: 30px; border: 6px double var(--leather);
-            width: 100%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            width: 100%; max-width: 380px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.8);
         }
         h1 { font-family: 'Grenze Gotisch'; color: var(--gold); font-size: 3rem; margin: 0; text-shadow: 2px 2px var(--leather); }
         input { 
-            width: 100%; padding: 12px; margin: 10px 0; border: none; 
-            border-bottom: 2px solid var(--leather); background: transparent; 
+            width: 100%; padding: 12px; margin: 8px 0; border: none; 
+            border-bottom: 2px solid var(--leather); background: rgba(0,0,0,0.05); 
             font-family: 'Almendra'; box-sizing: border-box; font-size: 1.1rem;
         }
         .btn-enter {
@@ -35,75 +35,144 @@
             cursor: pointer; clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
             margin-top: 20px; transition: 0.3s;
         }
-        .google-btn {
-            margin-top: 25px; border: 1px solid #ccc; background: white; padding: 10px;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            border-radius: 5px; color: #757575; font-weight: bold; font-family: sans-serif;
-        }
-        .google-btn img { width: 20px; margin-right: 10px; }
+        .btn-enter:hover { background: var(--blood); color: white; }
+        .toggle-link { margin-top: 15px; display: block; cursor: pointer; color: var(--blood); font-weight: bold; font-size: 0.9rem; }
+        .hidden { display: none; }
+        .info-msg { font-size: 0.85rem; color: #4a321f; margin-top: 15px; padding: 10px; border: 1px dashed var(--leather); background: rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
     <div class="login-card">
         <h1>DRAKONIA</h1>
-        <p>Varca la soglia del destino</p>
-        <input type="email" id="email" placeholder="Email dell'Eroe">
-        <input type="password" id="password" placeholder="Parola d'Ordine">
-        <button class="btn-enter" onclick="manualLogin()">ENTRA</button>
-        
-        <div class="google-btn" onclick="googleLogin()">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg">
-            Entra con Google
+        <p id="sub-title">Varca la soglia del destino</p>
+
+        <div id="auth-form">
+            <input type="text" id="username" placeholder="Nome dell'Eroe">
+            <input type="password" id="password" placeholder="Parola d'Ordine">
+            <input type="text" id="secret-word" class="hidden" placeholder="La tua Parola Segreta">
+            
+            <button class="btn-enter" id="main-btn" onclick="handleAuth()">ENTRA</button>
+        </div>
+
+        <div id="recovery-box" class="hidden">
+            <div class="info-msg">
+                Identità confermata! Invia la pergamena di recupero al Gran Maestro per resettare la tua Parola d'Ordine.
+            </div>
+            <button class="btn-enter" style="font-size: 1.1rem;" onclick="sendRecoveryEmail()">INVIA MISSIVA DI RECUPERO</button>
+        </div>
+
+        <div id="links-container">
+            <span class="toggle-link" id="link-reg" onclick="setMode('register')">Nuovo eroe? Registrati</span>
+            <span class="toggle-link" id="link-rec" onclick="setMode('recover')">Hai smarrito la chiave? Recupera account</span>
+            <span class="toggle-link hidden" id="link-log" onclick="setMode('login')">Torna all'accesso</span>
         </div>
     </div>
 
     <script>
-        // La tua configurazione inserita correttamente nel formato Compat
         const firebaseConfig = {
             apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
             authDomain: "drakonia-companion.firebaseapp.com",
             projectId: "drakonia-companion",
             storageBucket: "drakonia-companion.firebasestorage.app",
             messagingSenderId: "803844500713",
-            appId: "1:803844500713:web:c902b67f4e395bd20c9478",
-            measurementId: "G-GE42YKVX9G"
+            appId: "1:803844500713:web:c902b67f4e395bd20c9478"
         };
 
-        // Inizializzazione
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        async function googleLogin() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            try {
-                const result = await auth.signInWithPopup(provider);
-                const user = result.user;
+        let currentMode = 'login';
+        let confirmedUser = "";
 
-                // Salviamo i dati per la pagina profilo
-                const userData = {
-                    username: user.displayName,
-                    avatar: user.photoURL,
-                    email: user.email,
-                    friendCode: "DRK-" + user.uid.substring(0, 5).toUpperCase()
-                };
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('auth-form').classList.remove('hidden');
+            document.getElementById('recovery-box').classList.add('hidden');
+            
+            const fields = {
+                pass: document.getElementById('password'),
+                secret: document.getElementById('secret-word'),
+                title: document.getElementById('sub-title'),
+                btn: document.getElementById('main-btn'),
+                lReg: document.getElementById('link-reg'),
+                lRec: document.getElementById('link-rec'),
+                lLog: document.getElementById('link-log')
+            };
 
-                localStorage.setItem('currentUser', JSON.stringify(userData));
-                window.location.href = 'profile.html';
+            fields.secret.classList.add('hidden');
+            fields.lReg.classList.add('hidden');
+            fields.lRec.classList.add('hidden');
+            fields.lLog.classList.add('hidden');
+            fields.pass.classList.remove('hidden');
 
-            } catch (error) {
-                console.error("Errore Portale:", error);
-                alert("Il portale ha respinto l'accesso. Assicurati di aver abilitato 'Google' nella console Firebase!");
+            if (mode === 'login') {
+                fields.title.innerText = "Varca la soglia del destino";
+                fields.btn.innerText = "ENTRA";
+                fields.lReg.classList.remove('hidden');
+                fields.lRec.classList.remove('hidden');
+            } else if (mode === 'register') {
+                fields.title.innerText = "Crea la tua leggenda";
+                fields.btn.innerText = "ISCRIVITI";
+                fields.secret.classList.remove('hidden');
+                fields.lLog.classList.remove('hidden');
+            } else if (mode === 'recover') {
+                fields.title.innerText = "Recupero Identità";
+                fields.btn.innerText = "VERIFICA IDENTITÀ";
+                fields.secret.classList.remove('hidden');
+                fields.lLog.classList.remove('hidden');
+                fields.pass.classList.add('hidden');
             }
         }
 
-        function manualLogin() {
-            const email = document.getElementById('email').value;
-            if (email) {
-                const user = { username: email.split('@')[0], avatar: "", friendCode: "DRK-OFFLINE" };
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                window.location.href = 'profile.html';
-            }
+        async function handleAuth() {
+            const user = document.getElementById('username').value.trim().toLowerCase();
+            const pass = document.getElementById('password').value;
+            const secret = document.getElementById('secret-word').value.trim();
+            const fakeEmail = `${user}@drakonia.world`;
+
+            if (!user) return alert("Inserisci il tuo nome!");
+
+            try {
+                if (currentMode === 'login') {
+                    await auth.signInWithEmailAndPassword(fakeEmail, pass);
+                    window.location.href = 'profile.html';
+                } 
+                else if (currentMode === 'register') {
+                    if (pass.length < 6) return alert("La Parola d'Ordine deve essere di almeno 6 caratteri.");
+                    if (!secret) return alert("La Parola Segreta è fondamentale!");
+                    
+                    const userCredential = await auth.createUserWithEmailAndPassword(fakeEmail, pass);
+                    await db.collection("users").doc(userCredential.user.uid).set({
+                        username: user,
+                        secretWord: secret,
+                        friendCode: "DRK-" + Math.random().toString(36).substr(2, 5).toUpperCase(),
+                        role: "User"
+                    });
+                    alert("Iscrizione completata!");
+                    setMode('login');
+                } 
+                else if (currentMode === 'recover') {
+                    const snap = await db.collection("users").where("username", "==", user).get();
+                    if (snap.empty) return alert("Nessun eroe con questo nome.");
+                    
+                    const userData = snap.docs[0].data();
+                    if (userData.secretWord === secret) {
+                        confirmedUser = user;
+                        document.getElementById('auth-form').classList.add('hidden');
+                        document.getElementById('recovery-box').classList.remove('hidden');
+                    } else {
+                        alert("Parola Segreta errata.");
+                    }
+                }
+            } catch (e) { alert("Errore: " + e.message); }
+        }
+
+        function sendRecoveryEmail() {
+            const subject = encodeURIComponent("Richiesta Recupero Account: " + confirmedUser);
+            const body = encodeURIComponent("Salve Gran Maestro,\n\nRichiedo il reset della Parola d'Ordine per l'eroe: " + confirmedUser + ".\nL'identità è stata verificata tramite Parola Segreta.\n\nNuova Parola d'Ordine desiderata: [SCRIVI QUI LA TUA NUOVA PASSWORD]");
+            window.location.href = `mailto:beerethor.game@gmail.com?subject=${subject}&body=${body}`;
         }
     </script>
 </body>
