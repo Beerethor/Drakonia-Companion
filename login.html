@@ -37,6 +37,16 @@
             margin-top: 20px; transition: 0.3s;
         }
         .btn-enter:hover { background: var(--blood); color: white; }
+        
+        /* Stile per il tasto Home */
+        .btn-home {
+            background: transparent; color: var(--leather); border: 1px solid var(--leather);
+            width: fit-content; padding: 5px 15px; font-family: 'Almendra'; font-size: 0.9rem;
+            cursor: pointer; margin-top: 25px; transition: 0.3s; opacity: 0.7;
+            text-decoration: none; display: inline-block;
+        }
+        .btn-home:hover { opacity: 1; border-color: var(--blood); color: var(--blood); }
+
         .toggle-link { margin-top: 15px; display: block; cursor: pointer; color: var(--blood); font-weight: bold; font-size: 0.9rem; }
         .hidden { display: none; }
         .info-msg { font-size: 0.85rem; color: #4a321f; margin-top: 15px; padding: 10px; border: 1px dashed var(--leather); background: rgba(0,0,0,0.05); }
@@ -67,6 +77,9 @@
             <span class="toggle-link" id="link-reg" onclick="setMode('register')">Nuovo eroe? Registrati</span>
             <span class="toggle-link" id="link-rec" onclick="setMode('recover')">Hai smarrito la chiave? Recupera account</span>
             <span class="toggle-link hidden" id="link-log" onclick="setMode('login')">Torna all'accesso</span>
+            
+            <hr style="border: 0; border-top: 1px double var(--leather); margin: 20px 0 10px 0; opacity: 0.3;">
+            <a href="index.html" class="btn-home">← Torna al Villaggio</a>
         </div>
     </div>
 
@@ -84,7 +97,6 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // CHIAVE MAESTRA - Deve essere la stessa nella pagina Admin!
         const MASTER_KEY = "Drakonia_Ancient_Secret_99"; 
 
         let currentMode = 'login';
@@ -147,7 +159,6 @@
                     if (pass.length < 6) return alert("La Parola d'Ordine deve essere di almeno 6 caratteri.");
                     if (!secret) return alert("La Parola Segreta è fondamentale!");
                     
-                    // CRIPTAZIONE prima del salvataggio
                     const encryptedSecret = CryptoJS.AES.encrypt(secret, MASTER_KEY).toString();
                     
                     const userCredential = await auth.createUserWithEmailAndPassword(fakeEmail, pass);
@@ -165,8 +176,6 @@
                     if (snap.empty) return alert("Nessun eroe con questo nome.");
                     
                     const userData = snap.docs[0].data();
-                    
-                    // DECRIPTAZIONE per il confronto
                     const bytes = CryptoJS.AES.decrypt(userData.secretWord, MASTER_KEY);
                     const decryptedSecret = bytes.toString(CryptoJS.enc.Utf8);
 
