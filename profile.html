@@ -29,9 +29,10 @@
         }
 
         .avatar-container {
-            width: 100px; height: 100px; margin: 0 auto 15px;
+            width: 110px; height: 110px; margin: 0 auto 15px;
             border: 3px solid var(--gold); border-radius: 50%;
             overflow: hidden; background: var(--mystic);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
         .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -42,7 +43,7 @@
             color: var(--gold); font-family: 'Grenze Gotisch'; border-radius: 15px; font-size: 0.9rem; margin-bottom: 10px;
         }
 
-        .section { margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1); }
+        .section { margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1); }
         
         input { 
             width: 100%; padding: 10px; margin: 8px 0; border: none; 
@@ -58,12 +59,11 @@
         }
         .btn:hover { background: var(--blood); color: white; }
 
-        .btn-master { background: #2c1e11; border: 1px solid var(--gold); color: var(--gold); }
+        /* Pannelli a comparsa */
+        #edit-profile-panel, #security-panel { display: none; background: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px; margin-top: 10px; }
         
-        #security-panel { background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; margin-top: 10px; display: none; }
-        
-        .btn-link { background: none; border: none; color: var(--blood); text-decoration: underline; cursor: pointer; font-size: 0.9rem; margin-top: 15px; display: inline-block; }
-        .back-link { display: block; margin-bottom: 20px; color: var(--mystic); text-decoration: none; font-weight: bold; font-size: 0.9rem; text-align: left; }
+        .btn-link { background: none; border: none; color: var(--blood); text-decoration: underline; cursor: pointer; font-size: 0.9rem; margin-top: 10px; display: inline-block; }
+        .back-link { display: block; margin-bottom: 15px; color: var(--mystic); text-decoration: none; font-weight: bold; font-size: 0.9rem; text-align: left; }
     </style>
 </head>
 <body>
@@ -79,28 +79,33 @@
         <h2 id="user-display-name">...</h2>
 
         <div class="section">
-            <input type="text" id="edit-username" placeholder="Nome Eroe">
-            <input type="text" id="edit-avatar" placeholder="URL Avatar">
-            <button class="btn" onclick="updateProfile()">SALVA PERGAMENA</button>
+            <button class="btn-link" onclick="togglePanel('edit-profile-panel')">🎭 Modifica Sembianze</button>
+            
+            <div id="edit-profile-panel">
+                <input type="text" id="edit-username" placeholder="Nuovo Nome Eroe">
+                <input type="text" id="edit-avatar" placeholder="URL Nuovo Avatar (Immagine)">
+                <button class="btn" onclick="updateProfile()">SALVA MODIFICHE</button>
+            </div>
         </div>
 
         <div class="section" id="master-toggle-section">
-            <p id="master-text" style="font-size: 0.85rem;">Vuoi gestire le tue campagne?</p>
-            <button class="btn btn-master" id="master-btn" onclick="toggleMasterRole()">DIVENTA MASTER</button>
+            <p id="master-text" style="font-size: 0.85rem; margin: 0;">Vuoi gestire le tue campagne?</p>
+            <button class="btn" style="background: var(--leather); border: 1px solid var(--gold); color: var(--gold);" id="master-btn" onclick="toggleMasterRole()">DIVENTA MASTER</button>
         </div>
 
         <div class="section">
-            <button class="btn-link" id="toggle-sec-btn" onclick="toggleSecurity()">🛡️ Gestisci Password</button>
+            <button class="btn-link" onclick="togglePanel('security-panel')">🛡️ Gestisci Password</button>
             
             <div id="security-panel">
                 <input type="password" id="old-pass" placeholder="Vecchia Password">
                 <input type="text" id="sec-word" placeholder="O Parola Segreta">
+                <hr style="opacity: 0.1;">
                 <input type="password" id="new-pass" placeholder="Nuova Password">
                 <button class="btn" onclick="updateSecurity()">AGGIORNA CHIAVI</button>
             </div>
         </div>
 
-        <button class="btn-link" style="color: grey;" onclick="logout()">Abbandona il Regno</button>
+        <button class="btn-link" style="color: grey; margin-top: 30px;" onclick="logout()">Abbandona il Regno</button>
     </div>
 
     <script>
@@ -127,7 +132,6 @@
                     document.getElementById('edit-username').value = data.username;
                     document.getElementById('user-role').innerText = (data.role || "User").toUpperCase();
                     
-                    // Gestione tasto Master
                     const mBtn = document.getElementById('master-btn');
                     const mText = document.getElementById('master-text');
                     
@@ -145,15 +149,19 @@
             } else { window.location.href = 'index.html'; }
         });
 
+        // Funzione generica per mostrare/nascondere pannelli
+        function togglePanel(panelId) {
+            const panel = document.getElementById(panelId);
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+
         async function toggleMasterRole() {
             const user = auth.currentUser;
             const snap = await db.collection("users").doc(user.uid).get();
             const currentRole = snap.data().role || "User";
             const newRole = (currentRole === "Master") ? "User" : "Master";
-
             try {
                 await db.collection("users").doc(user.uid).update({ role: newRole });
-                alert("Rango aggiornato in: " + newRole);
                 location.reload();
             } catch (e) { alert("Errore: " + e.message); }
         }
@@ -165,14 +173,9 @@
             if (!newName) return alert("Nome obbligatorio");
             try {
                 await db.collection("users").doc(user.uid).update({ username: newName, avatarURL: newAvatar });
-                alert("Cronache aggiornate!");
+                alert("Sembianze aggiornate!");
                 location.reload();
             } catch (e) { alert("Errore: " + e.message); }
-        }
-
-        function toggleSecurity() {
-            const panel = document.getElementById('security-panel');
-            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         }
 
         async function updateSecurity() {
@@ -196,9 +199,9 @@
                 }
                 if (authorized) {
                     await user.updatePassword(newP);
-                    alert("Password aggiornata!");
+                    alert("Chiavi aggiornate!");
                     location.reload();
-                } else { alert("Verifica fallita."); }
+                } else { alert("Verifica fallita. Controlla la vecchia password o la parola segreta."); }
             } catch (e) { alert("Errore: " + e.message); }
         }
 
