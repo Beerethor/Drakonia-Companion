@@ -5,58 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drakonia - Profilo Eroe</title>
     <link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;700&family=Almendra&display=swap" rel="stylesheet">
-    
+    <link rel="icon" type="image/png" href="icon/icon_192x192.png">
+    <link rel="apple-touch-icon" href="icon/icon_192x192.png">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <style>
-        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; --blood: #8b0000; }
+        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; --blood: #8b0000; --mystic: #4a321f; }
+        
         body { 
             background: #1a1a1a url('https://www.transparenttextures.com/patterns/dark-leather.png');
-            color: var(--parchment); font-family: 'Almendra', serif; padding: 20px;
+            color: var(--leather); font-family: 'Almendra', serif; padding: 20px;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0;
         }
+
         .profile-card {
-            background: var(--parchment); color: var(--leather);
-            padding: 30px; border: 6px double var(--leather);
-            max-width: 500px; margin: 40px auto; box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            background: var(--parchment);
+            padding: 40px; border: 8px double var(--leather);
+            width: 100%; max-width: 450px; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            position: relative;
         }
-        h2, h3 { font-family: 'Grenze Gotisch'; color: var(--gold); text-align: center; }
-        .section { border-top: 1px solid rgba(44, 30, 17, 0.2); margin-top: 20px; padding-top: 20px; }
+
+        /* Avatar Styling */
+        .avatar-container {
+            width: 120px; height: 120px; margin: 0 auto 20px;
+            border: 4px solid var(--gold); border-radius: 50%;
+            overflow: hidden; background: var(--mystic);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        h2 { font-family: 'Grenze Gotisch'; color: var(--blood); font-size: 2.5rem; margin: 10px 0; }
+        .role-badge { 
+            display: inline-block; padding: 5px 15px; background: var(--leather); 
+            color: var(--gold); font-family: 'Grenze Gotisch'; border-radius: 20px; font-size: 1.1rem;
+        }
+
+        .section { margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1); }
+        
+        /* Pannello Sicurezza */
+        #security-panel { 
+            background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; 
+            margin-top: 15px; display: none; 
+        }
+
         input { 
-            width: 100%; padding: 10px; margin: 8px 0; border: none; 
-            border-bottom: 2px solid var(--leather); background: rgba(0,0,0,0.05); 
-            font-family: 'Almendra'; box-sizing: border-box;
+            width: 100%; padding: 12px; margin: 10px 0; border: none; 
+            border-bottom: 2px solid var(--leather); background: rgba(255,255,255,0.5); 
+            font-family: 'Almendra'; box-sizing: border-box; font-size: 1rem;
         }
+
         .btn {
-            background: var(--leather); color: var(--gold); border: none; width: 100%;
-            padding: 12px; font-family: 'Grenze Gotisch'; font-size: 1.2rem; 
-            cursor: pointer; margin-top: 10px; transition: 0.3s;
+            background: var(--mystic); color: var(--gold); border: none; width: 100%;
+            padding: 14px; font-family: 'Grenze Gotisch'; font-size: 1.3rem; 
+            cursor: pointer; margin-top: 15px; transition: 0.3s;
+            clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%);
         }
-        .btn:hover { background: var(--blood); color: white; }
-        .btn-logout { background: transparent; color: var(--blood); border: 1px solid var(--blood); font-size: 0.9rem; padding: 5px; margin-top: 30px;}
+        .btn:hover { background: var(--blood); color: white; transform: scale(1.02); }
+
+        .btn-outline {
+            background: transparent; border: 1px solid var(--leather); color: var(--leather);
+            padding: 8px; font-size: 0.9rem; margin-top: 10px; width: auto; clip-path: none;
+        }
+
+        .btn-logout { 
+            background: none; border: none; color: var(--blood); 
+            text-decoration: underline; cursor: pointer; margin-top: 40px; font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
     <div class="profile-card">
-        <h2>Profilo di <span id="user-display-name">...</span></h2>
-        <p style="text-align:center;">Rango: <span id="user-role" style="font-weight:bold; color:var(--blood);">...</span></p>
-
-        <div class="section">
-            <h3>🛡️ Sicurezza Account</h3>
-            <p style="font-size: 0.85rem; margin-bottom: 10px;">Per cambiare la Parola d'Ordine, inserisci quella vecchia oppure la tua Parola Segreta.</p>
-            
-            <input type="password" id="old-pass" placeholder="Vecchia Parola d'Ordine">
-            <input type="text" id="sec-word" placeholder="Oppure Parola Segreta">
-            <hr style="opacity: 0.2;">
-            <input type="password" id="new-pass" placeholder="NUOVA Parola d'Ordine">
-            
-            <button class="btn" onclick="updateSecurity()">AGGIORNA CHIAVI</button>
+        <div class="avatar-container">
+            <img id="user-avatar" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Drakonia" alt="Avatar">
         </div>
 
-        <button class="btn btn-logout" onclick="firebase.auth().signOut().then(() => window.location.href='index.html')">Esci dal Regno</button>
+        <div class="role-badge" id="user-role">Caricamento...</div>
+        <h2 id="user-display-name">...</h2>
+
+        <div class="section">
+            <button class="btn btn-outline" id="toggle-sec-btn" onclick="toggleSecurity()">🛡️ Gestisci Sicurezza</button>
+            
+            <div id="security-panel">
+                <p style="font-size: 0.8rem; color: #555;">Inserisci la vecchia password <b>O</b> la parola segreta per procedere.</p>
+                <input type="password" id="old-pass" placeholder="Vecchia Parola d'Ordine">
+                <input type="text" id="sec-word" placeholder="Oppure Parola Segreta">
+                <div style="border-top: 1px dashed var(--leather); margin: 10px 0;"></div>
+                <input type="password" id="new-pass" placeholder="NUOVA Parola d'Ordine">
+                <button class="btn" onclick="updateSecurity()">SIGILLA NUOVA CHIAVE</button>
+            </div>
+        </div>
+
+        <button class="btn-logout" onclick="logout()">Abbandona il Regno</button>
     </div>
 
     <script>
@@ -74,19 +118,38 @@
         const db = firebase.firestore();
         const MASTER_KEY = "Drakonia_Ancient_Secret_99"; 
 
-        // Caricamento Dati Profilo
+        // Caricamento Dati
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const snap = await db.collection("users").doc(user.uid).get();
                 if (snap.exists) {
                     const data = snap.data();
                     document.getElementById('user-display-name').innerText = data.username.toUpperCase();
-                    document.getElementById('user-role').innerText = data.role || "Viandante";
+                    document.getElementById('user-role').innerText = data.role ? data.role.toUpperCase() : "VIANDANTE";
+                    
+                    // Se hai un campo 'avatarURL' nel database, lo usa, altrimenti usa quello di default
+                    if (data.avatarURL) {
+                        document.getElementById('user-avatar').src = data.avatarURL;
+                    } else {
+                        document.getElementById('user-avatar').src = `https://api.dicebear.com/7.x/miniavs/svg?seed=${data.username}`;
+                    }
                 }
             } else {
                 window.location.href = 'index.html';
             }
         });
+
+        function toggleSecurity() {
+            const panel = document.getElementById('security-panel');
+            const btn = document.getElementById('toggle-sec-btn');
+            if (panel.style.display === 'block') {
+                panel.style.display = 'none';
+                btn.innerText = "🛡️ Gestisci Sicurezza";
+            } else {
+                panel.style.display = 'block';
+                btn.innerText = "✖ Chiudi Sicurezza";
+            }
+        }
 
         async function updateSecurity() {
             const user = auth.currentUser;
@@ -101,39 +164,32 @@
                 const encryptedInDB = snap.data().secretWord;
                 let authorized = false;
 
-                // Opzione 1: Vecchia Password (Re-authentication ufficiale)
                 if (oldP) {
                     const cred = firebase.auth.EmailAuthProvider.credential(user.email, oldP);
                     await user.reauthenticateWithCredential(cred);
                     authorized = true;
                 } 
-                // Opzione 2: Parola Segreta (Verifica locale decriptata)
                 else if (secIn) {
                     const bytes = CryptoJS.AES.decrypt(encryptedInDB, MASTER_KEY);
                     const decryptedSecret = bytes.toString(CryptoJS.enc.Utf8);
-                    
-                    if (decryptedSecret === secIn) {
-                        authorized = true;
-                    } else {
-                        return alert("La Parola Segreta non corrisponde ai nostri archivi.");
-                    }
+                    if (decryptedSecret === secIn) authorized = true;
+                    else return alert("La Parola Segreta non è corretta.");
                 } else {
-                    return alert("Inserisci la vecchia password o la parola segreta!");
+                    return alert("Inserisci un metodo di verifica!");
                 }
 
                 if (authorized) {
                     await user.updatePassword(newP);
-                    alert("Sia lode! La tua Parola d'Ordine è stata cambiata.");
-                    // Pulizia campi
-                    document.getElementById('old-pass').value = "";
-                    document.getElementById('sec-word').value = "";
-                    document.getElementById('new-pass').value = "";
+                    alert("La tua Parola d'Ordine è stata aggiornata con successo!");
+                    location.reload();
                 }
-
             } catch (e) {
-                alert("Errore del Portale: " + e.message);
-                console.error(e);
+                alert("Errore: " + e.message);
             }
+        }
+
+        function logout() {
+            auth.signOut().then(() => window.location.href = 'index.html');
         }
     </script>
 </body>
