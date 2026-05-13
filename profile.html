@@ -3,88 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profilo Eroe - Codex Drakonia</title>
-    <link rel="icon" type="image/png" href="icon/icon_192x192.png">
-    <link rel="apple-touch-icon" href="icon/icon_192x192.png">
-    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
+    <title>Drakonia - Profilo Eroe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;700&family=Almendra&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <style>
-        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; --glass: rgba(26, 18, 11, 0.95); --blood: #8b0000; }
+        :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; --blood: #8b0000; }
         body { 
-            background: #120d08 url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
-            color: var(--parchment); font-family: 'Almendra', serif; margin: 0; padding: 15px;
-            display: flex; flex-direction: column; align-items: center;
+            background: #1a1a1a url('https://www.transparenttextures.com/patterns/dark-leather.png');
+            color: var(--parchment); font-family: 'Almendra', serif; padding: 20px;
         }
-        .btn-back {
-            align-self: flex-start; background: none; border: 1px solid var(--gold);
-            color: var(--gold); padding: 5px 15px; font-family: 'Grenze Gotisch';
-            cursor: pointer; margin-bottom: 15px; text-decoration: none; font-size: 1rem;
+        .profile-card {
+            background: var(--parchment); color: var(--leather);
+            padding: 30px; border: 6px double var(--leather);
+            max-width: 500px; margin: 40px auto; box-shadow: 0 15px 35px rgba(0,0,0,0.8);
         }
-        .hero-card {
-            background: var(--glass); border: 2px solid var(--gold); padding: 25px;
-            text-align: center; border-radius: 10px; box-shadow: 0 0 30px black;
-            width: 100%; max-width: 400px; box-sizing: border-box;
+        h2, h3 { font-family: 'Grenze Gotisch'; color: var(--gold); text-align: center; }
+        .section { border-top: 1px solid rgba(44, 30, 17, 0.2); margin-top: 20px; padding-top: 20px; }
+        input { 
+            width: 100%; padding: 10px; margin: 8px 0; border: none; 
+            border-bottom: 2px solid var(--leather); background: rgba(0,0,0,0.05); 
+            font-family: 'Almendra'; box-sizing: border-box;
         }
-        .avatar-frame {
-            width: 120px; height: 120px; margin: 0 auto; border: 3px solid var(--gold);
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            background: var(--leather); overflow: hidden;
+        .btn {
+            background: var(--leather); color: var(--gold); border: none; width: 100%;
+            padding: 12px; font-family: 'Grenze Gotisch'; font-size: 1.2rem; 
+            cursor: pointer; margin-top: 10px; transition: 0.3s;
         }
-        .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
-        .hero-name { font-family: 'Grenze Gotisch'; font-size: 2.5rem; color: var(--gold); margin: 10px 0 5px 0; }
-        
-        .rank-label {
-            display: inline-block; background: var(--gold); color: var(--leather);
-            padding: 2px 15px; font-family: 'Grenze Gotisch'; font-weight: bold;
-            border-radius: 5px; margin-bottom: 15px; letter-spacing: 1px;
-        }
-
-        .btn-fantasy {
-            background: var(--leather); color: var(--gold); border: 1px solid var(--gold);
-            padding: 12px; width: 100%; font-family: 'Grenze Gotisch'; cursor: pointer; 
-            margin-top: 10px; font-size: 1.2rem; transition: 0.3s;
-        }
-        .btn-fantasy:hover { background: var(--gold); color: var(--leather); }
-        
-        .btn-master { background: var(--blood); color: white; border: 1px solid white; margin-top: 15px; }
-
-        #settings-panel {
-            display: none; background: var(--parchment); color: var(--leather);
-            padding: 20px; border: 5px double var(--leather); margin-top: 15px; width: 100%; max-width: 400px;
-        }
-        input.edit-field { 
-            width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--leather); 
-            box-sizing: border-box; font-family: 'Almendra';
-        }
+        .btn:hover { background: var(--blood); color: white; }
+        .btn-logout { background: transparent; color: var(--blood); border: 1px solid var(--blood); font-size: 0.9rem; padding: 5px; margin-top: 30px;}
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="btn-back">« Torna all'Index</a>
+    <div class="profile-card">
+        <h2>Profilo di <span id="user-display-name">...</span></h2>
+        <p style="text-align:center;">Rango: <span id="user-role" style="font-weight:bold; color:var(--blood);">...</span></p>
 
-    <div class="hero-card">
-        <div class="avatar-frame"><img id="display-avatar" src="https://img.icons8.com/color/96/fantasy.png"></div>
-        <h2 id="display-name" class="hero-name">In attesa...</h2>
-        <div id="display-rank" class="rank-label">CARICAMENTO...</div>
-        <p>Codice Eroe: <span id="display-code" style="color:var(--gold); font-weight:bold;"></span></p>
-        
-        <button class="btn-fantasy" onclick="toggleSettings()">⚙️ GESTISCI PROFILO</button>
+        <div class="section">
+            <h3>🛡️ Sicurezza Account</h3>
+            <p style="font-size: 0.85rem; margin-bottom: 10px;">Per cambiare la Parola d'Ordine, inserisci quella vecchia oppure la tua Parola Segreta.</p>
+            
+            <input type="password" id="old-pass" placeholder="Vecchia Parola d'Ordine">
+            <input type="text" id="sec-word" placeholder="Oppure Parola Segreta">
+            <hr style="opacity: 0.2;">
+            <input type="password" id="new-pass" placeholder="NUOVA Parola d'Ordine">
+            
+            <button class="btn" onclick="updateSecurity()">AGGIORNA CHIAVI</button>
+        </div>
 
-        <button id="master-promotion-btn" class="btn-fantasy btn-master" style="display: none;" onclick="becomeMaster()">📜 DIVENTA MASTER</button>
+        <button class="btn btn-logout" onclick="firebase.auth().signOut().then(() => window.location.href='index.html')">Esci dal Regno</button>
     </div>
-
-    <div id="settings-panel">
-        <h3>MODIFICA ANNALI</h3>
-        <input type="text" id="edit-name" class="edit-field" placeholder="Nome Eroe">
-        <input type="text" id="edit-url" class="edit-field" placeholder="URL Immagine Avatar">
-        <button class="btn-fantasy" onclick="saveProfile()" style="background:var(--leather); color:white;">SALVA IN FIRESTORE</button>
-    </div>
-
-    <button onclick="logout()" style="color:rgba(255,0,0,0.6); background:none; border:none; margin-top:40px; cursor:pointer; font-family:'Grenze Gotisch';">RITIRATI DALL'AVVENTURA</button>
 
     <script>
         const firebaseConfig = {
@@ -99,78 +72,68 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const MASTER_KEY = "Drakonia_Ancient_Secret_99"; 
 
-        let currentUserData = null;
-
-        auth.onAuthStateChanged(user => {
+        // Caricamento Dati Profilo
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
-                db.collection("users").doc(user.uid).onSnapshot((doc) => {
-                    if (doc.exists) {
-                        currentUserData = doc.data();
-                        render();
-                    } else {
-                        // Inizializzazione se il documento non esiste
-                        const initialData = {
-                            username: user.displayName || "Nuovo Eroe",
-                            avatar: user.photoURL || "",
-                            role: "Giocatore",
-                            friendCode: "DRK-" + user.uid.substring(0,5).toUpperCase()
-                        };
-                        db.collection("users").doc(user.uid).set(initialData);
-                    }
-                });
+                const snap = await db.collection("users").doc(user.uid).get();
+                if (snap.exists) {
+                    const data = snap.data();
+                    document.getElementById('user-display-name').innerText = data.username.toUpperCase();
+                    document.getElementById('user-role').innerText = data.role || "Viandante";
+                }
             } else {
-                window.location.href = 'login.html';
+                window.location.href = 'index.html';
             }
         });
 
-        function render() {
-            if(!currentUserData) return;
-            document.getElementById('display-name').innerText = currentUserData.username;
-            document.getElementById('display-code').innerText = currentUserData.friendCode;
-            document.getElementById('display-rank').innerText = currentUserData.role.toUpperCase();
-            document.getElementById('display-avatar').src = currentUserData.avatar || "https://img.icons8.com/color/96/fantasy.png";
-            
-            const masterBtn = document.getElementById('master-promotion-btn');
-            masterBtn.style.display = (currentUserData.role === "Giocatore") ? "block" : "none";
-
-            document.getElementById('edit-name').value = currentUserData.username;
-            document.getElementById('edit-url').value = currentUserData.avatar;
-        }
-
-        async function becomeMaster() {
-            if(confirm("Vuoi davvero abbandonare la vita da semplice avventuriero per guidare il destino di Drakonia come Master?")) {
-                try {
-                    await db.collection("users").doc(auth.currentUser.uid).update({ role: "Master" });
-                    alert("Congratulazioni, Master. Il potere della narrazione è ora nelle tue mani.");
-                } catch(e) { alert("Errore: " + e.message); }
-            }
-        }
-
-        async function saveProfile() {
+        async function updateSecurity() {
             const user = auth.currentUser;
-            const newName = document.getElementById('edit-name').value;
-            const newUrl = document.getElementById('edit-url').value;
+            const oldP = document.getElementById('old-pass').value;
+            const secIn = document.getElementById('sec-word').value.trim();
+            const newP = document.getElementById('new-pass').value;
 
-            if(user) {
-                try {
-                    await db.collection("users").doc(user.uid).update({
-                        username: newName,
-                        avatar: newUrl
-                    });
-                    alert("Annali di Firestore aggiornati!");
-                    toggleSettings();
-                } catch(e) { alert("Errore: " + e.message); }
+            if (!newP || newP.length < 6) return alert("La nuova password deve essere di almeno 6 caratteri!");
+
+            try {
+                const snap = await db.collection("users").doc(user.uid).get();
+                const encryptedInDB = snap.data().secretWord;
+                let authorized = false;
+
+                // Opzione 1: Vecchia Password (Re-authentication ufficiale)
+                if (oldP) {
+                    const cred = firebase.auth.EmailAuthProvider.credential(user.email, oldP);
+                    await user.reauthenticateWithCredential(cred);
+                    authorized = true;
+                } 
+                // Opzione 2: Parola Segreta (Verifica locale decriptata)
+                else if (secIn) {
+                    const bytes = CryptoJS.AES.decrypt(encryptedInDB, MASTER_KEY);
+                    const decryptedSecret = bytes.toString(CryptoJS.enc.Utf8);
+                    
+                    if (decryptedSecret === secIn) {
+                        authorized = true;
+                    } else {
+                        return alert("La Parola Segreta non corrisponde ai nostri archivi.");
+                    }
+                } else {
+                    return alert("Inserisci la vecchia password o la parola segreta!");
+                }
+
+                if (authorized) {
+                    await user.updatePassword(newP);
+                    alert("Sia lode! La tua Parola d'Ordine è stata cambiata.");
+                    // Pulizia campi
+                    document.getElementById('old-pass').value = "";
+                    document.getElementById('sec-word').value = "";
+                    document.getElementById('new-pass').value = "";
+                }
+
+            } catch (e) {
+                alert("Errore del Portale: " + e.message);
+                console.error(e);
             }
-        }
-
-        function toggleSettings() {
-            const p = document.getElementById('settings-panel');
-            p.style.display = p.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function logout() {
-            auth.signOut().then(() => window.location.href = 'login.html');
         }
     </script>
 </body>
