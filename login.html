@@ -6,10 +6,11 @@
     <title>Drakonia - Accesso</title>
     <link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;700&family=Almendra&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="icon/icon_192x192.png">
-    <link rel="apple-touch-icon" href="icon/icon_192x192.png">
+    
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <style>
         :root { --gold: #b8860b; --parchment: #f4e4bc; --leather: #2c1e11; --blood: #8b0000; }
@@ -83,6 +84,9 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // CHIAVE MAESTRA - Deve essere la stessa nella pagina Admin!
+        const MASTER_KEY = "Drakonia_Ancient_Secret_99"; 
+
         let currentMode = 'login';
         let confirmedUser = "";
 
@@ -143,10 +147,13 @@
                     if (pass.length < 6) return alert("La Parola d'Ordine deve essere di almeno 6 caratteri.");
                     if (!secret) return alert("La Parola Segreta è fondamentale!");
                     
+                    // CRIPTAZIONE prima del salvataggio
+                    const encryptedSecret = CryptoJS.AES.encrypt(secret, MASTER_KEY).toString();
+                    
                     const userCredential = await auth.createUserWithEmailAndPassword(fakeEmail, pass);
                     await db.collection("users").doc(userCredential.user.uid).set({
                         username: user,
-                        secretWord: secret,
+                        secretWord: encryptedSecret,
                         friendCode: "DRK-" + Math.random().toString(36).substr(2, 5).toUpperCase(),
                         role: "User"
                     });
@@ -158,7 +165,12 @@
                     if (snap.empty) return alert("Nessun eroe con questo nome.");
                     
                     const userData = snap.docs[0].data();
-                    if (userData.secretWord === secret) {
+                    
+                    // DECRIPTAZIONE per il confronto
+                    const bytes = CryptoJS.AES.decrypt(userData.secretWord, MASTER_KEY);
+                    const decryptedSecret = bytes.toString(CryptoJS.enc.Utf8);
+
+                    if (decryptedSecret === secret) {
                         confirmedUser = user;
                         document.getElementById('auth-form').classList.add('hidden');
                         document.getElementById('recovery-box').classList.remove('hidden');
