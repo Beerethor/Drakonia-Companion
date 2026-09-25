@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drakonia - Archivio Eroi</title>
+    <link rel="icon" type="image/png" href="icon/icon_192x192.png">
+    <link rel="apple-touch-icon" href="icon/icon_192x192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root { --gold: #b8860b; --leather: #2c1e11; --parchment: #f4e4bc; --blood: #8b0000; }
+        
+        body { 
+            background: #120d08 url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
+            color: var(--leather); font-family: 'Almendra', serif; padding: 20px;
+        }
+
+        .archive-container {
+            max-width: 1100px; margin: 0 auto;
+            background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            padding: 40px; border: 15px solid transparent;
+            border-image: url('https://www.transparenttextures.com/patterns/dark-leather.png') 30 stretch;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        h1 { font-family: 'Grenze Gotisch'; text-align: center; font-size: 3rem; margin-top: 0; border-bottom: 3px double var(--leather); }
+
+        /* Filtri */
+        .controls { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 30px; background: rgba(0,0,0,0.05); padding: 15px; border-radius: 5px;
+        }
+        
+        select, input { 
+            padding: 8px; font-family: 'Almendra'; border: 1px solid var(--leather); background: white;
+        }
+
+        .hero-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; 
+        }
+
+        .hero-card { 
+            background: white; border: 2px solid var(--leather); border-radius: 8px;
+            padding: 10px; position: relative; transition: 0.3s;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .hero-card:hover { transform: scale(1.03); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+
+        .hero-img { 
+            width: 100%; height: 200px; object-fit: cover; border-radius: 4px; 
+            border: 1px solid var(--gold); background: #eee;
+        }
+
+        .hero-info { text-align: center; padding: 10px 0; }
+        .hero-info h3 { margin: 5px 0; font-family: 'Grenze Gotisch'; font-size: 1.6rem; color: var(--blood); }
+        
+        .hero-meta { font-size: 0.9rem; font-style: italic; color: #555; margin-bottom: 10px; }
+        
+        .badge-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
+        .badge { font-size: 0.75rem; background: var(--leather); color: var(--gold); padding: 3px 10px; border-radius: 4px; }
+        .badge.campagna { background: var(--blood); color: white; }
+
+        .btn-view { 
+            display: block; text-align: center; background: var(--leather); color: var(--gold); 
+            padding: 12px; text-decoration: none; font-family: 'Grenze Gotisch'; 
+            font-size: 1.1rem; border: 1px solid var(--gold); transition: 0.3s;
+        }
+        .btn-view:hover { background: var(--blood); color: white; }
+
+        .btn-back {
+            display: inline-block; background: var(--leather); color: var(--gold); padding: 5px 15px;
+            text-decoration: none; font-family: 'Grenze Gotisch'; margin-bottom: 20px; border: 1px solid var(--gold);
+        }
+
+        #loader { font-size: 1.5rem; text-align: center; font-family: 'Grenze Gotisch'; padding: 50px; }
+    </style>
+</head>
+<body>
+
+<a href="index.html" class="btn-back">⬅ TORNA AL PORTALE</a>
+
+<div class="archive-container">
+    <h1>ARCHIVIO DEGLI EROI</h1>
+
+    <div class="controls">
+        <div>
+            <label>Cerca:</label>
+            <input type="text" id="search-name" placeholder="Nome eroe..." oninput="filtraEroi()">
+        </div>
+        <div>
+            <label>Campagna:</label>
+            <select id="filter-campaign" onchange="filtraEroi()">
+                <option value="all">Tutte le cronache</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="loader">Caricamento negli Annali...</div>
+    <div class="hero-grid" id="hero-grid"></div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
+        authDomain: "drakonia-companion.firebaseapp.com",
+        projectId: "drakonia-companion",
+        storageBucket: "drakonia-companion.firebasestorage.app",
+        messagingSenderId: "803844500713",
+        appId: "1:803844500713:web:c902b67f4e395bd20c9478"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    let tuttiEroi = [];
+
+    function escHtml(str) {
+        return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            caricaArchivio(user);
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+
+    async function caricaArchivio(user) {
+        const grid = document.getElementById('hero-grid');
+        const loader = document.getElementById('loader');
+        const campaignFilter = document.getElementById('filter-campaign');
+        
+        try {
+            const userDoc = await db.collection("users").doc(user.uid).get();
+            const userData = userDoc.data() || {};
+            const role = userData.role || "Giocatore";
+
+            let query = db.collection("characters");
+
+            
+            // LOGICA DI ACCESSO
+            if (role === "Founder") {
+                // Vede tutto, nessuna restrizione
+            } else if (role === "Master") {
+                // Il Master vede i PG dove lui è indicato come master OPPURE i PG della sua campagna
+                // Per semplicità qui carichiamo i PG delle campagne in cui è presente come "creatore"
+                // O semplicemente carichiamo tutto e filtriamo se hai una lista di campagne gestite
+            } else {
+                // Giocatore: vede solo i propri
+                query = query.where("userId", "==", user.uid);
+            }
+
+            const snapshot = await query.get();
+            loader.style.display = 'none';
+
+            if (snapshot.empty) {
+                grid.innerHTML = "<p style='text-align:center; width:100%; grid-column: 1/-1;'>Nessun eroe ha ancora inciso il suo nome nel destino.</p>";
+                return;
+            }
+
+            tuttiEroi = [];
+            const campagneSet = new Set();
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const hero = { id: doc.id, ...data };
+                tuttiEroi.push(hero);
+                if (hero.campagna) campagneSet.add(hero.campagna);
+            });
+
+            // Popola menu campagne
+            campagneSet.forEach(c => {
+                campaignFilter.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+
+            renderEroi(tuttiEroi);
+
+        } catch (error) {
+            console.error(error);
+            loader.innerText = "Le nebbie impediscono la lettura degli annali...";
+        }
+    }
+
+    function renderEroi(lista) {
+        const grid = document.getElementById('hero-grid');
+        grid.innerHTML = "";
+
+        lista.forEach(hero => {
+            const ritrattoUrl = /^https:\/\//i.test(hero.ritratto || '') ? hero.ritratto : 'https://via.placeholder.com/200?text=Nessun+Ritratto';
+            const classeLabel = typeof hero.classe === 'object' && hero.classe !== null ? Object.keys(hero.classe).join(', ') : (hero.classe || 'Senza Classe');
+            const card = `
+                <div class="hero-card">
+                    <img src="${ritrattoUrl}" class="hero-img">
+                    <div class="hero-info">
+                        <h3>${escHtml(hero.nome)}</h3>
+                        <div class="hero-meta">di ${escHtml(hero.userName || 'Ignoto')}</div>
+                        <div class="badge-row">
+                            <span class="badge">${escHtml(classeLabel)}</span>
+                            <span class="badge">Lv. ${hero.livello || 1}</span>
+                            ${hero.campagna ? `<span class="badge campagna">${escHtml(hero.campagna)}</span>` : ''}
+                        </div>
+                        <a href="scheda-dettaglio.html?id=${encodeURIComponent(hero.id)}" class="btn-view">ESAMINA SCHEDA</a>
+                    </div>
+                </div>
+            `;
+            grid.innerHTML += card;
+        });
+    }
+
+    function filtraEroi() {
+        const search = document.getElementById('search-name').value.toLowerCase();
+        const campaign = document.getElementById('filter-campaign').value;
+
+        const filtrati = tuttiEroi.filter(hero => {
+            const matchNome = hero.nome.toLowerCase().includes(search);
+            const matchCampagna = (campaign === "all" || hero.campagna === campaign);
+            return matchNome && matchCampagna;
+        });
+
+        renderEroi(filtrati);
+    }
+</script>
+</body>
+</html>

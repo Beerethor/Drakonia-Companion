@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Drakonia - Evoluzione Eroe</title>
+    <link rel="icon" type="image/png" href="icon/icon_192x192.png">
+    <link rel="apple-touch-icon" href="icon/icon_192x192.png">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Grenze+Gotisch:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --gold: #b8860b; --leather: #2c1e11; --parchment: #f4e4bc; --blood: #8b0000; --dark: #120d08; }
+        body { background: var(--dark); color: var(--leather); font-family: 'Almendra', serif; margin: 0; padding: 10px; }
+
+        .sheet-container {
+            background: var(--parchment) url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            width: 100%; max-width: 500px; margin: auto; padding: 20px;
+            border: 8px solid transparent;
+            border-image: url('https://www.transparenttextures.com/patterns/dark-leather.png') 30 stretch;
+            box-sizing: border-box; box-shadow: 0 0 40px black;
+        }
+
+        h1 { font-family: 'Grenze Gotisch'; text-align: center; font-size: 2rem; margin: 0; color: var(--blood); border-bottom: 2px double var(--leather); }
+        .hero-name { text-align: center; font-family: 'Grenze Gotisch'; font-size: 1.4rem; margin-bottom: 20px; color: var(--leather); opacity: 0.8; }
+
+        .section-title { font-family: 'Grenze Gotisch'; font-size: 1.1rem; color: white; background: var(--leather); padding: 5px 15px; margin: 20px -20px 10px -20px; display: flex; justify-content: space-between; }
+
+        .card { background: rgba(0,0,0,0.04); padding: 15px; border-radius: 5px; border: 1px solid rgba(44, 30, 17, 0.2); margin-bottom: 10px; }
+
+        label { display: block; font-weight: bold; font-family: 'Grenze Gotisch'; margin-top: 10px; font-size: 0.9rem; }
+        
+        select, input, textarea { 
+            width: 100%; padding: 12px; margin-top: 5px; border: 1px solid var(--leather); 
+            background: white; font-family: 'Almendra'; font-size: 1rem; border-radius: 4px; box-sizing: border-box;
+        }
+
+        .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 10px 0; }
+        .stat-item { text-align: center; background: white; border: 1px solid var(--leather); padding: 5px; border-radius: 4px; }
+        .stat-label { font-size: 0.7rem; font-weight: bold; color: var(--blood); }
+        .stat-val { font-size: 1.3rem; font-weight: bold; }
+
+        .inv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .inv-grid input { padding: 10px 6px; font-size: 1rem; text-align: center; }
+
+        .btn-evolve {
+            background: var(--blood); color: white; border: 2px solid var(--gold);
+            padding: 20px; width: 100%; font-family: 'Grenze Gotisch';
+            font-size: 1.4rem; cursor: pointer; margin-top: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); transition: 0.3s;
+        }
+        .btn-evolve:disabled { background: #555; cursor: not-allowed; }
+
+        .preview-box { background: var(--leather); color: var(--gold); padding: 15px; border-radius: 4px; margin-top: 15px; display: none; font-size: 0.95rem; line-height: 1.4; border: 1px solid var(--gold); }
+        .highlight { color: #fff; font-weight: bold; border-bottom: 1px dashed var(--gold); }
+    </style>
+</head>
+<body>
+
+<div class="sheet-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <button onclick="window.history.back()" style="background: var(--leather); color: var(--gold); border: 1px solid var(--gold); padding: 5px 10px; font-family: 'Grenze Gotisch'; cursor: pointer; border-radius: 4px;">
+            ← Indietro
+        </button>
+        <span id="auth-status" style="font-family: 'Grenze Gotisch'; color: var(--blood); font-size: 0.8rem;">VERIFICA...</span>
+    </div>
+    
+    <h1>EVOLUZIONE</h1>
+    <div id="pg-nome" class="hero-name">In attesa degli spiriti...</div>
+
+    <div class="section-title"><span>POTENZIAMENTO</span> <span id="display-lv">Lv. ?</span></div>
+    <div class="card">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+            <div>
+                <label>VIA DA SEGUIRE</label>
+                <select id="sel-class" onchange="previewUpdate()">
+                    <option value="">Caricamento...</option>
+                </select>
+            </div>
+            <div>
+                <label>LIVELLI</label>
+                <input type="number" id="lv-qty" value="1" min="1" max="10" oninput="previewUpdate()">
+            </div>
+        </div>
+
+        <div id="preview-area" class="preview-box"></div>
+
+        <div id="stat-bonus-panel" style="display:none; background:#fff3cd; padding:10px; margin-top:10px; border:1px solid var(--gold); border-radius:4px;">
+            <label>✨ SELEZIONA AUMENTO STATISTICA</label>
+            <select id="stat-boost">
+                <option value="">-- Scegli quale migliorare --</option>
+                <option value="prd">Prodezza (PRD)</option>
+                <option value="int">Intelligenza (INT)</option>
+                <option value="rpd">Rapidità (RPD)</option>
+                <option value="pr">Resistenza (PR)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="section-title"><span>STATISTICHE & STORIA</span></div>
+    <div class="stat-row">
+        <div class="stat-item"><div class="stat-label">PRD</div><div id="cur-prd" class="stat-val">0</div></div>
+        <div class="stat-item"><div class="stat-label">INT</div><div id="cur-int" class="stat-val">0</div></div>
+        <div class="stat-item"><div class="stat-label">RPD</div><div id="cur-rpd" class="stat-val">0</div></div>
+        <div class="stat-item"><div class="stat-label">PR</div><div id="cur-pr" class="stat-val">0</div></div>
+    </div>
+    <textarea id="edit-storia" placeholder="Cronaca del tuo viaggio..." rows="3"></textarea>
+
+    <div class="section-title"><span>EQUIPAGGIAMENTO</span></div>
+    <div class="card">
+        <input type="text" id="edit-arma" placeholder="Arma">
+        <input type="text" id="edit-armatura" placeholder="Armatura">
+        <input type="text" id="edit-anello" placeholder="Accessorio">
+        <label>ZAINO (9 SLOT)</label>
+        <div class="inv-grid" id="zaino-slots"></div>
+        <label>POTERI E INCANTESIMI</label>
+        <textarea id="edit-poteri" placeholder="Abilità..." rows="3"></textarea>
+    </div>
+
+    <button class="btn-evolve" id="btn-save" onclick="confermaEvoluzione()" disabled>CARICAMENTO...</button>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCW7QYU-iMAln3hUrVHuoLJzEDoUEfLJnM",
+        authDomain: "drakonia-companion.firebaseapp.com",
+        projectId: "drakonia-companion",
+        storageBucket: "drakonia-companion.firebasestorage.app",
+        messagingSenderId: "803844500713",
+        appId: "1:803844500713:web:c902b67f4e395bd20c9478"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const charId = new URLSearchParams(window.location.search).get('id');
+    let pg = null; 
+
+    const ALBERO_CLASSI = {
+        "Guerriero": ["", "Casta dei Guerrieri", "Armature Pesanti", "Minaccioso", "Aumento Caratteristica", "Ambidestro 1", "Aumento Caratteristica", "Addestramento Marziale", "Aumento Caratteristica", "Ambidestro 3"],
+        "Truffatore": ["", "Furbizia Lesto", "Tecnica dell'Arco", "Virtuoso", "Tecnica del Pugnale", "Aumento Caratteristica", "Intrallazzo", "Aumento Caratteristica", "Aumento Caratteristica", "Velocità di Pensiero 3"],
+        "Saggio": ["", "Guarigione", "Tecnica del Bastone", "Leggere la Mente", "Vista Paranormale", "Aumento Caratteristica", "Aumento Caratteristica", "Immunità", "Aumento Caratteristica", "Esorcismo 3"],
+        "Stregone": ["", "Stregoneria 1", "Rituale 1", "Memoria Magica 1", "Stregoneria 2", "Aumento Caratteristica", "Trascrizione", "Aumento Caratteristica", "Aumento Caratteristica", "Stregoneria 4"],
+        "Druido": ["", "Magia Primordiale 1", "Tecnica della Natura", "Aumento Caratteristica", "Sintonia 1", "Aumento Caratteristica", "Sintonia 2", "Rituale 2", "Aumento Caratteristica", "Magia Primordiale 4"]
+    };
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            document.getElementById('auth-status').innerText = "EDITING ATTIVO";
+            await initPagina();
+        } else {
+            alert("Effettua il login per procedere.");
+            document.getElementById('auth-status').innerText = "NON LOGGATO";
+        }
+    });
+
+    async function initPagina() {
+        if(!charId) return alert("ID Mancante");
+        const container = document.getElementById('zaino-slots');
+        container.innerHTML = "";
+        for(let i=0; i<9; i++) container.innerHTML += `<input type="text" id="z-${i}" placeholder="Vuoto">`;
+
+        try {
+            const doc = await db.collection("characters").doc(charId).get();
+            if(!doc.exists) return alert("Eroe non trovato!");
+            pg = doc.data();
+            
+            if (typeof pg.classe !== 'object' || pg.classe === null) {
+                pg.mappaClassi = { [pg.classe || "Senza Classe"]: parseInt(pg.livello) || 1 };
+            } else {
+                pg.mappaClassi = pg.classe;
+            }
+
+            caricaDatiUI();
+            document.getElementById('btn-save').disabled = false;
+            document.getElementById('btn-save').innerText = "INCIDI PROGRESSI";
+        } catch(e) { console.error(e); }
+    }
+
+    function caricaDatiUI() {
+        document.getElementById('pg-nome').innerText = pg.nome || "Ignoto";
+        document.getElementById('display-lv').innerText = "Lv. " + (pg.livello || 1);
+        document.getElementById('edit-storia').value = pg.storia || "";
+        document.getElementById('edit-arma').value = pg.inventario?.arma || "";
+        document.getElementById('edit-armatura').value = pg.inventario?.armatura || "";
+        document.getElementById('edit-anello').value = pg.inventario?.anello || "";
+        document.getElementById('edit-poteri').value = pg.inventario?.incantesimi || "";
+        const s = pg.stats || {prd:0, int:0, rpd:0, pr:0};
+        document.getElementById('cur-prd').innerText = s.prd;
+        document.getElementById('cur-int').innerText = s.int;
+        document.getElementById('cur-rpd').innerText = s.rpd;
+        document.getElementById('cur-pr').innerText = s.pr;
+        if(pg.inventario?.zaino) {
+            pg.inventario.zaino.forEach((item, i) => { if(i<9) document.getElementById(`z-${i}`).value = item; });
+        }
+        const sel = document.getElementById('sel-class');
+        sel.innerHTML = '<option value="">-- Seleziona --</option>';
+        const gA = document.createElement('optgroup'); gA.label = "Vie attuali";
+        for(let c in pg.mappaClassi) gA.appendChild(new Option(`${c} (${pg.mappaClassi[c]})`, c));
+        sel.appendChild(gA);
+        const gN = document.createElement('optgroup'); gN.label = "Nuove Vie";
+        Object.keys(ALBERO_CLASSI).forEach(c => { if(!pg.mappaClassi[c]) gN.appendChild(new Option(c, c)); });
+        sel.appendChild(gN);
+    }
+
+    function previewUpdate() {
+        const cls = document.getElementById('sel-class').value;
+        const qty = parseInt(document.getElementById('lv-qty').value) || 0;
+        const box = document.getElementById('preview-area');
+        if(!cls || qty <= 0) { box.style.display = 'none'; return; }
+        let lvA = pg.mappaClassi[cls] || 0;
+        let lvF = lvA + qty;
+        let sblocchi = [];
+        let deveScegliereStat = false;
+        for(let i = lvA + 1; i <= lvF; i++) {
+            let ab = (ALBERO_CLASSI[cls] && ALBERO_CLASSI[cls][i]) ? ALBERO_CLASSI[cls][i] : "Miglioramento";
+            sblocchi.push(`Grado ${i}: ${ab}`);
+            if(ab.includes("Aumento")) deveScegliereStat = true;
+        }
+        box.innerHTML = `Evoluzione in <span class="highlight">${cls} Grado ${lvF}</span>.<br>• ` + sblocchi.join('<br>• ');
+        box.style.display = 'block';
+        document.getElementById('stat-bonus-panel').style.display = deveScegliereStat ? 'block' : 'none';
+    }
+
+    async function confermaEvoluzione() {
+        if(!pg) return;
+        const cls = document.getElementById('sel-class').value;
+        const qty = parseInt(document.getElementById('lv-qty').value) || 0;
+        const boost = document.getElementById('stat-boost').value;
+
+        let updateData = {
+            storia: document.getElementById('edit-storia').value,
+            "inventario.arma": document.getElementById('edit-arma').value,
+            "inventario.armatura": document.getElementById('edit-armatura').value,
+            "inventario.anello": document.getElementById('edit-anello').value,
+            "inventario.incantesimi": document.getElementById('edit-poteri').value,
+            "inventario.zaino": Array.from({length:9}, (_,i) => document.getElementById(`z-${i}`).value)
+        };
+
+        if(cls && qty > 0) {
+            let nuovaMappa = {...pg.mappaClassi};
+            nuovaMappa[cls] = (nuovaMappa[cls] || 0) + qty;
+            updateData.livello = (parseInt(pg.livello) || 1) + qty;
+            updateData.classe = nuovaMappa;
+            const ranghi = ["", "Novizio", "Viandante", "Esperto", "Veterano", "Campione", "Eroe", "Leggenda", "Semidio", "Eterno"];
+            updateData.rango = ranghi[Math.min(updateData.livello, 9)];
+            if(document.getElementById('stat-bonus-panel').style.display === 'block') {
+                if(!boost) return alert("Scegli la statistica!");
+                let nuoveStats = {...pg.stats};
+                nuoveStats[boost] = (parseInt(nuoveStats[boost]) || 0) + 1;
+                updateData.stats = nuoveStats;
+            }
+        }
+
+        try {
+            document.getElementById('btn-save').innerText = "INCIDENDO...";
+            document.getElementById('btn-save').disabled = true;
+            await db.collection("characters").doc(charId).update(updateData);
+            
+            // Reindirizzamento immediato all'archivio
+            window.location.href = `archivio-pg.html`;
+        } catch(e) { 
+            alert("Errore salvataggio!"); 
+            document.getElementById('btn-save').innerText = "INCIDI PROGRESSI";
+            document.getElementById('btn-save').disabled = false;
+        }
+    }
+</script>
+</body>
+</html>
